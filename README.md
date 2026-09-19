@@ -12,6 +12,8 @@ keys, no custody.
 - Paper order entry: market and limit orders, validation, estimated total and fees
 - Open orders, order history, cancel, and limit fills when the live price crosses
 - Portfolio: cash balance, positions, average entry, market value, unrealized P/L
+- Paper funds: USDT cash deposits/withdrawals plus simulated crypto transfers (BTC, ETH, SOL and
+  EVM assets) with network and address input, recorded in a transaction ledger
 - Light and dark theme (light default)
 
 ## Stack
@@ -54,9 +56,11 @@ columns via security-definer RPCs (`place_order`, `fill_order`, `cancel_order`).
 cannot update balances or insert orders directly — RLS blocks it. The frontend only sends exact,
 validated payloads and uses decimal.js for estimates and display.
 
-Paper fills use the client-observed market price; server-side checks enforce ownership, order
-state, limit-price invariants and non-negative balances. Real exchange execution is out of scope
-and would require a separate signing service.
+Paper fills and crypto deposits use the client-observed market price; server-side checks enforce
+ownership, order state, limit-price invariants, address formats and non-negative balances. Crypto
+deposits/withdrawals are simulated only: addresses are public strings validated per network and
+never used for signing. Real on-chain movement and exchange execution are out of scope and would
+require a separate custody/signing service.
 
 Market data tries `api.binance.com` / `stream.binance.com` first and automatically falls back to
 `data-api.binance.vision` / `data-stream.binance.vision` when blocked.

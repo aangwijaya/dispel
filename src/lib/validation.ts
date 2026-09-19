@@ -66,6 +66,20 @@ export function parseSymbol(raw: string, markets: Market[]): Parsed<string> {
   return { ok: true, value }
 }
 
+export function parseFundsAmount(raw: string): Parsed<string> {
+  const value = raw.trim()
+  if (value === '') return { ok: false, error: 'Amount is required.' }
+  if (!DECIMAL_PATTERN.test(value)) {
+    return { ok: false, error: 'Amount must be a plain positive number.' }
+  }
+  const decimals = value.includes('.') ? (value.split('.')[1]?.length ?? 0) : 0
+  if (decimals > 2) return { ok: false, error: 'Amount supports at most 2 decimal places.' }
+  const numeric = dec(value)
+  if (numeric.lt(1)) return { ok: false, error: 'Minimum amount is 1 USDT.' }
+  if (numeric.gt(1000000)) return { ok: false, error: 'Maximum amount is 1,000,000 USDT.' }
+  return { ok: true, value: numeric.toFixed(2) }
+}
+
 export function checkMinNotional(
   referencePrice: string,
   quantity: string,

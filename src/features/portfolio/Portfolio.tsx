@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { add, dec, mul, percentChange, sub } from '../../lib/decimal'
 import { formatPrice, formatQuantity, formatSigned } from '../../lib/market/format'
 import { marketDisplayName } from '../../lib/markets'
@@ -6,25 +7,28 @@ import type { PaperTrading } from '../trading/usePaperTrading'
 
 interface PortfolioProps {
   paper: PaperTrading
+  onOpenActivity: () => void
 }
 
 interface SummaryCardProps {
   label: string
   value: string
   tone?: 'default' | 'up' | 'down'
+  action?: ReactNode
 }
 
-function SummaryCard({ label, value, tone = 'default' }: SummaryCardProps) {
+function SummaryCard({ label, value, tone = 'default', action }: SummaryCardProps) {
   const toneClass = tone === 'up' ? 'text-buy' : tone === 'down' ? 'text-sell' : 'text-ink'
   return (
     <div className="rounded-card border border-edge bg-panel p-4">
       <p className="text-micro uppercase tracking-wide text-faint">{label}</p>
       <p className={`mt-1 text-heading-lg font-semibold tabular-nums ${toneClass}`}>{value}</p>
+      {action ? <div className="mt-2">{action}</div> : null}
     </div>
   )
 }
 
-export function Portfolio({ paper }: PortfolioProps) {
+export function Portfolio({ paper, onOpenActivity }: PortfolioProps) {
   const tickers = useTickers(paper.positions.map((position) => position.symbol))
 
   let positionsValue = '0'
@@ -58,6 +62,15 @@ export function Portfolio({ paper }: PortfolioProps) {
         <SummaryCard
           label="Cash balance"
           value={cash !== null ? `${formatPrice(cash, 2)} USDT` : '—'}
+          action={
+            <button
+              type="button"
+              onClick={onOpenActivity}
+              className="h-6 rounded-pill border border-edge px-2.5 text-micro font-medium text-body hover:bg-inset hover:text-ink"
+            >
+              Deposit / withdraw
+            </button>
+          }
         />
         <SummaryCard
           label="Positions value"

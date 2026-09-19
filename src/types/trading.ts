@@ -22,6 +22,19 @@ export interface PaperAccount {
   cashBalance: string
 }
 
+export type TransactionKind = 'deposit' | 'withdraw'
+
+export interface Transaction {
+  id: string
+  kind: TransactionKind
+  asset: string
+  amount: string
+  balanceAfter: string
+  network: string | null
+  address: string | null
+  createdAt: string
+}
+
 export interface Position {
   symbol: string
   quantity: string

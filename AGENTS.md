@@ -39,6 +39,8 @@ Always finish a change with `npm run typecheck`, `npm test` and `npm run build`.
 - RLS is the security boundary. New user-owned tables need policies in a migration. Balance /
   position / order writes must go through security-definer RPCs, never direct table writes.
 - Do not add custom Tauri commands unless native functionality is genuinely required.
+- Crypto transfers are simulated paper movements. Accept public addresses only, validate them by
+  network family in `src/lib/networks.ts`, and never add private keys, seed phrases or signing.
 
 ## Layout
 
@@ -52,10 +54,13 @@ src/
                   OrderEntry, TradingWorkspace, useTickers, usePaperTrading
     orders/       BottomPanel (open orders + history)
     portfolio/    Portfolio
+    activity/     Activity (paper funds deposit/withdraw + ledger)
   lib/
     market/       binance.ts (REST + sanitizers), stream.ts (single shared WS), format.ts
-    orders.ts     RPC wrappers + DB row mappers
+    orders.ts     order RPC wrappers + DB row mappers
+    transactions.ts ledger queries + adjust_paper_funds wrapper
     validation.ts input parsers
+    networks.ts   crypto transfer assets/networks + address validators
     decimal.ts    decimal.js helpers
     supabase.ts   single client, env validation
     errors.ts     friendly error mapping
@@ -85,5 +90,7 @@ src-tauri/             Tauri scaffold (no commands)
 - Unit tests cover sanitizers, validation, decimal math and AddressDisplay.
 - For DB changes, verify with SQL against a scratch user and roll back (see prior integration
   pattern in git history): market/limit fills, fees, weighted average, realized P/L, insufficient
-  balance/position rejection, RLS blocking direct balance updates and direct order inserts.
+  balance/position rejection, funds deposit/withdraw and ledger rows, crypto transfer position
+  math (weighted average, insufficient position, address/network validation), RLS blocking direct
+  balance, position, order and ledger writes.
 - Update README.md when user-facing behavior or setup steps change.

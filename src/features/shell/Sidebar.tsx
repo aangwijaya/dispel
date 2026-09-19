@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 
-export type Page = 'trade' | 'portfolio'
+export type Page = 'trade' | 'portfolio' | 'activity'
 
 interface SidebarProps {
   page: Page
@@ -26,9 +26,18 @@ function PortfolioIcon() {
   )
 }
 
+function ActivityIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.4">
+      <path d="M8 2v12M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5" />
+    </svg>
+  )
+}
+
 const NAV_ITEMS: Array<{ id: Page; label: string; icon: () => ReactElement }> = [
   { id: 'trade', label: 'Trade', icon: TradeIcon },
   { id: 'portfolio', label: 'Portfolio', icon: PortfolioIcon },
+  { id: 'activity', label: 'Activity', icon: ActivityIcon },
 ]
 
 export function Sidebar({ page, onNavigate }: SidebarProps) {

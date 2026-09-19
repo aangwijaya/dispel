@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { checkMinNotional, parseEmail, parseOrderSide, parsePassword, parsePrice, parseQuantity, parseSymbol } from './validation'
+import {
+  checkMinNotional,
+  parseEmail,
+  parseFundsAmount,
+  parseOrderSide,
+  parsePassword,
+  parsePrice,
+  parseQuantity,
+  parseSymbol,
+} from './validation'
 import { MARKETS } from './markets'
 
 const BTC = MARKETS[0]
@@ -59,6 +68,23 @@ describe('parseSymbol', () => {
     expect(parseSymbol('btcusdt', MARKETS)).toEqual({ ok: true, value: 'BTCUSDT' })
     expect(parseSymbol('FAKECOIN', MARKETS).ok).toBe(false)
     expect(parseSymbol('', MARKETS).ok).toBe(false)
+  })
+})
+
+describe('parseFundsAmount', () => {
+  it('normalizes to two decimals', () => {
+    expect(parseFundsAmount(' 100 ')).toEqual({ ok: true, value: '100.00' })
+    expect(parseFundsAmount('99.5')).toEqual({ ok: true, value: '99.50' })
+    expect(parseFundsAmount('1000000')).toEqual({ ok: true, value: '1000000.00' })
+  })
+
+  it('rejects malformed and out-of-range amounts', () => {
+    expect(parseFundsAmount('').ok).toBe(false)
+    expect(parseFundsAmount('abc').ok).toBe(false)
+    expect(parseFundsAmount('-5').ok).toBe(false)
+    expect(parseFundsAmount('0.99').ok).toBe(false)
+    expect(parseFundsAmount('1.001').ok).toBe(false)
+    expect(parseFundsAmount('1000000.01').ok).toBe(false)
   })
 })
 

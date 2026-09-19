@@ -19,14 +19,16 @@ scanning; light theme default with a dark theme toggle.
 - Order entry: market and limit, buy/sell, estimated total and fees, strict validation
 - Paper orders: instant market fills, limit fills when the live price crosses, cancel
 - Open orders / order history; portfolio with cash, positions, average entry, unrealized P/L
+- Paper fund deposits/withdrawals with a transaction ledger and an Activity page
+- Simulated crypto transfers (BTC, ETH, SOL and EVM assets) with network + address input,
+  per-network address validation and highlighted address display
 - AddressDisplay component (first-4/last-4 highlight rule)
 - Light + dark themes; compact density; tabular numerals
 
 ### Deferred
 
-- Real order execution (requires a separate signing/execution service)
-- Deposits/withdrawals/activity ledger, transactions, wallets
-- Multiple portfolios/accounts, settings page, alerts/notifications, auto-update
+- Real order execution and real on-chain transfers (both require a separate custody/signing service)
+- Multi-asset cash balances, multiple portfolios/accounts, settings, alerts/notifications, auto-update
 - OAuth, order matching beyond the simple limit-cross rule
 
 ## Architecture
@@ -67,6 +69,7 @@ Five migrations in `supabase/migrations` (init, watchlist, paper trading). All m
 | `paper_positions` | Holdings: quantity, avg entry, realized P/L; PK `(user_id, symbol)` | Select own only; writes via RPC |
 | `orders` | Market/limit orders: status, limit price, fill price, fee, timestamps | Select own only; writes via RPC |
 | `watchlist_items` | Single watchlist per user; unique `(user_id, symbol)` | Full CRUD scoped to `auth.uid()` |
+| `transactions` | Paper fund ledger: kind, asset, amount, balance after, network/address for crypto, timestamp | Select own only; writes via RPC |
 
 RPCs:
 
@@ -74,6 +77,13 @@ RPCs:
   shape and invariants; market orders fill immediately with a 0.1% fee; limit orders stored open.
 - `fill_order(p_order_id, p_fill_price)` — settles owned open limit orders; enforces crossing.
 - `cancel_order(p_order_id)` — cancels owned open orders.
+- `adjust_paper_funds(p_kind, p_amount)` — validates 1..1,000,000 USDT deposits/withdrawals,
+  enforces sufficient cash, updates the balance and writes the ledger row atomically.
+- `transfer_paper_crypto(p_symbol, p_asset, p_kind, p_quantity, p_network, p_address,
+  p_reference_price)` — simulated crypto deposit/withdraw: validates asset/symbol consistency,
+  quantity bounds, network/address shape and reference price; deposits upsert the position at a
+  weighted average using the live reference price, withdrawals reduce it without touching average
+  entry; writes the ledger row with the resulting position quantity.
 - `settle_order_fill(...)` — internal settlement (cash, position, weighted average, realized P/L).
 
 ## Domain types
@@ -92,7 +102,7 @@ RPCs:
 | Recent trades | Binance WS `@aggTrade`, capped at 50 |
 | Chart candles | REST klines on load/timeframe change + `@kline_<tf>` for the live candle |
 | Watchlist | Supabase query + optimistic writes, no realtime |
-| Orders / portfolio / profile | Supabase queries + refetch after RPC, no realtime |
+| Orders / portfolio / activity ledger | Supabase queries + refetch after RPC, no realtime |
 
 No polling. Supabase Realtime is deferred until it has a concrete use (real execution or
 multi-window sync).
@@ -129,7 +139,9 @@ App
     │       ├── TradingChart (candles + volume + timeframes)
     │       ├── BottomPanel (Open Orders | Order History)
     │       └── aside: OrderEntry, OrderBook, RecentTrades
-    └── Portfolio (summary cards + positions table)
+    ├── Portfolio (summary cards + positions table, link to fund management)
+    └── Activity (USDT cash + simulated crypto transfers, transaction ledger with
+        address highlighting)
 ```
 
 Themes follow DESIGN.md tokens (light default) with a dark variant from the same palette and
@@ -146,6 +158,8 @@ semantic up/down/accent tokens. Compact density for data tables.
 | 4 — Orders | Migration 0003 + RPCs, order entry, fill checker, bottom panel | Done |
 | 5 — Portfolio | Balances, positions, live valuation, P/L | Done |
 | 6 — Hardening | Unit tests, CSP, error/empty states, build verification | Done |
+| 7 — Activity & funds | Migration 0004 (`transactions` + `adjust_paper_funds`), Activity page | Done |
+| 8 — Crypto transfers | Migration 0005 (`transfer_paper_crypto`, transfer details on the ledger), asset/network config + address validation, Activity crypto form | Done |
 
 ## Verification performed
 
@@ -154,6 +168,13 @@ semantic up/down/accent tokens. Compact density for data tables.
 - Database integration run against a scratch user with rollback: seed balance, market fill, fee,
   weighted average, realized P/L, insufficient balance/position, limit open/fill/cancel,
   limit-not-crossed, RLS blocking direct balance update and direct order insert — 22/22 passed.
+- Funds integration run with rollback: deposit/withdraw ledger rows, balance_after, insufficient
+  balance, amount and kind bounds, RLS blocking direct balance update and direct ledger insert —
+  15/15 passed.
+- Crypto transfer integration run with rollback: deposit cost basis, weighted average across
+  deposits, withdrawal keeping average entry, cash untouched, insufficient position, asset/symbol
+  mismatch, address/network shape, missing reference price, ledger rows, cash rows still
+  `USDT`, RLS blocking direct position updates and ledger inserts — 20/20 passed.
 - Tauri WebKitGTK probe: chart renders (canvas sized, live data, zero JS errors).
 
 ## Pending / follow-ups

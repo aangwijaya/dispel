@@ -6,6 +6,7 @@ import { Sidebar, type Page } from './Sidebar'
 import { TopBar } from './TopBar'
 import { TradingWorkspace } from '../trading/TradingWorkspace'
 import { Portfolio } from '../portfolio/Portfolio'
+import { Activity } from '../activity/Activity'
 import { usePaperTrading } from '../trading/usePaperTrading'
 
 interface AppShellProps {
@@ -39,7 +40,7 @@ export function AppShell({ userId, email }: AppShellProps) {
       <Sidebar page={page} onNavigate={setPage} />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
-          title={page === 'trade' ? market.displayName : 'Portfolio'}
+          title={page === 'trade' ? market.displayName : page === 'portfolio' ? 'Portfolio' : 'Activity'}
           theme={theme}
           onToggleTheme={toggleTheme}
           email={email}
@@ -54,8 +55,10 @@ export function AppShell({ userId, email }: AppShellProps) {
               onSelectSymbol={setSelectedSymbol}
               paper={paper}
             />
+          ) : page === 'portfolio' ? (
+            <Portfolio paper={paper} onOpenActivity={() => setPage('activity')} />
           ) : (
-            <Portfolio paper={paper} />
+            <Activity paper={paper} />
           )}
         </main>
       </div>
