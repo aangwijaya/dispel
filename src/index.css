@@ -1,0 +1,135 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
+
+  --color-cream-canvas: #fbfaf9;
+  --color-stone-surface: #f2f0ed;
+  --color-ink-black: #121212;
+  --color-heading-charcoal: #343433;
+  --color-body-brown: #474645;
+  --color-muted-gray: #7e7e7d;
+  --color-stone-border: #e5d5c3;
+  --color-link-blue: #0086fc;
+  --color-grass-green: #00c978;
+  --color-ember-orange: #ff3e00;
+  --color-alert-red: #ff2b3a;
+  --color-gold: #d48f00;
+  --color-honey: #ffbb26;
+
+  --text-micro: 10px;
+  --text-caption: 11px;
+  --text-body: 12px;
+  --text-subheading: 13px;
+  --text-heading: 15px;
+  --text-heading-lg: 20px;
+
+  --radius-card: 10px;
+  --radius-pill: 9999px;
+}
+
+:root {
+  color-scheme: light;
+
+  --surface-canvas: #fbfaf9;
+  --surface-panel: #ffffff;
+  --surface-inset: #f2f0ed;
+  --surface-sand: #f6f4ef;
+
+  --ink-heading: #121212;
+  --ink-body: #474645;
+  --ink-faint: #7e7e7d;
+
+  --line-hairline: #f2f0ed;
+  --line-edge: #e6e2dd;
+
+  --buy: #00a35f;
+  --sell: #e01b2b;
+  --accent: #ff3e00;
+  --link: #0086fc;
+  --warn: #d48f00;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --surface-canvas: #121212;
+  --surface-panel: #0a0a0a;
+  --surface-inset: #1b1b1a;
+  --surface-sand: #1f1f1e;
+
+  --ink-heading: #fbfaf9;
+  --ink-body: #c9c8c6;
+  --ink-faint: #7e7e7d;
+
+  --line-hairline: #1f1f1e;
+  --line-edge: #2c2c2a;
+
+  --buy: #00c978;
+  --sell: #ff4d59;
+  --accent: #ff6a3d;
+  --link: #64c6ff;
+  --warn: #ffbb26;
+}
+
+@theme inline {
+  --color-canvas: var(--surface-canvas);
+  --color-panel: var(--surface-panel);
+  --color-inset: var(--surface-inset);
+  --color-sand: var(--surface-sand);
+
+  --color-ink: var(--ink-heading);
+  --color-body: var(--ink-body);
+  --color-faint: var(--ink-faint);
+
+  --color-hairline: var(--line-hairline);
+  --color-edge: var(--line-edge);
+
+  --color-buy: var(--buy);
+  --color-sell: var(--sell);
+  --color-accent: var(--accent);
+  --color-link: var(--link);
+  --color-warn: var(--warn);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-body font-sans antialiased;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-edge) transparent;
+  }
+
+  input,
+  select,
+  button,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+}
+
+@utility focus-ring {
+  @apply outline-none ring-1 ring-accent/70;
+}

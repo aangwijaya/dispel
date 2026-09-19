@@ -1,0 +1,29 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# environment
+.env
+.env.*
+!.env.example
+
+# rust / tauri
+src-tauri/target
+src-tauri/gen/schemas
+
+# supabase cli
+supabase/.temp
+
+# editors / os
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*:Zone.Identifier
+
+# local agent tooling
+.agents
+.claude
+.hermes
+skills-lock.json
