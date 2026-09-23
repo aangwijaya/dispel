@@ -45,7 +45,7 @@ export function Sidebar({ page, onNavigate }: SidebarProps) {
     <aside className="flex w-44 shrink-0 flex-col border-r border-edge bg-panel">
       <div className="flex h-11 items-center gap-2 border-b border-edge px-4">
         <span className="h-2.5 w-2.5 rounded-full bg-accent" />
-        <span className="text-caption font-semibold tracking-tight text-ink">Swift Trade</span>
+        <span className="text-caption font-semibold tracking-tight text-ink">Dispel</span>
       </div>
       <nav className="flex flex-col gap-0.5 p-2" aria-label="Main navigation">
         {NAV_ITEMS.map((item) => {

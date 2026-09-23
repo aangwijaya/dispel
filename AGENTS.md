@@ -4,7 +4,7 @@ Instructions for coding agents working in this repository. Read this before maki
 
 ## Project
 
-Swift Trade — desktop paper-trading terminal for crypto spot markets. Live public market data
+Dispel — desktop paper-trading terminal for crypto spot markets. Live public market data
 from Binance, simulated orders and balances stored in Supabase. No real funds, no exchange API
 keys, no custody.
 
@@ -72,8 +72,8 @@ src-tauri/             Tauri scaffold (no commands)
 
 ## Gotchas
 
-- `src-tauri/Cargo.toml` names the lib `swift_trade_lib`; `src-tauri/src/main.rs` must call
-  `swift_trade_lib::run()`.
+- `src-tauri/Cargo.toml` names the lib `dispel_lib`; `src-tauri/src/main.rs` must call
+  `dispel_lib::run()`.
 - `lightweight-charts` must keep `localization: { locale: 'en-US' }` — with `LANG=C.UTF-8`
   WebKitGTK passes an invalid locale tag and the chart render loop throws `RangeError`.
 - `src/lib/market/stream.ts` is the only place that opens WebSockets. Subscribe through
@@ -84,6 +84,27 @@ src-tauri/             Tauri scaffold (no commands)
 - Rotate frontend data through the public anon/publishable key only. `.env` is gitignored;
   `.env.example` documents required variables.
 - No backward-compatibility shims, polyfills or legacy support. Target modern Windows WebView2.
+
+## Loop Engineering
+
+Default workflow for every task:
+
+```text
+Understand -> Define goal -> Define scope -> Inspect relevant code
+-> Make the smallest necessary change -> Verify
+        |-- fail --> inspect the root cause -> fix -> verify again
+        |-- pass --> review the final diff -> stop
+```
+
+- Every task has a clear goal; keep scope limited to the requested feature or bug.
+- Inspect existing code first and reuse existing patterns; do not refactor unrelated working code.
+- Prefer the smallest necessary change and re-run verification after each fix.
+- If the same issue persists after 5 repair iterations, stop and report the blocker instead of
+  making broader speculative changes.
+- Never make verification pass by disabling tests, weakening assertions, suppressing errors,
+  using `any`, removing validation or adding fake fallback behavior. Fix the actual issue.
+- Review the final diff, remove unrelated changes, and stop once the goal is achieved and
+  verification passes.
 
 ## Verification
 

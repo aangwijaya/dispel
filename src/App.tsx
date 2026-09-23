@@ -8,7 +8,7 @@ function BootScreen() {
   return (
     <div className="flex h-full items-center justify-center bg-canvas">
       <div className="text-center">
-        <p className="text-heading font-semibold tracking-tight text-ink">Swift Trade</p>
+        <p className="text-heading font-semibold tracking-tight text-ink">Dispel</p>
         <p className="mt-1 text-caption text-faint">Connecting…</p>
       </div>
     </div>

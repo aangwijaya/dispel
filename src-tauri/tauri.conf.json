@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Swift Trade",
+  "productName": "Dispel",
   "version": "0.1.0",
   "identifier": "com.swifttrade.desktop",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Swift Trade",
+        "title": "Dispel",
         "width": 1440,
         "height": 900,
         "minWidth": 1120,
