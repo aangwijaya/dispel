@@ -1,4 +1,4 @@
-# Swift Trade
+# Dispel
 
 A desktop paper-trading terminal for crypto spot markets. Live market data from Binance public
 endpoints, simulated orders and balances persisted in Supabase. No real funds, no exchange API

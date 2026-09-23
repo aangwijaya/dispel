@@ -67,7 +67,7 @@ export function LoginForm() {
     <div className="flex h-full items-center justify-center bg-canvas px-6">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <h1 className="text-heading-lg font-semibold tracking-tight text-ink">Swift Trade</h1>
+          <h1 className="text-heading-lg font-semibold tracking-tight text-ink">Dispel</h1>
           <p className="mt-1 text-caption text-faint">Paper trading terminal</p>
         </div>
 

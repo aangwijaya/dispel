@@ -1,6 +1,6 @@
 # PLAN.md
 
-Implementation plan for Swift Trade. Status: MVP implemented; this document records the scope,
+Implementation plan for Dispel. Status: MVP implemented; this document records the scope,
 architecture and the phase breakdown used to build it.
 
 ## Goal
