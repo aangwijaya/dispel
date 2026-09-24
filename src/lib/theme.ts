@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark'
 
-const STORAGE_KEY = 'swift-trade-theme'
+const STORAGE_KEY = 'dispel-theme'
 
 export function getStoredTheme(): Theme {
   try {
