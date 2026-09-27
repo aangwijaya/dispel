@@ -6,18 +6,16 @@ import { RecentTrades } from './RecentTrades'
 import { OrderEntry } from './OrderEntry'
 import { BottomPanel } from '../orders/BottomPanel'
 import type { Market } from '../../types/market'
-import type { Theme } from '../../lib/theme'
 import type { PaperTrading } from './usePaperTrading'
 
 interface TradingWorkspaceProps {
   userId: string
   market: Market
-  theme: Theme
   onSelectSymbol: (symbol: string) => void
   paper: PaperTrading
 }
 
-export function TradingWorkspace({ userId, market, theme, onSelectSymbol, paper }: TradingWorkspaceProps) {
+export function TradingWorkspace({ userId, market, onSelectSymbol, paper }: TradingWorkspaceProps) {
   return (
     <div className="flex min-h-0 min-w-0 flex-1">
       <MarketList userId={userId} selectedSymbol={market.symbol} onSelect={onSelectSymbol} />
@@ -27,7 +25,7 @@ export function TradingWorkspace({ userId, market, theme, onSelectSymbol, paper 
 
         <div className="flex min-h-0 flex-1">
           <div className="flex min-w-0 flex-1 flex-col">
-            <TradingChart market={market} theme={theme} />
+            <TradingChart market={market} />
             <BottomPanel paper={paper} />
           </div>
 

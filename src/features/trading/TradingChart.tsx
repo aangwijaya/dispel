@@ -10,32 +10,21 @@ import {
 import { fetchKlines } from '../../lib/market/binance'
 import { subscribeKline } from '../../lib/market/stream'
 import { TIMEFRAMES, type Market, type Timeframe } from '../../types/market'
-import type { Theme } from '../../lib/theme'
 
 interface TradingChartProps {
   market: Market
-  theme: Theme
 }
 
-const LIGHT_COLORS = {
-  text: '#474645',
-  grid: '#f2f0ed',
-  up: '#00a35f',
-  down: '#e01b2b',
-  upVolume: 'rgba(0,163,95,0.30)',
-  downVolume: 'rgba(224,27,43,0.30)',
+const COLORS = {
+  text: '#6a6b6c',
+  grid: 'rgba(255,255,255,0.04)',
+  up: '#59d499',
+  down: '#f0506e',
+  upVolume: 'rgba(89,212,153,0.28)',
+  downVolume: 'rgba(240,80,110,0.28)',
 }
 
-const DARK_COLORS = {
-  text: '#c9c8c6',
-  grid: '#1f1f1e',
-  up: '#00c978',
-  down: '#ff4d59',
-  upVolume: 'rgba(0,201,120,0.30)',
-  downVolume: 'rgba(255,77,89,0.30)',
-}
-
-export function TradingChart({ market, theme }: TradingChartProps) {
+export function TradingChart({ market }: TradingChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -49,7 +38,7 @@ export function TradingChart({ market, theme }: TradingChartProps) {
     const container = containerRef.current
     if (!container) return
 
-    const colors = theme === 'dark' ? DARK_COLORS : LIGHT_COLORS
+    const colors = COLORS
     const chart = createChart(container, {
       width: container.clientWidth,
       height: container.clientHeight,
@@ -102,7 +91,7 @@ export function TradingChart({ market, theme }: TradingChartProps) {
       candleRef.current = null
       volumeRef.current = null
     }
-  }, [theme])
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -116,7 +105,7 @@ export function TradingChart({ market, theme }: TradingChartProps) {
         const volumeSeries = volumeRef.current
         if (!candleSeries || !volumeSeries) return
 
-        const colors = theme === 'dark' ? DARK_COLORS : LIGHT_COLORS
+        const colors = COLORS
         candleSeries.setData(
           candles.map((candle) => ({
             time: candle.time as UTCTimestamp,
@@ -145,10 +134,10 @@ export function TradingChart({ market, theme }: TradingChartProps) {
     return () => {
       cancelled = true
     }
-  }, [market.symbol, timeframe, theme, reloadKey])
+  }, [market.symbol, timeframe, reloadKey])
 
   useEffect(() => {
-    const colors = theme === 'dark' ? DARK_COLORS : LIGHT_COLORS
+    const colors = COLORS
     return subscribeKline(market.symbol, timeframe, (candle) => {
       const candleSeries = candleRef.current
       const volumeSeries = volumeRef.current
@@ -168,7 +157,7 @@ export function TradingChart({ market, theme }: TradingChartProps) {
         color: candle.close >= candle.open ? colors.upVolume : colors.downVolume,
       })
     })
-  }, [market.symbol, timeframe, theme])
+  }, [market.symbol, timeframe])
 
   return (
     <section className="flex min-h-0 flex-1 flex-col border-b border-edge bg-panel">
