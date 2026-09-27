@@ -169,7 +169,7 @@ export function sanitizeKline(raw: unknown): { candle: Candle; closed: boolean }
   }
 }
 
-function sanitizeKlineRow(raw: unknown): Candle | null {
+export function sanitizeKlineRow(raw: unknown): Candle | null {
   if (!Array.isArray(raw) || raw.length < 6) return null
   const time = toFiniteNumber(raw[0])
   const open = toFiniteNumber(raw[1])
