@@ -2,15 +2,18 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { dec } from '../../lib/decimal'
 import { formatPrice, formatQuantity } from '../../lib/market/format'
 import { getMarket, marketDisplayName } from '../../lib/markets'
-import { DEMO_READ, TONE_COLOR, setupForSymbol } from '../../lib/read/demo'
+import { TONE_COLOR } from '../../lib/read/demo'
+import { setupForSymbol } from '../../lib/read/lookup'
 import { fetchTransactions } from '../../lib/transactions'
 import type { Transaction } from '../../types/trading'
+import type { MarketRead } from '../../types/read'
 import type { PaperTrading } from '../trading/usePaperTrading'
 import { useTickers } from '../trading/useTickers'
 import { EquityChart, type EquityRange } from './EquityChart'
 
 interface PortfolioProps {
   paper: PaperTrading
+  read: MarketRead
   onOpenActivity: () => void
   onOpenTrade: (symbol: string) => void
 }
@@ -35,14 +38,14 @@ function money(value: string | number, digits = 2): string {
   return numeric.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
 
-function levelValue(symbol: string): number | null {
-  const setup = setupForSymbol(symbol)
+function levelValue(read: MarketRead, symbol: string): number | null {
+  const setup = setupForSymbol(read, symbol)
   if (!setup) return null
   const value = Number.parseFloat(setup.invalidation.value.replace(/,/g, ''))
   return Number.isFinite(value) ? value : null
 }
 
-export function Portfolio({ paper, onOpenActivity, onOpenTrade }: PortfolioProps) {
+export function Portfolio({ paper, read, onOpenActivity, onOpenTrade }: PortfolioProps) {
   const [range, setRange] = useState<EquityRange>('all')
   const [period, setPeriod] = useState<'today' | '7d'>('7d')
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -105,7 +108,7 @@ export function Portfolio({ paper, onOpenActivity, onOpenTrade }: PortfolioProps
     const cost = dec(position.quantity).mul(position.avgEntryPrice)
     const pnl = value.minus(cost)
     const pnlPct = cost.isZero() ? dec(0) : pnl.div(cost).mul(100)
-    const level = levelValue(position.symbol)
+    const level = levelValue(read, position.symbol)
     const cushion = level === null || dec(mark).isZero() ? null : dec(mark).minus(level).div(mark).mul(100)
     return { position, market, mark, value, cost, pnl, pnlPct, level, cushion }
   })
@@ -337,7 +340,7 @@ export function Portfolio({ paper, onOpenActivity, onOpenTrade }: PortfolioProps
                 </thead>
                 <tbody>
                   {rows.map((row) => {
-                    const tag = DEMO_READ.tags[row.position.symbol.replace('USDT', '')] ?? {
+                    const tag = read.tags[row.position.symbol.replace('USDT', '')] ?? {
                       label: '—',
                       tone: 'neutral' as const,
                     }

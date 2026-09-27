@@ -23,6 +23,8 @@ const NOW = 14.53
 interface MarketReadPanelProps {
   read: MarketRead
   firstLaunch: boolean
+  stale: boolean
+  staleMinutes: number
   whyOpen: boolean
   onToggleWhy: () => void
 }
@@ -35,7 +37,7 @@ function WarningIcon() {
   )
 }
 
-export function MarketReadPanel({ read, firstLaunch, whyOpen, onToggleWhy }: MarketReadPanelProps) {
+export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpen, onToggleWhy }: MarketReadPanelProps) {
   const style = {
     '--stance': STANCE_COLOR[read.stance],
     '--vtint': VERDICT_TINT[read.stance],
@@ -62,11 +64,11 @@ export function MarketReadPanel({ read, firstLaunch, whyOpen, onToggleWhy }: Mar
           <div className="read-meta">
             <span className="sdot" aria-hidden="true" />
             <span className="eyebrow">Market read</span>
-            <span className="mono">
-              {read.time} · {read.coverage}
+            <span className={`mono ${stale ? 'caution' : ''}`}>
+              {stale ? `last read ${staleMinutes}m ago · ${read.coverage}` : `${read.time} · ${read.coverage}`}
             </span>
           </div>
-          <h2 key={read.stance} className="verdict enter">
+          <h2 key={read.stance} className={`verdict enter ${stale ? 'stale' : ''}`}>
             {read.verdict}
           </h2>
           <p className="stance">

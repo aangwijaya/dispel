@@ -1,7 +1,7 @@
 import type { Candle, Market, Ticker } from '../../../../src/types/market.ts'
-import type { MarketRead } from '../../../../src/types/read.ts'
+import type { MarketRead, ReadPayload } from '../../../../src/types/read.ts'
 
-export type { Candle, Market, MarketRead, Ticker }
+export type { Candle, Market, MarketRead, ReadPayload, Ticker }
 export type {
   ChangeEvent,
   Confidence,
@@ -126,8 +126,6 @@ export interface ComposeInput {
   mapped: MappedRead
   previousReads: PreviousReadSummary[]
 }
-
-export type ReadPayload = Omit<MarketRead, 'exposure' | 'since'>
 
 export const REGIME_KEYS: RegimeKey[] = ['risk_off', 'cautious', 'neutral', 'constructive', 'risk_on']
 export const STANCE_KEYS: StanceKey[] = ['favorable', 'wait', 'unclear', 'reduce_risk']

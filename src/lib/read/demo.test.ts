@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEMO_READS, DEMO_READ, oddsTexture, regimeAt, series, setupForSymbol } from './demo'
+import { DEMO_READS, DEMO_READ, oddsTexture, regimeAt, series } from './demo'
 import type { Stance } from '../../types/read'
 
 const STANCES: Stance[] = ['favorable', 'wait', 'unclear', 'reduce-risk']
@@ -37,12 +37,6 @@ describe('demo read layer', () => {
       expect(read.caution.length).toBeGreaterThan(0)
       expect(read.evidence).toHaveLength(6)
     }
-  })
-
-  it('finds a context setup for the demo symbols', () => {
-    expect(setupForSymbol('SOLUSDT')?.monogram).toBe('SOL')
-    expect(setupForSymbol('ETHUSDT')).not.toBeNull()
-    expect(setupForSymbol('NOTREALUSDT')).toBeNull()
   })
 
   it('generates deterministic series that end on the last anchor', () => {

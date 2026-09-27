@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { DEMO_READ } from '../../lib/read/demo'
+import type { MarketRead, SinceRow } from '../../types/read'
 import type { PaperTrading } from '../trading/usePaperTrading'
 import { useWatchlist } from '../trading/useWatchlist'
 import { MarketReadPanel } from './MarketReadPanel'
@@ -12,6 +12,11 @@ interface HomeProps {
   userId: string
   selectedSymbol: string
   paper: PaperTrading
+  read: MarketRead
+  since: SinceRow[] | null
+  seenAt: string | null
+  stale: boolean
+  staleMinutes: number
   firstLaunch: boolean
   onDismissWelcome: () => void
   onOpenChart: (symbol: string) => void
@@ -24,6 +29,11 @@ export function Home({
   userId,
   selectedSymbol,
   paper,
+  read,
+  since,
+  seenAt,
+  stale,
+  staleMinutes,
   firstLaunch,
   onDismissWelcome,
   onOpenChart,
@@ -31,7 +41,6 @@ export function Home({
   onOpenPortfolio,
   onOpenActivity,
 }: HomeProps) {
-  const read = DEMO_READ
   const watch = useWatchlist(userId)
   const [whyOpen, setWhyOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -109,7 +118,14 @@ export function Home({
         </div>
       ) : null}
 
-      <MarketReadPanel read={read} firstLaunch={firstLaunch} whyOpen={whyOpen} onToggleWhy={() => setWhyOpen((open) => !open)} />
+      <MarketReadPanel
+        read={read}
+        firstLaunch={firstLaunch}
+        stale={stale}
+        staleMinutes={staleMinutes}
+        whyOpen={whyOpen}
+        onToggleWhy={() => setWhyOpen((open) => !open)}
+      />
 
       <div className="row2">
         <SetupsPanel
@@ -120,7 +136,7 @@ export function Home({
           onToggleWatch={(symbol) => void toggleWatch(symbol)}
           onReviewPortfolio={onOpenPortfolio}
         />
-        <ChangesPanel read={read} firstLaunch={firstLaunch} />
+        <ChangesPanel read={read} since={since} seenAt={seenAt} />
       </div>
 
       <Floor
