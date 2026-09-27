@@ -85,9 +85,11 @@ supabase secrets set TYPESAFE_API_KEY=<key> READ_CRON_SECRET=$(openssl rand -hex
 #    contains a secret (run in the SQL editor):
 #    select vault.create_secret('<the same READ_CRON_SECRET value>', 'read_cron_secret');
 #    select vault.create_secret('https://<project-ref>.supabase.co/functions/v1/market-read', 'market_read_url');
-# 4. Apply migrations, then deploy the function:
+#    select public.schedule_market_reads();  -- idempotent; schedules after the extensions exist
+# 4. Apply migrations, then deploy the function. The function authenticates with the
+#    x-cron-secret header (not a Supabase JWT), so it deploys with --no-verify-jwt:
 supabase db push
-supabase functions deploy market-read
+supabase functions deploy market-read --no-verify-jwt
 ```
 
 The migration schedules `market-read` every 15 minutes and a retention sweep daily (rows older than

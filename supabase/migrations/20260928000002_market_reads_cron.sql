@@ -1,10 +1,18 @@
 -- Schedules the market-read function and the retention sweep.
--- No secret or project URL lives in this file: the job body reads both from Vault at run time.
+-- No secret or project URL lives in this file: the jobs read both from Vault at run time.
+--
 -- Human setup (README): enable pg_cron + pg_net, then create the Vault secrets
--- market_read_url and read_cron_secret. Without them this migration still applies,
--- it just does not schedule the market read and says so.
+-- market_read_url and read_cron_secret, then run:
+--   select public.schedule_market_reads();
+-- The migration calls the same function, so a fresh project with everything already in place
+-- schedules itself; otherwise it logs a notice and can be re-run any time.
 
-do $do$
+create or replace function public.schedule_market_reads()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $do$
 declare
   v_has_cron boolean := exists (select 1 from pg_extension where extname = 'pg_cron');
   v_has_net boolean := exists (select 1 from pg_extension where extname = 'pg_net');
@@ -61,3 +69,8 @@ begin
   );
 end
 $do$;
+
+revoke all on function public.schedule_market_reads() from public;
+grant execute on function public.schedule_market_reads() to service_role;
+
+select public.schedule_market_reads();
