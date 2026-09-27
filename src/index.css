@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './styles/home.css';
 @import './styles/trade.css';
+@import './styles/portfolio.css';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Dispel design system — DESIGN.md Part B4.

@@ -43,12 +43,18 @@ const META: Record<Page, MetaStrip> = {
     ],
   },
   portfolio: {
-    pipes: ['Binance public data', 'Paper trading'],
-    keys: [{ k: '↵', label: 'open trade' }],
+    pipes: ['Marks from Binance public prices', 'Settles on every fill', 'Paper trading'],
+    keys: [
+      { k: 'T', label: 'trade selected' },
+      { k: 'D', label: 'deposit' },
+    ],
   },
   activity: {
-    pipes: ['Binance public data', 'Simulated transfers', 'Paper trading'],
-    keys: [],
+    pipes: ['Simulated transfers', 'Address checked per network', 'Paper trading'],
+    keys: [
+      { k: '↵', label: 'confirm' },
+      { k: 'Esc', label: 'clear' },
+    ],
   },
 }
 
@@ -120,7 +126,7 @@ export function AppShell({ userId, email }: AppShellProps) {
               paper={paper}
             />
           ) : page === 'portfolio' ? (
-            <Portfolio paper={paper} onOpenActivity={() => setPage('activity')} />
+            <Portfolio paper={paper} onOpenActivity={() => setPage('activity')} onOpenTrade={openChart} />
           ) : (
             <Activity paper={paper} />
           )}
