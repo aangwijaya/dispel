@@ -21,6 +21,7 @@ const MOVES = [
 const DEMO_DEPOSITED = MOVES.reduce((total, move) => total + move.value, 0)
 
 function formatAxis(value: number): string {
+  if (Math.abs(value) < 0.5) return '0'
   if (Math.abs(value) >= 1000) return Math.round(value).toLocaleString('en-US')
   return value.toFixed(0)
 }
@@ -51,8 +52,9 @@ export function EquityChart({ equity, netDeposited, range }: EquityChartProps) {
 
   const series = useMemo(() => {
     const random = rng(77)
-    const scale = netDeposited > 0 ? netDeposited / DEMO_DEPOSITED : 1
+    const scale = DEMO_DEPOSITED === 0 ? 0 : netDeposited / DEMO_DEPOSITED
     const target = equity - netDeposited
+    const energy = Math.abs(target) < 1 ? 0 : 1
     let pnl = 0
     const equityPoints: number[] = []
     const basePoints: number[] = []
@@ -61,8 +63,8 @@ export function EquityChart({ equity, netDeposited, range }: EquityChartProps) {
       const t = hour / HOURS
       const shape =
         target * (0.55 * t + 0.45 * Math.sin(t * Math.PI * 1.15) * t) -
-        120 * Math.sin(t * Math.PI * 2.2) * (1 - t) * 0.6
-      pnl = pnl * 0.82 + (random() - 0.5) * 38
+        120 * Math.sin(t * Math.PI * 2.2) * (1 - t) * 0.6 * energy
+      pnl = pnl * 0.82 + (random() - 0.5) * 38 * energy
       basePoints.push(base)
       equityPoints.push(hour === HOURS ? equity : base + shape + pnl)
     }
@@ -114,7 +116,8 @@ export function EquityChart({ equity, netDeposited, range }: EquityChartProps) {
     return { value, gridY, clash }
   })
 
-  const labelStep = count <= 25 ? 6 : count <= 73 ? 12 : 24
+  const labelStep =
+    plotWidth < 400 ? Math.max(Math.ceil(count / 4), 1) : count <= 25 ? 6 : count <= 73 ? 12 : 24
   const xLabels: Array<{ index: number; text: string }> = []
   for (let index = 0; index < count; index += labelStep) {
     const date = new Date(START + (offset + index) * 3_600_000)

@@ -247,6 +247,7 @@ kbd {
   grid-template-columns: 188px minmax(0, 1fr);
   background: transparent;
   isolation: isolate;
+  overflow: hidden;
 }
 
 .ambient {
@@ -782,7 +783,9 @@ kbd {
   }
 }
 
-@container app (max-width: 720px) {
+/* Below 720 the sidebar gives way to the bottom tab bar. The .app grid itself
+   cannot be styled from a query on its own container, so this switch is media-based. */
+@media (max-width: 720px) {
   .app {
     grid-template-columns: minmax(0, 1fr);
   }

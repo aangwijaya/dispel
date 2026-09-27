@@ -2,7 +2,7 @@
 
 .eq-panel {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
 }
 
 .eq-grid {

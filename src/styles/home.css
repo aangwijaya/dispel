@@ -3,7 +3,7 @@
 /* Welcome (first launch) — the one brand-tinted surface */
 .welcome {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -96,7 +96,7 @@
 /* 1 · Market read */
 .read-panel {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   isolation: isolate;
   background: rgba(7, 8, 10, 0.82);
 }

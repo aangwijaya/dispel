@@ -281,7 +281,7 @@ export function Portfolio({ paper, onOpenActivity, onOpenTrade }: PortfolioProps
             <div className="fig">
               <span className="k">Fees paid</span>
               <span className="v" style={{ color: '#9c9c9d' }}>
-                −{money(fees.toFixed(2))}
+                {fees.isZero() ? '0.00' : `−${money(fees.toFixed(2))}`}
                 <small className="smoke">0.10% per fill</small>
               </span>
             </div>

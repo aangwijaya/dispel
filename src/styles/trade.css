@@ -18,10 +18,6 @@
   .ws {
     grid-template-columns: minmax(0, 1fr) 300px;
   }
-
-  .mk {
-    display: none;
-  }
 }
 
 @container app (max-width: 900px) {
@@ -40,6 +36,12 @@
 .mk {
   display: flex;
   flex-direction: column;
+}
+
+@container app (max-width: 1240px) {
+  .mk {
+    display: none;
+  }
 }
 
 .mk-open {

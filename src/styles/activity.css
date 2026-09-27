@@ -14,7 +14,7 @@
 
 .cash {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   isolation: isolate;
   padding: 20px 24px 18px;
   display: flex;
