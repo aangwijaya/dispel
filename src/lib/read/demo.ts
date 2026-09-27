@@ -493,10 +493,10 @@ export const DEMO_READS: Record<Stance, MarketRead> = {
 export const DEMO_READ = FAVORABLE
 
 export function setupForSymbol(symbol: string): Setup | null {
-  const base = symbol.split('/')[0]
+  const base = symbol.includes('/') ? (symbol.split('/')[0] ?? symbol) : symbol.replace(/USDT$/, '')
   for (const read of Object.values(DEMO_READS)) {
     const match = [...read.setups, ...read.forming, ...read.exposure].find(
-      (item) => item.symbol.split('/')[0] === base,
+      (item) => (item.symbol.split('/')[0] ?? item.symbol) === base,
     )
     if (match) {
       if ('status' in match) {
