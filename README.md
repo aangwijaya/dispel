@@ -7,14 +7,24 @@ keys, no custody.
 ## Features
 
 - Email/password auth with session restore
+- **Home** — market read, market regime, setups and changes. The read itself is demo design data
+  (marked by the `Demo data` badge in the top bar); prices and account figures are real
+- **Dark-only design system** (`DESIGN.md`): sidebar + top bar shell, coral brand mark, Inter +
+  Geist Mono, panels on a void canvas with the soft keycap edge
+- **Responsive**: 1440 desktop window, web, iPad, down to a 390px mobile layout (bottom tab bar,
+  stacked panels, search overlay for markets)
 - Live market list and watchlist (Binance REST + WebSocket, no API key)
-- Candlestick chart with volume and timeframes, order book, recent trades
-- Paper order entry: market and limit orders, validation, estimated total and fees
+- Candlestick chart with volume, OHLC readout, setup levels as dashed price lines, order book and
+  recent trades in one Book/Trades panel
+- Paper order entry: market and limit orders, validation, estimated total and fees, percent chips,
+  Buy/Sell keyboard keys
 - Open orders, order history, cancel, and limit fills when the live price crosses
-- Portfolio: cash balance, positions, average entry, market value, unrealized P/L
-- Paper funds: USDT cash deposits/withdrawals plus simulated crypto transfers (BTC, ETH, SOL and
-  EVM assets) with network and address input, recorded in a transaction ledger
-- Light and dark theme (light default)
+- Portfolio: equity drawn against **net deposited**, positions with a cushion to their setup level,
+  allocation, closed trades and open orders
+- Paper funds: USDT cash deposits/withdrawals plus simulated crypto transfers (BTC, ETH, SOL and EVM
+  assets) with network and address input, recorded in a transaction ledger grouped by day
+- Key guard: a 12/24-word seed phrase or 64-hex private key typed into an address field is cleared,
+  never stored, and replaced with a danger notice
 
 ## Stack
 
@@ -49,12 +59,23 @@ sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
 | `npm run build` | Typecheck + production frontend build |
 | `npm test` | Unit tests (vitest) |
 
+## Data notes
+
+- The market read, regime, setups and changes on Home are **demo design data** until an
+  intelligence engine exists. They are always shown with the `Demo data` badge and are replaced by
+  an offline state when the market stream is down.
+- The 7-day equity and allocation history on Portfolio is demo design data; the current figures
+  (equity, cash, positions, P/L, fees, net deposited) are real.
+- Realized P/L is tracked per market in Postgres (`paper_positions.realized_pnl`). The closed-trades
+  table lists real filled sells and shows a market's total realized P/L once its position is flat.
+
 ## How money works
 
 All balance, position, average-entry and realized-P/L math runs inside Postgres `numeric`
-columns via security-definer RPCs (`place_order`, `fill_order`, `cancel_order`). The client
-cannot update balances or insert orders directly — RLS blocks it. The frontend only sends exact,
-validated payloads and uses decimal.js for estimates and display.
+columns via security-definer RPCs (`place_order`, `fill_order`, `cancel_order`,
+`adjust_paper_funds`, `transfer_paper_crypto`). The client cannot update balances or insert orders
+directly — RLS blocks it. The frontend only sends exact, validated payloads and uses decimal.js for
+estimates and display.
 
 Paper fills and crypto deposits use the client-observed market price; server-side checks enforce
 ownership, order state, limit-price invariants, address formats and non-negative balances. Crypto
@@ -64,3 +85,9 @@ require a separate custody/signing service.
 
 Market data tries `api.binance.com` / `stream.binance.com` first and automatically falls back to
 `data-api.binance.vision` / `data-stream.binance.vision` when blocked.
+
+## Design
+
+`DESIGN.md` is the source of truth; `design/` holds the reference mocks and the Candle Light
+artwork. The theme is dark only (light mode was retired with the refactor). The Tauri window can be
+resized down to 720×600; below 720px (web/mobile) the sidebar becomes a bottom tab bar.
