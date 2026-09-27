@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 import {
   CandlestickSeries,
   HistogramSeries,
+  LineStyle,
   createChart,
   type IChartApi,
+  type IPriceLine,
   type ISeriesApi,
   type UTCTimestamp,
 } from 'lightweight-charts'
 import { fetchKlines } from '../../lib/market/binance'
 import { subscribeKline } from '../../lib/market/stream'
+import { setupForSymbol } from '../../lib/read/demo'
 import { TIMEFRAMES, type Market, type Timeframe } from '../../types/market'
 
 interface TradingChartProps {
@@ -24,47 +27,61 @@ const COLORS = {
   downVolume: 'rgba(240,80,110,0.28)',
 }
 
+interface Ohlc {
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
 export function TradingChart({ market }: TradingChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
   const volumeRef = useRef<ISeriesApi<'Histogram'> | null>(null)
+  const priceLinesRef = useRef<IPriceLine[]>([])
+  const lastCandleRef = useRef<Ohlc | null>(null)
+
   const [timeframe, setTimeframe] = useState<Timeframe>('15m')
+  const [volumeOn, setVolumeOn] = useState(true)
+  const [levelsOn, setLevelsOn] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [ohlc, setOhlc] = useState<Ohlc | null>(null)
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    const colors = COLORS
     const chart = createChart(container, {
       width: container.clientWidth,
       height: container.clientHeight,
       localization: { locale: 'en-US' },
       layout: {
         background: { color: 'transparent' },
-        textColor: colors.text,
+        textColor: COLORS.text,
         fontSize: 11,
-        fontFamily: "'Inter Variable', Inter, sans-serif",
+        fontFamily: "'Geist Mono Variable', 'Geist Mono', monospace",
       },
       grid: {
-        vertLines: { color: colors.grid },
-        horzLines: { color: colors.grid },
+        vertLines: { color: COLORS.grid },
+        horzLines: { color: COLORS.grid },
       },
-      rightPriceScale: { borderColor: colors.grid },
-      timeScale: { borderColor: colors.grid, timeVisible: true, secondsVisible: false },
+      rightPriceScale: { borderColor: 'rgba(255,255,255,0.04)' },
+      timeScale: { borderColor: 'rgba(255,255,255,0.04)', timeVisible: true, secondsVisible: false },
       crosshair: { mode: 0 },
     })
 
     const candles = chart.addSeries(CandlestickSeries, {
-      upColor: colors.up,
-      downColor: colors.down,
-      borderUpColor: colors.up,
-      borderDownColor: colors.down,
-      wickUpColor: colors.up,
-      wickDownColor: colors.down,
+      upColor: COLORS.up,
+      downColor: COLORS.down,
+      borderUpColor: COLORS.up,
+      borderDownColor: COLORS.down,
+      wickUpColor: COLORS.up,
+      wickDownColor: COLORS.down,
+      priceLineStyle: LineStyle.Dashed,
+      priceLineColor: '#9c9c9d',
     })
 
     const volume = chart.addSeries(HistogramSeries, {
@@ -73,7 +90,16 @@ export function TradingChart({ market }: TradingChartProps) {
       lastValueVisible: false,
       priceLineVisible: false,
     })
-    chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } })
+    chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } })
+
+    chart.subscribeCrosshairMove((param) => {
+      const data = param.seriesData.get(candles) as Ohlc | undefined
+      if (data && 'open' in data) {
+        setOhlc({ open: data.open, high: data.high, low: data.low, close: data.close })
+      } else if (lastCandleRef.current) {
+        setOhlc(lastCandleRef.current)
+      }
+    })
 
     chartRef.current = chart
     candleRef.current = candles
@@ -90,6 +116,7 @@ export function TradingChart({ market }: TradingChartProps) {
       chartRef.current = null
       candleRef.current = null
       volumeRef.current = null
+      priceLinesRef.current = []
     }
   }, [])
 
@@ -105,7 +132,6 @@ export function TradingChart({ market }: TradingChartProps) {
         const volumeSeries = volumeRef.current
         if (!candleSeries || !volumeSeries) return
 
-        const colors = COLORS
         candleSeries.setData(
           candles.map((candle) => ({
             time: candle.time as UTCTimestamp,
@@ -119,9 +145,14 @@ export function TradingChart({ market }: TradingChartProps) {
           candles.map((candle) => ({
             time: candle.time as UTCTimestamp,
             value: candle.volume,
-            color: candle.close >= candle.open ? colors.upVolume : colors.downVolume,
+            color: candle.close >= candle.open ? COLORS.upVolume : COLORS.downVolume,
           })),
         )
+        const last = candles[candles.length - 1]
+        if (last) {
+          lastCandleRef.current = { open: last.open, high: last.high, low: last.low, close: last.close }
+          setOhlc(lastCandleRef.current)
+        }
         chartRef.current?.timeScale().fitContent()
       })
       .catch((cause) => {
@@ -137,7 +168,6 @@ export function TradingChart({ market }: TradingChartProps) {
   }, [market.symbol, timeframe, reloadKey])
 
   useEffect(() => {
-    const colors = COLORS
     return subscribeKline(market.symbol, timeframe, (candle) => {
       const candleSeries = candleRef.current
       const volumeSeries = volumeRef.current
@@ -154,42 +184,132 @@ export function TradingChart({ market }: TradingChartProps) {
       volumeSeries.update({
         time,
         value: candle.volume,
-        color: candle.close >= candle.open ? colors.upVolume : colors.downVolume,
+        color: candle.close >= candle.open ? COLORS.upVolume : COLORS.downVolume,
       })
+      lastCandleRef.current = { open: candle.open, high: candle.high, low: candle.low, close: candle.close }
+      setOhlc(lastCandleRef.current)
     })
   }, [market.symbol, timeframe])
 
-  return (
-    <section className="flex min-h-0 flex-1 flex-col border-b border-edge bg-panel">
-      <div className="flex h-8 shrink-0 items-center gap-0.5 border-b border-hairline px-2">
-        {TIMEFRAMES.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setTimeframe(item)}
-            className={`h-6 rounded-md px-2 text-micro font-medium transition-colors ${
-              item === timeframe ? 'bg-inset text-ink' : 'text-faint hover:text-ink'
-            }`}
-          >
-            {item}
-          </button>
-        ))}
-        <span className="ml-auto text-micro text-faint">{market.displayName} · Binance spot</span>
-      </div>
+  useEffect(() => {
+    const candleSeries = candleRef.current
+    if (!candleSeries) return
 
-      <div className="relative min-h-0 flex-1">
-        <div ref={containerRef} className="absolute inset-0" />
-        {loading ? (
-          <div className="absolute left-3 top-2 text-micro text-faint">Loading chart…</div>
-        ) : null}
-        {error ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-panel/80">
-            <p className="text-caption text-sell">{error}</p>
+    for (const line of priceLinesRef.current) {
+      candleSeries.removePriceLine(line)
+    }
+    priceLinesRef.current = []
+
+    if (!levelsOn) return
+    const setup = setupForSymbol(market.symbol)
+    if (!setup) return
+
+    const invalidation = Number.parseFloat(setup.invalidation.value.replace(/,/g, ''))
+    const target = Number.parseFloat(setup.target.value.replace(/,/g, ''))
+    if (Number.isFinite(invalidation)) {
+      priceLinesRef.current.push(
+        candleSeries.createPriceLine({
+          price: invalidation,
+          color: COLORS.down,
+          lineWidth: 1,
+          lineStyle: LineStyle.Dashed,
+          axisLabelVisible: true,
+          title: 'Invalid',
+        }),
+      )
+    }
+    if (Number.isFinite(target)) {
+      priceLinesRef.current.push(
+        candleSeries.createPriceLine({
+          price: target,
+          color: '#6a6b6c',
+          lineWidth: 1,
+          lineStyle: LineStyle.Dashed,
+          axisLabelVisible: true,
+          title: 'Target',
+        }),
+      )
+    }
+  }, [levelsOn, market.symbol])
+
+  useEffect(() => {
+    volumeRef.current?.applyOptions({ visible: volumeOn })
+  }, [volumeOn])
+
+  useEffect(() => {
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.target instanceof HTMLElement && event.target.closest('input, textarea, [contenteditable]')) return
+      if ((event.key === 'l' || event.key === 'L') && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        setLevelsOn((on) => !on)
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  const precision = market.pricePrecision
+
+  return (
+    <section className="panel chart-p" aria-label="Price chart">
+      <div className="ch-bar">
+        <div className="tf" role="group" aria-label="Timeframe">
+          {TIMEFRAMES.map((item) => (
             <button
+              key={item}
               type="button"
-              onClick={() => setReloadKey((key) => key + 1)}
-              className="h-7 rounded-pill border border-edge px-3 text-caption font-medium text-body hover:bg-inset hover:text-ink"
+              aria-pressed={item === timeframe}
+              onClick={() => setTimeframe(item)}
             >
+              {item}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="toggle"
+            aria-pressed={levelsOn}
+            onClick={() => setLevelsOn((on) => !on)}
+          >
+            <i />
+            Setup levels
+          </button>
+          <button
+            type="button"
+            className="toggle"
+            aria-pressed={volumeOn}
+            onClick={() => setVolumeOn((on) => !on)}
+          >
+            <i />
+            Volume
+          </button>
+        </div>
+      </div>
+      <div className="chart">
+        <div className="ohlc">
+          {ohlc ? (
+            <>
+              <span>
+                O<b>{ohlc.open.toFixed(precision)}</b>
+              </span>
+              <span>
+                H<b>{ohlc.high.toFixed(precision)}</b>
+              </span>
+              <span>
+                L<b>{ohlc.low.toFixed(precision)}</b>
+              </span>
+              <span>
+                C<b>{ohlc.close.toFixed(precision)}</b>
+              </span>
+            </>
+          ) : null}
+        </div>
+        <div ref={containerRef} className="chart-host" />
+        {loading ? <div className="chart-state">Loading chart…</div> : null}
+        {error ? (
+          <div className="chart-error">
+            <p>{error}</p>
+            <button type="button" className="btn2" onClick={() => setReloadKey((key) => key + 1)}>
               Retry
             </button>
           </div>
