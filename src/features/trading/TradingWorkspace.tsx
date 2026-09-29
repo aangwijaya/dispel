@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { setupForSymbol } from '../../lib/read/demo'
+import { setupForSymbol } from '../../lib/read/lookup'
 import { MarketsPanel } from './MarketsPanel'
 import { MarketHeader } from './MarketHeader'
 import { SetupStrip } from './SetupStrip'
@@ -9,20 +9,22 @@ import { OrderEntry } from './OrderEntry'
 import { BottomPanel } from '../orders/BottomPanel'
 import { useWatchlist } from './useWatchlist'
 import type { Market } from '../../types/market'
+import type { MarketRead } from '../../types/read'
 import type { PaperTrading } from './usePaperTrading'
 
 interface TradingWorkspaceProps {
   userId: string
   market: Market
+  read: MarketRead
   onSelectSymbol: (symbol: string) => void
   paper: PaperTrading
 }
 
-export function TradingWorkspace({ userId, market, onSelectSymbol, paper }: TradingWorkspaceProps) {
+export function TradingWorkspace({ userId, market, read, onSelectSymbol, paper }: TradingWorkspaceProps) {
   const watch = useWatchlist(userId)
   const [searchOpen, setSearchOpen] = useState(false)
   const [ctxHidden, setCtxHidden] = useState(false)
-  const setup = setupForSymbol(market.symbol)
+  const setup = setupForSymbol(read, market.symbol)
 
   useEffect(() => {
     setCtxHidden(false)
@@ -49,6 +51,7 @@ export function TradingWorkspace({ userId, market, onSelectSymbol, paper }: Trad
     <div className="ws">
       <MarketsPanel
         symbols={watch.symbols}
+        tags={read.tags}
         selectedSymbol={market.symbol}
         overlay={false}
         onSelect={onSelectSymbol}
@@ -65,7 +68,7 @@ export function TradingWorkspace({ userId, market, onSelectSymbol, paper }: Trad
           />
           {setup && !ctxHidden ? <SetupStrip setup={setup} onHide={() => setCtxHidden(true)} /> : null}
         </section>
-        <TradingChart market={market} />
+        <TradingChart market={market} setup={setup} />
         <BottomPanel paper={paper} />
       </div>
 
@@ -77,6 +80,7 @@ export function TradingWorkspace({ userId, market, onSelectSymbol, paper }: Trad
       {searchOpen ? (
         <MarketsPanel
           symbols={watch.symbols}
+          tags={read.tags}
           selectedSymbol={market.symbol}
           overlay
           onSelect={onSelectSymbol}

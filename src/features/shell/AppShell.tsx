@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { MARKETS, DEFAULT_SYMBOL, getMarket } from '../../lib/markets'
 import { supabase } from '../../lib/supabase'
-import { AURA_ART, DEMO_READ, changeSummary } from '../../lib/read/demo'
+import { AURA_ART } from '../../lib/read/demo'
+import { changedCount } from '../../lib/read/diff'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { BottomNav } from './BottomNav'
@@ -10,7 +11,9 @@ import { TradingWorkspace } from '../trading/TradingWorkspace'
 import { Portfolio } from '../portfolio/Portfolio'
 import { Activity } from '../activity/Activity'
 import { Home } from '../home/Home'
+import { useMarketRead } from '../home/useMarketRead'
 import { usePaperTrading } from '../trading/usePaperTrading'
+import { useTickers } from '../trading/useTickers'
 
 interface AppShellProps {
   userId: string
@@ -24,38 +27,57 @@ interface MetaStrip {
 
 const WELCOME_KEY = 'dispel-welcome-dismissed'
 
-const META: Record<Page, MetaStrip> = {
-  home: {
-    pipes: ['Binance public data', `Read ${DEMO_READ.time}`, 'Next 14:47', 'Paper trading'],
-    keys: [
-      { k: '↑↓', label: 'setup' },
-      { k: '↵', label: 'open chart' },
-      { k: 'E', label: 'why' },
-    ],
-  },
-  trade: {
-    pipes: ['Binance public data', 'Stream live', 'Paper trading'],
-    keys: [
-      { k: '/', label: 'search' },
-      { k: 'B', label: 'buy' },
-      { k: 'S', label: 'sell' },
-      { k: 'L', label: 'levels' },
-    ],
-  },
-  portfolio: {
-    pipes: ['Marks from Binance public prices', 'Settles on every fill', 'Paper trading'],
-    keys: [
-      { k: 'T', label: 'trade selected' },
-      { k: 'D', label: 'deposit' },
-    ],
-  },
-  activity: {
+function clockFromIso(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return '—'
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${hours}:${minutes} UTC`
+}
+
+function metaFor(page: Page, readAt: string | null): MetaStrip {
+  if (page === 'home') {
+    const readLabel = readAt === null ? 'Read pending' : `Read ${clockFromIso(readAt)}`
+    const nextLabel =
+      readAt === null
+        ? 'Next on schedule'
+        : `Next ${clockFromIso(new Date(Date.parse(readAt) + 15 * 60_000).toISOString())}`
+    return {
+      pipes: ['Binance public data', readLabel, nextLabel, 'Paper trading'],
+      keys: [
+        { k: '↑↓', label: 'setup' },
+        { k: '↵', label: 'open chart' },
+        { k: 'E', label: 'why' },
+      ],
+    }
+  }
+  if (page === 'trade') {
+    return {
+      pipes: ['Binance public data', 'Stream live', 'Paper trading'],
+      keys: [
+        { k: '/', label: 'search' },
+        { k: 'B', label: 'buy' },
+        { k: 'S', label: 'sell' },
+        { k: 'L', label: 'levels' },
+      ],
+    }
+  }
+  if (page === 'portfolio') {
+    return {
+      pipes: ['Marks from Binance public prices', 'Settles on every fill', 'Paper trading'],
+      keys: [
+        { k: 'T', label: 'trade selected' },
+        { k: 'D', label: 'deposit' },
+      ],
+    }
+  }
+  return {
     pipes: ['Simulated transfers', 'Address checked per network', 'Paper trading'],
     keys: [
       { k: '↵', label: 'confirm' },
       { k: 'Esc', label: 'clear' },
     ],
-  },
+  }
 }
 
 export function AppShell({ userId, email }: AppShellProps) {
@@ -69,13 +91,17 @@ export function AppShell({ userId, email }: AppShellProps) {
     }
   })
   const paper = usePaperTrading(true)
+  const tickers = useTickers(paper.positions.map((position) => position.symbol))
+  const marks = useMemo(
+    () => Object.fromEntries(Object.entries(tickers).map(([symbol, ticker]) => [symbol, ticker.lastPrice])),
+    [tickers],
+  )
+  const marketRead = useMarketRead({ positions: paper.positions, marks })
 
   const market = getMarket(selectedSymbol) ?? MARKETS[0]
   if (!market) {
     throw new Error('No markets configured')
   }
-
-  const changeCount = firstLaunch ? 0 : changeSummary(DEMO_READ).count
 
   function signOut() {
     void supabase.auth.signOut()
@@ -97,20 +123,26 @@ export function AppShell({ userId, email }: AppShellProps) {
 
   const title =
     page === 'home' ? 'Home' : page === 'trade' ? market.displayName : page === 'portfolio' ? 'Portfolio' : 'Activity'
-  const meta = META[page]
+  const meta = metaFor(page, marketRead.readAt)
+  const changeCount = marketRead.since === null ? 0 : changedCount(marketRead.since)
 
   return (
     <div className="app">
-      <img className="ambient" src={AURA_ART[DEMO_READ.stance]} alt="" aria-hidden="true" />
+      <img className="ambient" src={AURA_ART[marketRead.read.stance]} alt="" aria-hidden="true" />
       <Sidebar page={page} changeCount={changeCount} onNavigate={setPage} />
       <div className="mainwrap">
-        <TopBar title={title} email={email} demo onSignOut={signOut} />
+        <TopBar title={title} email={email} demo={marketRead.source === 'demo'} onSignOut={signOut} />
         <main className="main">
           {page === 'home' ? (
             <Home
               userId={userId}
               selectedSymbol={selectedSymbol}
               paper={paper}
+              read={marketRead.read}
+              since={marketRead.since}
+              seenAt={marketRead.seenAt}
+              stale={marketRead.stale}
+              staleMinutes={marketRead.staleMinutes}
               firstLaunch={firstLaunch}
               onDismissWelcome={dismissWelcome}
               onOpenChart={openChart}
@@ -122,11 +154,12 @@ export function AppShell({ userId, email }: AppShellProps) {
             <TradingWorkspace
               userId={userId}
               market={market}
+              read={marketRead.read}
               onSelectSymbol={setSelectedSymbol}
               paper={paper}
             />
           ) : page === 'portfolio' ? (
-            <Portfolio paper={paper} onOpenActivity={() => setPage('activity')} onOpenTrade={openChart} />
+            <Portfolio paper={paper} read={marketRead.read} onOpenActivity={() => setPage('activity')} onOpenTrade={openChart} />
           ) : (
             <Activity paper={paper} />
           )}

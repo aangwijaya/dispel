@@ -1,4 +1,4 @@
-import type { Market } from '../types/market'
+import type { Market } from '../types/market.ts'
 
 export const MARKETS: Market[] = [
   { symbol: 'BTCUSDT', baseAsset: 'BTC', quoteAsset: 'USDT', displayName: 'BTC/USDT', pricePrecision: 2, quantityPrecision: 6, minNotional: '5' },

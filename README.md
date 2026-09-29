@@ -61,13 +61,58 @@ sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
 
 ## Data notes
 
-- The market read, regime, setups and changes on Home are **demo design data** until an
-  intelligence engine exists. They are always shown with the `Demo data` badge and are replaced by
-  an offline state when the market stream is down.
+- The market read is produced by TypeSafe Jev on a 15-minute schedule and stored server-side in
+  `public.market_reads` (see “Jev market read” below). The client currently still renders the labeled
+  demo read until the live client layer ships; the `Demo data` badge disappears when it does.
 - The 7-day equity and allocation history on Portfolio is demo design data; the current figures
   (equity, cash, positions, P/L, fees, net deposited) are real.
 - Realized P/L is tracked per market in Postgres (`paper_positions.realized_pnl`). The closed-trades
   table lists real filled sells and shows a market's total realized P/L once its position is flat.
+
+## Jev market read
+
+TypeSafe Jev supplies the judgments (regime, stance, bias, trend strength, risk, per-candidate worth,
+setup type, target-first probability and setup risk). All numbers, levels, events and UI copy are
+computed in code under `supabase/functions/_shared/read/`; the Edge Function only does I/O.
+
+Setup (once per project):
+
+```bash
+# 1. Enable pg_cron and pg_net in the Supabase dashboard (Database -> Extensions).
+# 2. Function secrets (never in .env or the repo):
+supabase secrets set TYPESAFE_API_KEY=<key> READ_CRON_SECRET=$(openssl rand -hex 32)
+# 3. The same cron secret and the function URL, stored in Vault so the migration never
+#    contains a secret (run in the SQL editor):
+#    select vault.create_secret('<the same READ_CRON_SECRET value>', 'read_cron_secret');
+#    select vault.create_secret('https://<project-ref>.supabase.co/functions/v1/market-read', 'market_read_url');
+#    select public.schedule_market_reads();  -- idempotent; schedules after the extensions exist
+# 4. Apply migrations, then deploy the function. The function authenticates with the
+#    x-cron-secret header (not a Supabase JWT), so it deploys with --no-verify-jwt:
+supabase db push
+supabase functions deploy market-read --no-verify-jwt
+```
+
+The migration schedules `market-read` every 15 minutes and a retention sweep daily (rows older than
+14 days are deleted). Without the Vault secrets the migration still applies and only logs a notice.
+
+Manual trigger and checks:
+
+```bash
+curl -sS -X POST "https://<project-ref>.supabase.co/functions/v1/market-read" \
+  -H "x-cron-secret: $READ_CRON_SECRET" -H "Content-Type: application/json" -d '{}'
+# Without the header the function must answer 401.
+```
+
+```sql
+-- In the SQL editor:
+select jobname, schedule, active from cron.job order by jobname;
+select id, created_at, as_of, status, model from public.market_reads order by created_at desc limit 5;
+select status_code, content, created from net._http_response order by created desc limit 5;
+```
+
+`status = 'ok'` means fresh Jev answers. `status = 'degraded'` means Jev was unavailable and the
+previous answers were reused with fresh facts. If Binance cannot be reached from the project region,
+the function returns 503 and writes nothing, so the schedule simply retries in 15 minutes.
 
 ## How money works
 

@@ -1,4 +1,4 @@
-import { TIMEFRAMES, type Candle, type DepthLevel, type MarketTrade, type OrderBook, type Ticker, type Timeframe } from '../../types/market'
+import { TIMEFRAMES, type Candle, type DepthLevel, type MarketTrade, type OrderBook, type Ticker, type Timeframe } from '../../types/market.ts'
 
 const REST_HOSTS = ['https://api.binance.com', 'https://data-api.binance.vision']
 const SYMBOL_PATTERN = /^[A-Z0-9]{5,20}$/
@@ -169,7 +169,7 @@ export function sanitizeKline(raw: unknown): { candle: Candle; closed: boolean }
   }
 }
 
-function sanitizeKlineRow(raw: unknown): Candle | null {
+export function sanitizeKlineRow(raw: unknown): Candle | null {
   if (!Array.isArray(raw) || raw.length < 6) return null
   const time = toFiniteNumber(raw[0])
   const open = toFiniteNumber(raw[1])

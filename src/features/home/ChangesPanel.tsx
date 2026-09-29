@@ -4,7 +4,8 @@ import type { MarketRead, SinceRow } from '../../types/read'
 
 interface ChangesPanelProps {
   read: MarketRead
-  firstLaunch: boolean
+  since: SinceRow[] | null
+  seenAt: string | null
 }
 
 const GLYPH: Record<SinceRow['kind'], { mark: string; color: string }> = {
@@ -14,7 +15,17 @@ const GLYPH: Record<SinceRow['kind'], { mark: string; color: string }> = {
   end: { mark: '−', color: '#6a6b6c' },
 }
 
-export function ChangesPanel({ read, firstLaunch }: ChangesPanelProps) {
+function sinceLabel(seenAt: string | null): string {
+  if (seenAt === null) return ''
+  const seen = Date.parse(seenAt)
+  if (!Number.isFinite(seen)) return ''
+  const minutes = Math.max(0, Math.round((Date.now() - seen) / 60_000))
+  const clock = new Date(seen).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  if (minutes < 60) return `${clock} · ${minutes}m ago`
+  return `${clock} · ${Math.floor(minutes / 60)}h ${minutes % 60}m ago`
+}
+
+export function ChangesPanel({ read, since, seenAt }: ChangesPanelProps) {
   const shiftColor = read.shift ? regimeAt(read.shift.to).color : '#9c9c9d'
 
   return (
@@ -28,7 +39,7 @@ export function ChangesPanel({ read, firstLaunch }: ChangesPanelProps) {
         </div>
       </div>
 
-      {firstLaunch ? (
+      {since === null ? (
         <div className="orient-box">
           <b>Dispel checks {read.coverage} every 15 minutes</b> for level tests, momentum turns, volume spikes
           and unusual volatility. When something changes it shows up here. None of it requires action.
@@ -37,10 +48,10 @@ export function ChangesPanel({ read, firstLaunch }: ChangesPanelProps) {
         <div className="since">
           <div className="since-h">
             <span className="eyebrow">Since your last visit</span>
-            <span className="mono">11:20 · 3h 12m ago</span>
+            <span className="mono">{sinceLabel(seenAt)}</span>
           </div>
           <ul>
-            {read.since.map((row) => {
+            {since.map((row) => {
               const glyph = GLYPH[row.kind]
               return (
                 <li key={`${row.label}-${row.text}`} className={row.kind === 'same' ? 'same' : undefined}>

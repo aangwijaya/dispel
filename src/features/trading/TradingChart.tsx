@@ -11,11 +11,12 @@ import {
 } from 'lightweight-charts'
 import { fetchKlines } from '../../lib/market/binance'
 import { subscribeKline } from '../../lib/market/stream'
-import { setupForSymbol } from '../../lib/read/demo'
 import { TIMEFRAMES, type Market, type Timeframe } from '../../types/market'
+import type { Setup } from '../../types/read'
 
 interface TradingChartProps {
   market: Market
+  setup: Setup | null
 }
 
 const COLORS = {
@@ -34,7 +35,7 @@ interface Ohlc {
   close: number
 }
 
-export function TradingChart({ market }: TradingChartProps) {
+export function TradingChart({ market, setup }: TradingChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -201,7 +202,6 @@ export function TradingChart({ market }: TradingChartProps) {
     priceLinesRef.current = []
 
     if (!levelsOn) return
-    const setup = setupForSymbol(market.symbol)
     if (!setup) return
 
     const invalidation = Number.parseFloat(setup.invalidation.value.replace(/,/g, ''))
@@ -230,7 +230,7 @@ export function TradingChart({ market }: TradingChartProps) {
         }),
       )
     }
-  }, [levelsOn, market.symbol])
+  }, [levelsOn, setup])
 
   useEffect(() => {
     volumeRef.current?.applyOptions({ visible: volumeOn })

@@ -128,3 +128,6 @@ export interface MarketRead {
   breadth: { up: number; down: number }
   tags: Record<string, ReadTag>
 }
+
+/** The market-wide part stored by the market-read function; per-user fields are merged client-side. */
+export type ReadPayload = Omit<MarketRead, 'exposure' | 'since'>

@@ -7,7 +7,8 @@ import { MARKETS } from '../../lib/markets'
 import { formatPercent, formatPrice } from '../../lib/market/format'
 import { getConnectionStatus, subscribeConnectionStatus, type DisplayStatus } from '../../lib/market/stream'
 import { useTickers } from '../trading/useTickers'
-import { DEMO_READ, TONE_COLOR, regimeAt } from '../../lib/read/demo'
+import { TONE_COLOR, regimeAt } from '../../lib/read/demo'
+import { useMarketRead } from '../home/useMarketRead'
 import { DispelMark } from '../shell/nav'
 import heroArt from '../../assets/dispel-hero.svg'
 
@@ -30,8 +31,10 @@ export function LoginForm() {
   const [submitting, setSubmitting] = useState(false)
 
   const status = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus)
+  const marketRead = useMarketRead({ positions: [], marks: {}, trackSeen: false })
+  const read = marketRead.read
   const tickers = useTickers(MARKETS.map((market) => market.symbol))
-  const regime = regimeAt(DEMO_READ.regimeIndex)
+  const regime = regimeAt(read.regimeIndex)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -116,8 +119,8 @@ export function LoginForm() {
             <div>
               <div className="k">Market read</div>
               <div className="v">
-                <span className="dot" style={{ background: TONE_COLOR[DEMO_READ.biasTone] }} />
-                {DEMO_READ.verdict}
+                <span className="dot" style={{ background: TONE_COLOR[read.biasTone] }} />
+                {read.verdict}
               </div>
             </div>
             <div>
@@ -127,7 +130,7 @@ export function LoginForm() {
             <div>
               <div className="k">Worth a look</div>
               <div className="v">
-                {DEMO_READ.setups.length} setups{' '}
+                {read.setups.length} setups{' '}
                 <svg viewBox="0 0 64 20" aria-hidden="true">
                   <polyline
                     points="0,16 8,14 16,15 24,11 32,12 40,8 48,9 56,5 64,4"
@@ -140,7 +143,7 @@ export function LoginForm() {
               </div>
             </div>
           </div>
-          <div className="t-note">Today · {DEMO_READ.time} · sign in to see the full read</div>
+          <div className="t-note">Today · {read.time} · sign in to see the full read</div>
         </section>
 
         <form className="auth" onSubmit={handleSubmit} noValidate>

@@ -1,4 +1,4 @@
-import type { MarketRead, Regime, Setup, Stance, Tone } from '../../types/read'
+import type { MarketRead, Regime, Stance, Tone } from '../../types/read'
 import heroArt from '../../assets/dispel-hero.svg'
 import waitArt from '../../assets/aura-wait.svg'
 import unclearArt from '../../assets/aura-unclear.svg'
@@ -491,45 +491,3 @@ export const DEMO_READS: Record<Stance, MarketRead> = {
 }
 
 export const DEMO_READ = FAVORABLE
-
-export function setupForSymbol(symbol: string): Setup | null {
-  const base = symbol.includes('/') ? (symbol.split('/')[0] ?? symbol) : symbol.replace(/USDT$/, '')
-  for (const read of Object.values(DEMO_READS)) {
-    const match = [...read.setups, ...read.forming, ...read.exposure].find(
-      (item) => (item.symbol.split('/')[0] ?? item.symbol) === base,
-    )
-    if (match) {
-      if ('status' in match) {
-        return {
-          symbol: match.symbol,
-          monogram: match.monogram,
-          bias: match.status,
-          tone: match.tone,
-          summary: match.summary,
-          odds: null,
-          confidence: 0,
-          risk: 1,
-          horizon: '—',
-          price: match.price,
-          changePct: match.changePct,
-          sees: match.sees,
-          invalidation: match.invalidation,
-          target: match.target,
-          anchors: match.anchors,
-          seed: match.seed,
-        }
-      }
-      return match
-    }
-  }
-  return null
-}
-
-export interface ChangeSummary {
-  count: number
-  total: number
-}
-
-export function changeSummary(read: MarketRead): ChangeSummary {
-  return { count: read.since.filter((row) => row.kind !== 'same').length, total: read.since.length }
-}

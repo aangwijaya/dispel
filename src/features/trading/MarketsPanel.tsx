@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MARKETS } from '../../lib/markets'
 import { formatPrice } from '../../lib/market/format'
-import { DEMO_READ, TONE_COLOR } from '../../lib/read/demo'
+import { TONE_COLOR } from '../../lib/read/demo'
 import type { Market, Ticker } from '../../types/market'
+import type { ReadTag } from '../../types/read'
 import { useTickers } from './useTickers'
 import { Pct } from '../home/Pct'
 
@@ -10,13 +11,14 @@ type Tab = 'watch' | 'all'
 
 interface MarketsPanelProps {
   symbols: string[]
+  tags: Record<string, ReadTag>
   selectedSymbol: string
   overlay: boolean
   onSelect: (symbol: string) => void
   onClose: () => void
 }
 
-export function MarketsPanel({ symbols, selectedSymbol, overlay, onSelect, onClose }: MarketsPanelProps) {
+export function MarketsPanel({ symbols, tags, selectedSymbol, overlay, onSelect, onClose }: MarketsPanelProps) {
   const [tab, setTab] = useState<Tab>('all')
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -88,6 +90,7 @@ export function MarketsPanel({ symbols, selectedSymbol, overlay, onSelect, onClo
               key={market.symbol}
               market={market}
               ticker={tickers[market.symbol]}
+              tag={tags[market.baseAsset] ?? { label: '—', tone: 'neutral' }}
               selected={market.symbol === selectedSymbol}
               onSelect={select}
             />
@@ -101,15 +104,16 @@ export function MarketsPanel({ symbols, selectedSymbol, overlay, onSelect, onClo
 function MarketRow({
   market,
   ticker,
+  tag,
   selected,
   onSelect,
 }: {
   market: Market
   ticker: Ticker | undefined
+  tag: ReadTag
   selected: boolean
   onSelect: (symbol: string) => void
 }) {
-  const tag = DEMO_READ.tags[market.baseAsset] ?? { label: '—', tone: 'neutral' as const }
   const change = Number(ticker?.changePercent ?? 0)
 
   return (
