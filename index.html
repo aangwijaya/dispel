@@ -2,17 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
     <title>Dispel</title>
-    <script>
-      try {
-        if (localStorage.getItem('dispel-theme') === 'dark') {
-          document.documentElement.classList.add('dark')
-        }
-      } catch (error) {
-        void error
+    <style>
+      html {
+        background: #040506;
       }
-    </script>
+    </style>
   </head>
   <body>
     <div id="root"></div>

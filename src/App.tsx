@@ -6,10 +6,10 @@ import { AppShell } from './features/shell/AppShell'
 
 function BootScreen() {
   return (
-    <div className="flex h-full items-center justify-center bg-canvas">
+    <div className="flex h-full items-center justify-center bg-void">
       <div className="text-center">
-        <p className="text-heading font-semibold tracking-tight text-ink">Dispel</p>
-        <p className="mt-1 text-caption text-faint">Connecting…</p>
+        <p className="text-sub tracking-tight text-white">Dispel</p>
+        <p className="mt-1 text-meta text-smoke">Connecting…</p>
       </div>
     </div>
   )

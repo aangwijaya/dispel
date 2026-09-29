@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { add, dec, mul, toFixedDown } from '../../lib/decimal'
+import { dec, mul, toFixedDown } from '../../lib/decimal'
 import { formatPrice, formatQuantity } from '../../lib/market/format'
 import { subscribeMarket } from '../../lib/market/stream'
 import { checkMinNotional, parsePrice, parseQuantity } from '../../lib/validation'
@@ -12,11 +12,14 @@ interface OrderEntryProps {
   paper: PaperTrading
 }
 
+const PERCENTS = [25, 50, 75, 100] as const
+
 export function OrderEntry({ market, paper }: OrderEntryProps) {
   const [side, setSide] = useState<OrderSide>('buy')
   const [type, setType] = useState<OrderType>('limit')
   const [priceInput, setPriceInput] = useState('')
   const [quantityInput, setQuantityInput] = useState('')
+  const [percent, setPercent] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -36,11 +39,24 @@ export function OrderEntry({ market, paper }: OrderEntryProps) {
 
   useEffect(() => {
     setQuantityInput('')
+    setPercent(null)
     setError(null)
     setNotice(null)
     const reference = lastPriceRef.current
     setPriceInput(type === 'limit' && reference ? toFixedDown(reference, market.pricePrecision) : '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [market.symbol, market.pricePrecision])
+
+  useEffect(() => {
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.target instanceof HTMLElement && event.target.closest('input, textarea, [contenteditable]')) return
+      if (event.metaKey || event.ctrlKey || event.altKey) return
+      if (event.key === 'b' || event.key === 'B') setSide('buy')
+      if (event.key === 's' || event.key === 'S') setSide('sell')
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   const position = paper.positions.find((item) => item.symbol === market.symbol)
   const availableCash = paper.account?.cashBalance ?? null
@@ -55,16 +71,23 @@ export function OrderEntry({ market, paper }: OrderEntryProps) {
     }
   }
 
-  function applyMax() {
+  function changeSide(next: OrderSide) {
+    setSide(next)
+    setPercent(null)
     setError(null)
+    setNotice(null)
+  }
+
+  function applyPercent(portion: number) {
+    setError(null)
+    setPercent(portion)
     if (side === 'buy') {
       const reference = type === 'limit' ? priceInput : lastPrice
       if (!reference) {
         setError('Waiting for market price.')
         return
       }
-      const parsedPlain = /^\d+(\.\d+)?$/.test(reference)
-      if (!parsedPlain) {
+      if (!/^\d+(\.\d+)?$/.test(reference)) {
         setError('Enter a valid price first.')
         return
       }
@@ -73,24 +96,23 @@ export function OrderEntry({ market, paper }: OrderEntryProps) {
         return
       }
       const quantity = toFixedDown(
-        dec(availableCash).div(dec(reference).mul('1.001')),
+        dec(availableCash)
+          .mul(portion)
+          .div(100)
+          .div(dec(reference).mul('1.001')),
         market.quantityPrecision,
       )
       setQuantityInput(quantity)
       return
     }
-    setQuantityInput(toFixedDown(availableQuantity, market.quantityPrecision))
+    setQuantityInput(toFixedDown(dec(availableQuantity).mul(portion).div(100), market.quantityPrecision))
   }
 
   const parsedQuantity = quantityInput === '' ? null : parseQuantity(quantityInput, market)
   const effectivePrice = type === 'limit' ? priceInput : lastPrice
-  const canEstimate =
-    parsedQuantity?.ok === true &&
-    effectivePrice !== null &&
-    /^\d+(\.\d+)?$/.test(effectivePrice)
+  const canEstimate = parsedQuantity?.ok === true && effectivePrice !== null && /^\d+(\.\d+)?$/.test(effectivePrice)
   const estimatedTotal = canEstimate ? mul(effectivePrice, parsedQuantity.value) : null
   const estimatedFee = estimatedTotal !== null ? mul(estimatedTotal, '0.001') : null
-  const estimatedTotalWithFee = estimatedTotal !== null && estimatedFee !== null ? add(estimatedTotal, estimatedFee) : null
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -136,6 +158,7 @@ export function OrderEntry({ market, paper }: OrderEntryProps) {
         referencePrice,
       })
       setQuantityInput('')
+      setPercent(null)
       setNotice(
         order.type === 'market'
           ? `${side === 'buy' ? 'Buy' : 'Sell'} ${market.baseAsset} filled at market.`
@@ -149,129 +172,111 @@ export function OrderEntry({ market, paper }: OrderEntryProps) {
   }
 
   return (
-    <section className="border-b border-edge">
-      <div className="grid grid-cols-2 gap-1 p-2">
+    <section className="panel oe" aria-label="Order entry">
+      <div className="bs" role="group" aria-label="Side">
         <button
           type="button"
-          onClick={() => {
-            setSide('buy')
-            setError(null)
-            setNotice(null)
-          }}
-          className={`h-8 rounded-pill text-caption font-semibold transition-colors ${
-            side === 'buy' ? 'bg-buy text-white' : 'bg-inset text-faint hover:text-ink'
-          }`}
+          className="buy"
+          aria-pressed={side === 'buy'}
+          onClick={() => changeSide('buy')}
         >
           Buy
         </button>
         <button
           type="button"
-          onClick={() => {
-            setSide('sell')
-            setError(null)
-            setNotice(null)
-          }}
-          className={`h-8 rounded-pill text-caption font-semibold transition-colors ${
-            side === 'sell' ? 'bg-sell text-white' : 'bg-inset text-faint hover:text-ink'
-          }`}
+          className="sell"
+          aria-pressed={side === 'sell'}
+          onClick={() => changeSide('sell')}
         >
           Sell
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="px-2 pb-2">
-        <div className="mb-2 grid grid-cols-2 gap-1 rounded-pill bg-inset p-0.5">
-          <button
-            type="button"
-            onClick={() => changeType('limit')}
-            className={`h-6 rounded-pill text-micro font-medium ${
-              type === 'limit' ? 'bg-panel text-ink shadow-sm' : 'text-faint hover:text-body'
-            }`}
-          >
-            Limit
-          </button>
-          <button
-            type="button"
-            onClick={() => changeType('market')}
-            className={`h-6 rounded-pill text-micro font-medium ${
-              type === 'market' ? 'bg-panel text-ink shadow-sm' : 'text-faint hover:text-body'
-            }`}
-          >
+      <form onSubmit={handleSubmit}>
+        <div className="ot" role="group" aria-label="Order type">
+          <button type="button" aria-pressed={type === 'market'} onClick={() => changeType('market')}>
             Market
           </button>
+          <button type="button" aria-pressed={type === 'limit'} onClick={() => changeType('limit')}>
+            Limit
+          </button>
         </div>
 
-        <label className="mb-2 block">
-          <span className="mb-1 flex items-center justify-between text-micro text-faint">
-            <span>Price ({market.quoteAsset})</span>
+        <label className="field">
+          <span>
+            <span>Price</span>
+            <span>
+              Last <b className="num" style={{ color: '#e6e6e6', fontWeight: 400 }}>{formatPrice(lastPrice, market.pricePrecision)}</b>
+            </span>
           </span>
-          <input
-            inputMode="decimal"
-            value={type === 'market' ? '' : priceInput}
-            onChange={(event) => setPriceInput(event.target.value)}
-            disabled={type === 'market'}
-            placeholder={type === 'market' ? 'Market price' : '0.00'}
-            className="h-8 w-full rounded-md border border-edge bg-canvas px-2.5 text-caption tabular-nums text-ink placeholder:text-faint focus:border-accent focus:outline-none disabled:opacity-60"
-          />
+          <div className="input">
+            <input
+              inputMode="decimal"
+              value={type === 'market' ? '' : priceInput}
+              onChange={(event) => setPriceInput(event.target.value)}
+              readOnly={type === 'market'}
+              placeholder={type === 'market' ? 'Market price' : '0.00'}
+            />
+            <span className="unit">{market.quoteAsset}</span>
+          </div>
         </label>
 
-        <label className="mb-2 block">
-          <span className="mb-1 flex items-center justify-between text-micro text-faint">
-            <span>Amount ({market.baseAsset})</span>
-            <button type="button" onClick={applyMax} className="text-link hover:underline">
-              Max
-            </button>
-          </span>
-          <input
-            inputMode="decimal"
-            value={quantityInput}
-            onChange={(event) => setQuantityInput(event.target.value)}
-            placeholder="0.00"
-            className="h-8 w-full rounded-md border border-edge bg-canvas px-2.5 text-caption tabular-nums text-ink placeholder:text-faint focus:border-accent focus:outline-none"
-          />
-        </label>
-
-        <div className="mb-2 space-y-1 rounded-md bg-inset px-2.5 py-2 text-micro">
-          <div className="flex items-center justify-between">
-            <span className="text-faint">Available</span>
-            <span className="tabular-nums text-body">
+        <label className="field">
+          <span>
+            <span>Amount</span>
+            <span>
               {side === 'buy'
                 ? availableCash === null
-                  ? '—'
-                  : `${formatPrice(availableCash, 2)} ${market.quoteAsset}`
-                : `${formatQuantity(availableQuantity, market.quantityPrecision)} ${market.baseAsset}`}
+                  ? 'Available —'
+                  : `Avail ${formatPrice(availableCash, 2)}`
+                : `Avail ${formatQuantity(availableQuantity, market.quantityPrecision)}`}
             </span>
+          </span>
+          <div className="input">
+            <input
+              inputMode="decimal"
+              value={quantityInput}
+              onChange={(event) => {
+                setQuantityInput(event.target.value)
+                setPercent(null)
+              }}
+              placeholder="0.00"
+            />
+            <span className="unit">{market.baseAsset}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-faint">Est. total</span>
-            <span className="tabular-nums text-body">
-              {estimatedTotal !== null ? `${formatPrice(estimatedTotal, 2)} ${market.quoteAsset}` : '—'}
-            </span>
+        </label>
+
+        <div className="pcts" role="group" aria-label="Portion of available balance">
+          {PERCENTS.map((portion) => (
+            <button
+              key={portion}
+              type="button"
+              aria-pressed={percent === portion}
+              onClick={() => applyPercent(portion)}
+            >
+              {portion === 100 ? 'Max' : `${portion}%`}
+            </button>
+          ))}
+        </div>
+
+        <div className="sum">
+          <div>
+            <span>Est. total</span>
+            <b>{estimatedTotal !== null ? `${formatPrice(estimatedTotal, 2)} ${market.quoteAsset}` : '—'}</b>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-faint">Est. fee (0.10%)</span>
-            <span className="tabular-nums text-body">
-              {estimatedTotalWithFee !== null && estimatedFee !== null
-                ? `${formatPrice(estimatedFee, 2)} ${market.quoteAsset}`
-                : '—'}
-            </span>
+          <div>
+            <span>Est. fee (0.10%)</span>
+            <b>{estimatedFee !== null ? `${formatPrice(estimatedFee, 2)} ${market.quoteAsset}` : '—'}</b>
           </div>
         </div>
 
-        {error ? <p className="mb-2 text-micro text-sell">{error}</p> : null}
-        {notice ? <p className="mb-2 text-micro text-buy">{notice}</p> : null}
+        {error ? <div className="err">{error}</div> : null}
+        {notice ? <div className="notice">{notice}</div> : null}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className={`h-9 w-full rounded-pill text-caption font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 ${
-            side === 'buy' ? 'bg-buy' : 'bg-sell'
-          }`}
-        >
-          {submitting
-            ? 'Placing…'
-            : `${side === 'buy' ? 'Buy' : 'Sell'} ${market.baseAsset}`}
+        <button type="submit" className={`submit ${side}`} disabled={submitting}>
+          {submitting ? 'Placing…' : `${side === 'buy' ? 'Buy' : 'Sell'} ${market.baseAsset}`}
         </button>
+        <p className="fineprint">Paper order. Settles against simulated balances.</p>
       </form>
     </section>
   )

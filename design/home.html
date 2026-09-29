@@ -392,11 +392,24 @@ body { background:
   animation: spin 16s linear infinite; }
 #read[data-stance="wait"]::before { animation-duration: 11s; }
 #read[data-stance="unclear"]::before { animation-duration: 30s; opacity: .45; }
+#read[data-stance="reduce"]::before { animation-duration: 9s; }
+.aura img[data-s="reduce"] { animation-name: sink; }
+.aura img[data-s="reduce"].on { opacity: .85; filter: blur(1.5px); }
+[hidden] { display: none !important; }
+/* Text over the aura: a tight dark halo keeps labels legible wherever the artwork's lines fall. */
+.read-grid > section:last-child :is(.eyebrow, .mono, .regime-now, .scale span, .ticks span, .shift strong, .shift p) { text-shadow: 0 0 2px #07080a, 0 0 6px #07080a, 0 0 10px rgba(7,8,10,.9); }
+@keyframes sink { from { transform: scale(1.04); } to { transform: scale(1.1) translateY(3%); } }
+.protect { margin: 4px 2px 8px; padding: 14px; border-radius: var(--r-ctl); background: linear-gradient(95deg, rgba(240,80,110,.12), var(--recessed) 60%); box-shadow: inset 0 0 0 1px rgba(240,80,110,.16); }
+.protect b { display: block; font-size: var(--t-sub); font-weight: 400; letter-spacing: .2px; color: var(--white); }
+.protect p { margin: 6px 0 0; font-size: var(--t-meta); color: var(--ash); line-height: 1.5; }
+.odds b.pl { font-size: var(--t-row); }
+.obar i.broken { background: repeating-linear-gradient(135deg, var(--c) 0 3px, rgba(240,80,110,.25) 3px 6px); }
 @keyframes spin { to { --spin: 360deg; } }
 .aura { position: absolute; inset: 0; z-index: -1; pointer-events: none;
   -webkit-mask-image: radial-gradient(ellipse 62% 78% at 74% 34%, #000 25%, transparent 78%); mask-image: radial-gradient(ellipse 62% 78% at 74% 34%, #000 25%, transparent 78%); }
 .aura img { position: absolute; right: -8%; top: -24%; width: 82%; height: 150%; object-fit: cover; opacity: 0; transition: opacity 1s ease; animation: drift 42s ease-in-out infinite alternate; }
 .aura img.on { opacity: .8; }
+.aura img[data-s="go"].on { opacity: .66; }
 .aura img[data-s="unclear"].on { opacity: .9; filter: blur(4px); }
 .aura::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,8,10,.96) 0%, rgba(7,8,10,.82) 38%, rgba(7,8,10,.25) 62%, rgba(7,8,10,.5) 100%); }
 @keyframes drift { from { transform: scale(1.02); } to { transform: scale(1.12) translateX(-2%); } }
@@ -446,7 +459,8 @@ body { background:
 .eq svg { display: block; width: 100%; height: 44px; margin-top: 8px; }
 
 /* Notes: aura gallery */
-.auras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.auras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 1200px) { .auras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 880px) { .auras { grid-template-columns: minmax(0, 1fr); } }
 .aura-card { position: relative; border-radius: var(--r-card); overflow: hidden; box-shadow: var(--key-soft); background: #040506; aspect-ratio: 16 / 10; }
 .aura-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -473,6 +487,7 @@ body { background:
         <button type="button" data-v="favorable" aria-pressed="true">Favorable</button>
         <button type="button" data-v="wait" aria-pressed="false">Wait</button>
         <button type="button" data-v="unclear" aria-pressed="false">Unclear</button>
+        <button type="button" data-v="reduce" aria-pressed="false">Reduce risk</button>
       </div>
     </div>
     <div class="ctl"><span class="eyebrow">Visit</span>
@@ -517,6 +532,7 @@ body { background:
             <img data-s="go" src="assets/dispel-hero.svg" alt="">
             <img data-s="wait" src="assets/aura-wait.svg" alt="">
             <img data-s="unclear" src="assets/aura-unclear.svg" alt="">
+            <img data-s="reduce" src="assets/aura-riskoff.svg" alt="">
           </div>
           <div class="read-grid">
             <section>
@@ -548,7 +564,7 @@ body { background:
         <div class="row2">
           <section class="panel" aria-label="Setups">
             <div class="p-head">
-              <div><h3>Setups <span class="count" id="setup-count"></span></h3><p>Worth investigating, not instructions to buy. Ordered by time horizon, not by score.</p></div>
+              <div><h3><span id="setups-title">Setups</span> <span class="count" id="setup-count"></span></h3><p id="setups-sub">Worth investigating, not instructions to buy. Ordered by time horizon, not by score.</p></div>
             </div>
             <div class="setups-body">
               <div>
@@ -608,16 +624,18 @@ body { background:
 <!-- ───────── Notes (internal) ───────── -->
 <div class="notes">
   <section class="note">
-    <header><h2>The market has a mood, and the screen shows it</h2><p>One artwork family, three states.</p></header>
+    <header><h2>The market has a mood, and the screen shows it</h2><p>One artwork family, four states.</p></header>
     <div>
       <div class="auras">
         <div class="aura-card"><img src="assets/dispel-hero.svg" alt="Favorable aura: a rising run of warm coral candles, in focus"><div><b>Favorable</b><span>dispel-hero.svg</span></div></div>
         <div class="aura-card"><img src="assets/aura-wait.svg" alt="Wait aura: a choppy amber and slate run, half in focus"><div><b>Wait</b><span>aura-wait.svg</span></div></div>
         <div class="aura-card"><img src="assets/aura-unclear.svg" alt="Unclear aura: short grey candles lost in fog"><div><b>Unclear</b><span>aura-unclear.svg</span></div></div>
+        <div class="aura-card"><img src="assets/aura-riskoff.svg" alt="Reduce risk aura: a support line held three times, broken by a crimson candle, a failed retest, then a falling run"><div><b>Reduce risk</b><span>aura-riskoff.svg</span></div></div>
       </div>
       <div class="prose" style="margin-top:16px">
-        <p>The three auras aren't recolours. Each is <b>generated from the shape of that market</b>. Favorable is a rising run in coral, mostly in focus. Wait is a choppy two-way run in amber and slate. Unclear is short, compressed candles in grey fog with only a small area in focus. A trader who glances at the market read picks up the mood before reading a word.</p>
-        <p>All three come from one script (<code>design/assets/generate-hero.mjs</code>) and weigh about 6–7 KB each as vectors.</p>
+        <p>The four auras aren't recolours. Each is <b>generated from the shape of that market</b>. Favorable is a rising run in coral, mostly in focus. Wait is a choppy two-way run in amber and slate. Unclear is short, compressed candles in grey fog with only a small area in focus. A trader who glances at the market read picks up the mood before reading a word.</p>
+        <p><b>Reduce risk tells a story instead of showing a texture.</b> A support line is tested three times (white dots), then a crimson candle breaks it and the line turns to dashes. The retest from below fails (crimson dot) and the market falls, while relief bounces stay pale steel. It is the only aura whose bars stand upright rather than leaning, which makes it feel stiffer and more serious. It sinks slowly instead of drifting, and a vignette closes in from the edges.</p>
+        <p>All four come from one script (<code>design/assets/generate-hero.mjs</code>) and weigh about 6–7 KB each as vectors.</p>
       </div>
     </div>
   </section>
@@ -625,7 +643,7 @@ body { background:
   <section class="note">
     <header><h2>Where the accents go</h2><p>A strict budget so the terminal stays a terminal.</p></header>
     <div class="rules">
-      <div class="card rule"><span class="k">hero · 1 per screen</span><b>Market read carries the aura and the live border</b><p>A thin light travels around the panel edge in the stance colour with a coral tip. It moves at 16s per lap when favorable, 11s when the answer is Wait, and slows to 30s at 45% strength when the read is unclear. It is the only animated border in the app.</p></div>
+      <div class="card rule"><span class="k">hero · 1 per screen</span><b>Market read carries the aura and the live border</b><p>A thin light travels around the panel edge in the stance colour with a coral tip. It moves at 16s per lap when favorable, 11s when the answer is Wait, 9s when it is time to reduce risk, and slows to 30s at 45% strength when the read is unclear. It is the only animated border in the app.</p></div>
       <div class="card rule"><span class="k">selection</span><b>A selected setup takes the colour of its bias</b><p>A soft tint moves in from the left, the monogram glows, and the detail pane gets a matching glow in its corner. Green for bullish, rose for bearish, grey for conditional. This is a tint, not a coloured bar on the edge.</p></div>
       <div class="card rule"><span class="k">caution</span><b>The caution well is amber-tinted</b><p>The one sentence every read must carry is tinted amber, so the warning is the second thing the eye finds after the verdict.</p></div>
       <div class="card rule"><span class="k">change</span><b>Regime shifts are marked in the new regime's colour</b><p>The shift event in Changes is tinted with the regime it moved to. The “Now” edge of the Today ribbon blinks slowly, and when the market state changes, events slide in one by one.</p></div>
@@ -793,6 +811,39 @@ body { background:
     }
   };
 
+  STATES.reduce = {
+    verdict: 'Reduce risk', stance: 'reduce', bias: 'Bearish', biasC: 'down', biasLine: 'sellers in firm control',
+    explain: '<strong>Sellers took control when BTC broke 115.8k support on three times its usual volume.</strong> 15 of 18 markets are down and volatility is the highest it has been this month. In a market like this, protecting what you hold matters more than finding something new.',
+    caution: 'If you hold positions, check them against their invalidation levels. Avoid buying the first bounce.',
+    regime: 0, ribbon: [[0, 9.5, 2], [9.5, 13.67, 1], [13.67, NOW, 0]],
+    shift: { t: '13:40', a: 1, b: 0, why: 'BTC broke 115.8k support on 3× volume and breadth collapsed to 3 of 18.' },
+    stats: { strength: 78, conf: 2, risk: 2, vol: 3 },
+    why: [['Trend', 'Down', 'down', 'BTC broke 115.8k, lower lows on 4h'], ['Momentum', 'Falling', 'down', 'BTC 1h RSI 29, still falling'], ['Volume', 'Heavy selling', 'down', '3.1× average on down candles'], ['Volatility', 'Extreme', 'caution', 'ATR 2.6× its 30-day median'], ['Breadth', '3 / 18 up', 'down', 'Selling is broad, not isolated'], ['Levels', 'Below support', 'down', 'Next BTC support 112.4k']],
+    setups: [],
+    exposure: [
+      { pair: 'SOL/USDT', ico: 'SOL', bias: 'Invalidated', bc: 'down', hold: '12.50 SOL', entry: '201.46', px: '196.20', ch: -4.62, pl: -2.61, cushion: null,
+        setup: 'Closed below its 206.50 invalidation at 13:40. The setup behind this position is no longer valid.',
+        sees: ['1h close below the old breakout at 206.50', 'Retest from below failed at 205.9', 'Selling volume 2.4× average'],
+        inv: ['206.50', 'Broken at 13:40 on a 1h close'], tgt: ['192.00', 'Next support below'],
+        anchors: [212, 210.4, 207.8, 208.9, 205.1, 203, 205.9, 199.5, 197.1, 196.2], seed: 3 },
+      { pair: 'ETH/USDT', ico: 'ETH', bias: 'At risk', bc: 'caution', hold: '0.60 ETH', entry: '4,545.55', px: '4,567.80', ch: -1.12, pl: 0.49, cushion: 0.6,
+        setup: 'Still above its 4,540 base, but only 0.6% away while the rest of the market sells off.',
+        sees: ['Holding better than BTC so far', 'Base support at 4,540 tested twice today', 'Tracks BTC closely, so a BTC leg down would likely take it along'],
+        inv: ['4,540', 'A 4h close below the base'], tgt: ['4,470', 'Next support below'],
+        anchors: [4640, 4620, 4600, 4585, 4610, 4572, 4590, 4560, 4568], seed: 7 }
+    ],
+    events: [
+      { t: '14:24', s: 'You', k: 'caution', x: 'Your SOL position is below its invalidation level', d: '12.50 SOL · entry 201.46 · level 206.50' },
+      { t: '14:05', s: 'Market', k: 'caution', x: 'Volatility at a 30-day high in 16 of 18 markets', d: 'Wider swings mean wider mistakes' },
+      { t: '13:52', s: 'BTC', k: 'caution', x: 'Retest of 115.8k from below failed', d: 'Levels · old support is now resistance' },
+      { t: '13:40', s: 'Market', k: 'shift', x: 'Regime shift: Cautious → Risk-off', d: 'BTC broke 115.8k on 3× volume' },
+      { t: '13:40', s: 'SOL', k: 'caution', x: 'Setup invalidated: closed below 206.50', d: 'Removed from setups' }
+    ],
+    since: [['chg', 'Bias', 'Bullish → Bearish'], ['chg', 'Risk', 'Medium → High'], ['end', 'Setup', 'SOL invalidated. You hold 12.50 SOL'], ['end', 'Setup', 'ETH and LINK removed']],
+    breadth: [3, 15],
+    tags: { BTC: ['Support lost', '#f0506e'], ETH: ['At risk', '#e8b04a'], SOL: ['Invalidated', '#f0506e'], LINK: ['—', '#2f3031'], ARB: ['High vol', '#e8b04a'] }
+  };
+
   const WATCHLIST = [['BTC/USDT', '118,420.50', 1.12], ['ETH/USDT', '4,612.30', 0.84], ['SOL/USDT', '212.84', 3.42], ['LINK/USDT', '24.61', 5.18], ['ARB/USDT', '0.7412', -2.06]];
   const MOVERS = {
     gainers: [['LINK/USDT', '24.61', 5.18], ['SOL/USDT', '212.84', 3.42], ['NEAR/USDT', '3.482', 2.95], ['SUI/USDT', '3.8410', 2.41], ['AVAX/USDT', '31.204', 1.87]],
@@ -841,7 +892,7 @@ body { background:
     const sx = cw / (vals.length - 1);
     const pts = vals.map((v, i) => `${(i * sx).toFixed(1)},${y(v).toFixed(1)}`);
     const last = vals[vals.length - 1];
-    const bc = it.bc === 'up' ? '#59d499' : it.bc === 'down' ? '#f0506e' : '#9c9c9d';
+    const bc = biasColor(it.bc);
     const grid = [0.25, 0.5, 0.75].map((f) => `<line x1="0" x2="${cw}" y1="${(PT + (H - PT - PB) * f).toFixed(1)}" y2="${(PT + (H - PT - PB) * f).toFixed(1)}" stroke="rgba(255,255,255,.04)"/>`).join('');
     const lines = lv.map((l) => `<line x1="0" x2="${cw}" y1="${y(l.v).toFixed(1)}" y2="${y(l.v).toFixed(1)}" stroke="${l.c}" stroke-dasharray="3 3"/><text x="${cw + 8}" y="${(y(l.v) + 3.5).toFixed(1)}" font-size="10" font-family="Geist Mono, monospace" fill="${l.c}">${fmt(l.v)}</text>`).join('');
     return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(it.pair)} recent price with invalidation and target levels (mock)">
@@ -858,9 +909,10 @@ body { background:
   // ───────── State ─────────
   const ui = { state: 'favorable', visit: 'returning', sel: 0, why: false, tab: 'gainers', enter: false };
   const VTINT = { go: '#a6efc9', wait: '#f5d08a', unclear: '#bdbdbf', reduce: '#ffa3b4' };
-  const AURA = { go: 'assets/dispel-hero.svg', wait: 'assets/aura-wait.svg', unclear: 'assets/aura-unclear.svg', reduce: 'assets/aura-wait.svg' };
+  const AURA = { go: 'assets/dispel-hero.svg', wait: 'assets/aura-wait.svg', unclear: 'assets/aura-unclear.svg', reduce: 'assets/aura-riskoff.svg' };
   const cur = () => STATES[ui.state];
-  const items = () => (cur().setups.length ? cur().setups : cur().forming);
+  const items = () => cur().exposure || (cur().setups.length ? cur().setups : cur().forming);
+  const biasColor = (bc) => ({ up: '#59d499', down: '#f0506e', caution: '#e8b04a' }[bc] || '#9c9c9d');
 
   function render() {
     const S = cur(), first = ui.visit === 'first';
@@ -927,6 +979,11 @@ body { background:
   }
 
   function renderSetups(S, first) {
+    $('setups-title').textContent = S.exposure ? 'Exposure check' : 'Setups';
+    $('setups-sub').textContent = S.exposure
+      ? 'Risk-off market. Your open positions, checked against their levels.'
+      : 'Worth investigating, not instructions to buy. Ordered by time horizon, not by score.';
+    if (S.exposure) { renderExposure(S); return; }
     const forming = !S.setups.length;
     const list = items();
     $('setup-count').textContent = forming ? '0 ready · 2 forming' : `${list.length}`;
@@ -985,6 +1042,49 @@ body { background:
         <button type="button" class="btn" data-go="${it.pair}">Open chart <kbd>↵</kbd></button>
         <button type="button" class="btn2">Add to watchlist</button>
         <span class="note">Paper funds only</span>
+      </div>`;
+  }
+
+  function renderExposure(S) {
+    const list = S.exposure;
+    $('setup-count').textContent = `${list.length} positions`;
+    $('list').innerHTML = `<div class="protect"><b>Protect first</b><p>No new setups in a risk-off market. Below are your open positions checked against their levels. Dispel doesn't sell for you: this is a check, not an instruction.</p></div>` +
+      list.map((it, i) => {
+        const c = biasColor(it.bc);
+        const bar = it.cushion == null
+          ? `<i class="broken" style="width:100%;--c:${c}"></i>`
+          : `<i style="width:${Math.min(it.cushion / 5 * 100, 100)}%;--c:${c}"></i>`;
+        return `<button type="button" class="item" role="option" aria-selected="${i === ui.sel}" data-i="${i}" style="--bc:${c}">
+          <span class="ico">${it.ico}</span>
+          <span class="t1"><b>${it.pair}</b><span style="color:${c}">${it.bias}</span></span>
+          <div class="odds"><b class="pl num ${it.pl >= 0 ? 'up' : 'down'}">${it.pl > 0 ? '+' : ''}${it.pl.toFixed(2)}%</b><div class="obar">${bar}</div></div>
+          <span class="t2">${esc(it.setup)}</span>
+          <span class="t3"><span>${it.hold}</span><i>·</i><span>entry ${it.entry}</span><i>·</i><span style="color:${c}">level ${it.inv[0]}</span></span>
+        </button>`;
+      }).join('') + `<div class="sublabel smoke" style="font-size:12px">Nothing else you hold is exposed to a broken level.</div>`;
+    $('howto').hidden = false;
+    $('howto').innerHTML = `
+      <div><div class="obar"><i style="width:30%;--c:#e8b04a"></i></div><span><b>Bar</b> shows the cushion left above the invalidation level. A full bar is 5% or more.</span></div>
+      <div><div class="obar"><i class="broken" style="width:100%;--c:#f0506e"></i></div><span><b>Striped red</b> means the level has already broken.</span></div>`;
+
+    const it = list[ui.sel] || list[0];
+    const c = biasColor(it.bc);
+    $('detail').style.setProperty('--bc', c);
+    const dims = [['Holding', it.hold], ['Entry', it.entry], ['Now', it.px], ['P/L', `<span class="${it.pl >= 0 ? 'up' : 'down'}">${it.pl > 0 ? '+' : ''}${it.pl.toFixed(2)}%</span>`]];
+    $('detail').innerHTML = `<div class="d-head"><span class="ico">${it.ico}</span><div><b>${it.pair}</b><div style="font-size:12px;font-weight:500;color:${c}">${it.bias}</div></div><div class="px"><div>${it.px}</div>${pct(it.ch)}</div></div>
+      <p class="d-setup">${esc(it.setup)}</p>
+      <div class="d-dims">${dims.map(([k, v]) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
+      <div class="chart">${levelChart(it)}</div>
+      <div class="d-cols">
+        <div><h4 class="eyebrow">What we see</h4><ul>${it.sees.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+        <div class="lv"><h4 class="eyebrow" style="margin:0">Levels</h4>
+          <div><b class="down">${it.inv[0]}</b>${it.cushion == null ? esc(it.inv[1]) : `Invalid on ${esc(lc(it.inv[1]))}`}</div>
+          <div><b class="white">${it.tgt[0]}</b>${esc(it.tgt[1])}</div></div>
+      </div>
+      <div class="d-actions">
+        <button type="button" class="btn" data-go="${it.pair}">Open chart <kbd>↵</kbd></button>
+        <button type="button" class="btn2">Review in Portfolio</button>
+        <span class="note">A check, not an instruction.</span>
       </div>`;
   }
 

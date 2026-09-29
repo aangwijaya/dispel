@@ -1,34 +1,33 @@
 import { useState } from 'react'
+import { dec } from '../../lib/decimal'
 import { formatDateTime, formatPrice, formatQuantity } from '../../lib/market/format'
 import { getMarket, marketDisplayName } from '../../lib/markets'
 import type { Order } from '../../types/trading'
 import type { PaperTrading } from '../trading/usePaperTrading'
+import { useTickers } from '../trading/useTickers'
 
 interface BottomPanelProps {
   paper: PaperTrading
 }
 
-function StatusBadge({ status }: { status: Order['status'] }) {
-  const tone =
-    status === 'filled'
-      ? 'bg-buy/15 text-buy'
-      : status === 'cancelled'
-        ? 'bg-sell/15 text-sell'
-        : 'bg-warn/15 text-warn'
-  return (
-    <span className={`rounded-pill px-1.5 py-0.5 text-micro font-medium ${tone}`}>{status}</span>
-  )
+type Tab = 'positions' | 'open' | 'history'
+
+function usdt(value: string, digits = 2): string {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) return '—'
+  return numeric.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
 
 function orderPrice(order: Order): string {
-  const price = order.limitPrice ?? order.filledAvgPrice
-  return price ?? '—'
+  return order.limitPrice ?? order.filledAvgPrice ?? '—'
 }
 
 export function BottomPanel({ paper }: BottomPanelProps) {
-  const [tab, setTab] = useState<'open' | 'history'>('open')
+  const [tab, setTab] = useState<Tab>('positions')
   const [actionError, setActionError] = useState<string | null>(null)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+
+  const tickers = useTickers(paper.positions.map((position) => position.symbol))
 
   async function handleCancel(orderId: string) {
     setActionError(null)
@@ -42,98 +41,141 @@ export function BottomPanel({ paper }: BottomPanelProps) {
     }
   }
 
-  const rows = tab === 'open' ? paper.openOrders : paper.history
+  const positionValue = paper.positions.reduce(
+    (total, position) => total.plus(dec(position.quantity).mul(tickers[position.symbol]?.lastPrice ?? position.avgEntryPrice)),
+    dec(0),
+  )
+  const equity = dec(paper.account?.cashBalance ?? '0').plus(positionValue)
 
   return (
-    <section className="flex h-56 shrink-0 flex-col bg-panel">
-      <div className="flex h-8 shrink-0 items-center gap-1 border-b border-edge px-2">
-        <button
-          type="button"
-          onClick={() => setTab('open')}
-          className={`h-6 rounded-md px-2 text-micro font-medium ${
-            tab === 'open' ? 'bg-inset text-ink' : 'text-faint hover:text-ink'
-          }`}
-        >
-          Open orders ({paper.openOrders.length})
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('history')}
-          className={`h-6 rounded-md px-2 text-micro font-medium ${
-            tab === 'history' ? 'bg-inset text-ink' : 'text-faint hover:text-ink'
-          }`}
-        >
-          Order history ({paper.history.length})
-        </button>
-        <span className="ml-auto text-micro text-faint">
-          {paper.loading ? 'Loading…' : `${paper.positions.length} open positions`}
-        </span>
+    <section className="panel orders" aria-label="Orders">
+      <div className="head">
+        <div className="tabs" role="tablist">
+          <button type="button" role="tab" aria-selected={tab === 'positions'} onClick={() => setTab('positions')}>
+            Positions {paper.positions.length}
+          </button>
+          <button type="button" role="tab" aria-selected={tab === 'open'} onClick={() => setTab('open')}>
+            Open orders {paper.openOrders.length}
+          </button>
+          <button type="button" role="tab" aria-selected={tab === 'history'} onClick={() => setTab('history')}>
+            History
+          </button>
+        </div>
+        <span className="mono smoke">Paper account · {usdt(equity.toFixed(2))} USDT equity</span>
       </div>
 
-      {paper.error ? (
-        <p className="border-b border-edge px-3 py-1.5 text-micro text-sell">{paper.error}</p>
-      ) : null}
-      {actionError ? (
-        <p className="border-b border-edge px-3 py-1.5 text-micro text-sell">{actionError}</p>
-      ) : null}
+      {paper.error ? <p className="book-state">{paper.error}</p> : null}
+      {actionError ? <p className="book-state">{actionError}</p> : null}
 
-      <div className="min-h-0 flex-1 overflow-auto">
-        {rows.length === 0 ? (
-          <p className="px-3 py-6 text-center text-caption text-faint">
-            {tab === 'open' ? 'No open orders.' : 'No order history yet.'}
+      {tab === 'positions' ? (
+        paper.positions.length === 0 ? (
+          <p className="book-state" style={{ padding: '18px 12px', textAlign: 'center' }}>
+            No open positions.
           </p>
         ) : (
-          <table className="w-full text-caption">
-            <thead className="sticky top-0 bg-panel text-micro uppercase tracking-wide text-faint">
-              <tr className="border-b border-hairline">
-                <th className="px-3 py-1.5 text-left font-medium">Time</th>
-                <th className="px-3 py-1.5 text-left font-medium">Market</th>
-                <th className="px-3 py-1.5 text-left font-medium">Side</th>
-                <th className="px-3 py-1.5 text-left font-medium">Type</th>
-                <th className="px-3 py-1.5 text-right font-medium">Price</th>
-                <th className="px-3 py-1.5 text-right font-medium">Amount</th>
-                <th className="px-3 py-1.5 text-right font-medium">Fee</th>
-                <th className="px-3 py-1.5 text-left font-medium">Status</th>
-                <th className="px-3 py-1.5 text-right font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((order) => (
-                <tr key={order.id} className="border-b border-hairline hover:bg-inset">
-                  <td className="whitespace-nowrap px-3 py-1 text-faint">{formatDateTime(order.createdAt)}</td>
-                  <td className="px-3 py-1 font-medium text-ink">{marketDisplayName(order.symbol)}</td>
-                  <td className={`px-3 py-1 font-medium ${order.side === 'buy' ? 'text-buy' : 'text-sell'}`}>
-                    {order.side.toUpperCase()}
-                  </td>
-                  <td className="px-3 py-1 capitalize text-body">{order.type}</td>
-                  <td className="px-3 py-1 text-right tabular-nums text-body">{orderPrice(order)}</td>
-                  <td className="px-3 py-1 text-right tabular-nums text-body">
-                    {formatQuantity(order.quantity, getMarket(order.symbol)?.quantityPrecision ?? 6)}
-                  </td>
-                  <td className="px-3 py-1 text-right tabular-nums text-faint">
-                    {formatPrice(order.fee, 4)}
-                  </td>
-                  <td className="px-3 py-1">
-                    <StatusBadge status={order.status} />
-                  </td>
-                  <td className="px-3 py-1 text-right">
-                    {order.status === 'open' ? (
-                      <button
-                        type="button"
-                        onClick={() => void handleCancel(order.id)}
-                        disabled={cancellingId === order.id}
-                        className="rounded-md border border-edge px-2 py-0.5 text-micro text-body hover:bg-panel hover:text-sell disabled:opacity-50"
-                      >
-                        {cancellingId === order.id ? 'Cancelling…' : 'Cancel'}
-                      </button>
-                    ) : null}
-                  </td>
+          <div className="tbl-wrap">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th className="l">Market</th>
+                  <th>Amount</th>
+                  <th>Avg entry</th>
+                  <th>Mark</th>
+                  <th>Unrealized</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+              </thead>
+              <tbody>
+                {paper.positions.map((position) => {
+                  const market = getMarket(position.symbol)
+                  const mark = tickers[position.symbol]?.lastPrice ?? position.avgEntryPrice
+                  const pnl = dec(mark).minus(position.avgEntryPrice).mul(position.quantity)
+                  const pnlPct = dec(position.avgEntryPrice).isZero()
+                    ? dec(0)
+                    : pnl.div(dec(position.avgEntryPrice).mul(position.quantity)).mul(100)
+                  return (
+                    <tr key={position.symbol}>
+                      <td className="l">
+                        <b>{marketDisplayName(position.symbol)}</b>
+                      </td>
+                      <td>{formatQuantity(position.quantity, market?.quantityPrecision ?? 6)}</td>
+                      <td>{formatPrice(position.avgEntryPrice, market?.pricePrecision ?? 2)}</td>
+                      <td>{formatPrice(mark, market?.pricePrecision ?? 2)}</td>
+                      <td className={pnl.gt(0) ? 'up' : pnl.lt(0) ? 'down' : undefined}>
+                        {pnl.gt(0) ? '+' : ''}
+                        {usdt(pnl.toFixed(2))} <small>{pnlPct.toFixed(2)}%</small>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      ) : (
+        (() => {
+          const rows = tab === 'open' ? paper.openOrders : paper.history
+          if (rows.length === 0) {
+            return (
+              <p className="book-state" style={{ padding: '18px 12px', textAlign: 'center' }}>
+                {tab === 'open' ? 'No open orders.' : 'No order history yet.'}
+              </p>
+            )
+          }
+          return (
+            <div className="tbl-wrap">
+              <table className="tbl">
+                <thead>
+                  <tr>
+                    <th className="l">Placed</th>
+                    <th className="l">Market</th>
+                    <th className="l">Side</th>
+                    <th className="l">Type</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    {tab === 'history' ? <th>Fee</th> : null}
+                    <th className="l">Status</th>
+                    {tab === 'open' ? <th /> : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((order) => (
+                    <tr key={order.id}>
+                      <td className="l">{formatDateTime(order.createdAt)}</td>
+                      <td className="l">
+                        <b>{marketDisplayName(order.symbol)}</b>
+                      </td>
+                      <td className={`l side-b ${order.side === 'buy' ? 'up' : 'down'}`}>
+                        {order.side.toUpperCase()}
+                      </td>
+                      <td className="l" style={{ textTransform: 'capitalize' }}>
+                        {order.type}
+                      </td>
+                      <td>{orderPrice(order)}</td>
+                      <td>{formatQuantity(order.quantity, getMarket(order.symbol)?.quantityPrecision ?? 6)}</td>
+                      {tab === 'history' ? <td>{formatPrice(order.fee, 4)}</td> : null}
+                      <td className="l" style={{ textTransform: 'capitalize' }}>
+                        {order.status}
+                      </td>
+                      {tab === 'open' ? (
+                        <td>
+                          <button
+                            type="button"
+                            className="cancel"
+                            onClick={() => void handleCancel(order.id)}
+                            disabled={cancellingId === order.id}
+                          >
+                            {cancellingId === order.id ? 'Cancelling…' : 'Cancel'}
+                          </button>
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        })()
+      )}
     </section>
   )
 }
