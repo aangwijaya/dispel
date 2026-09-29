@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc07a"/><stop offset=".3" stop-color="#ff6363"/><stop offset=".72" stop-color="#ff2f6d"/><stop offset="1" stop-color="#7a0f2e" stop-opacity=".2"/></linearGradient>
+    <linearGradient id="cool" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8aa4ff"/><stop offset=".45" stop-color="#2d52d6"/><stop offset="1" stop-color="#02193b" stop-opacity=".2"/></linearGradient>
+    <radialGradient id="glowWarm" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4b5c" stop-opacity=".55"/><stop offset="1" stop-color="#ff4b5c" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowCool" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#1f47c7" stop-opacity=".5"/><stop offset="1" stop-color="#1f47c7" stop-opacity="0"/></radialGradient>
+    <radialGradient id="focusGrad" cx="820" cy="470" r="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="focus" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000"><rect width="1600" height="1000" fill="url(#focusGrad)"/></mask>
+    <filter id="haze" filterUnits="userSpaceOnUse" x="-300" y="-300" width="2200" height="1600"><feGaussianBlur stdDeviation="30"/></filter>
+    <filter id="soft" filterUnits="userSpaceOnUse" x="-300" y="-300" width="2200" height="1600"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.07 0"/>
+    </filter>
+    <g id="run" transform="rotate(28 800 500)">
+    <rect x="-260" y="760.0" width="60" height="173.5" rx="7" fill="url(#cool)"/><rect x="-231.5" y="649.0" width="3" height="373.6" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="-172" y="933.5" width="60" height="205.8" rx="7" fill="url(#cool)"/><rect x="-143.5" y="862.4" width="3" height="310.7" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="-84" y="1008.6" width="60" height="130.7" rx="7" fill="url(#warm)"/><rect x="-55.5" y="961.2" width="3" height="297.5" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="4" y="1008.6" width="60" height="202.4" rx="7" fill="url(#cool)"/><rect x="32.5" y="953.6" width="3" height="301.7" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="92" y="937.9" width="60" height="273.1" rx="7" fill="url(#warm)"/><rect x="120.5" y="833.5" width="3" height="480.9" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="180" y="795.6" width="60" height="142.3" rx="7" fill="url(#warm)"/><rect x="208.5" y="692.0" width="3" height="268.9" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="268" y="795.6" width="60" height="257.9" rx="7" fill="url(#cool)"/><rect x="296.5" y="695.7" width="3" height="387.9" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="356" y="833.3" width="60" height="220.2" rx="7" fill="url(#warm)"/><rect x="384.5" y="809.2" width="3" height="289.9" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="444" y="587.9" width="60" height="245.4" rx="7" fill="url(#warm)"/><rect x="472.5" y="542.0" width="3" height="361.9" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="532" y="383.0" width="60" height="205.0" rx="7" fill="url(#warm)"/><rect x="560.5" y="308.4" width="3" height="363.9" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="620" y="383.0" width="60" height="237.1" rx="7" fill="url(#cool)"/><rect x="648.5" y="282.3" width="3" height="379.4" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="708" y="620.0" width="60" height="156.0" rx="7" fill="url(#cool)"/><rect x="736.5" y="508.8" width="3" height="299.8" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="796" y="776.1" width="60" height="129.7" rx="7" fill="url(#cool)"/><rect x="824.5" y="755.9" width="3" height="217.8" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="884" y="790.4" width="60" height="115.4" rx="7" fill="url(#warm)"/><rect x="912.5" y="677.1" width="3" height="271.4" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="972" y="577.6" width="60" height="212.8" rx="7" fill="url(#warm)"/><rect x="1000.5" y="485.0" width="3" height="382.9" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="1060" y="577.6" width="60" height="190.3" rx="7" fill="url(#cool)"/><rect x="1088.5" y="496.5" width="3" height="298.8" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    <rect x="1148" y="668.2" width="60" height="99.7" rx="7" fill="url(#warm)"/><rect x="1176.5" y="558.7" width="3" height="326.4" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="1236" y="413.1" width="60" height="255.1" rx="7" fill="url(#warm)"/><rect x="1264.5" y="372.3" width="3" height="357.0" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="1324" y="324.8" width="60" height="88.3" rx="7" fill="url(#warm)"/><rect x="1352.5" y="291.6" width="3" height="176.0" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="1412" y="31.6" width="60" height="293.2" rx="7" fill="url(#warm)"/><rect x="1440.5" y="-29.6" width="3" height="411.3" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="1500" y="-184.4" width="60" height="216.0" rx="7" fill="url(#warm)"/><rect x="1528.5" y="-244.9" width="3" height="297.2" rx="1.5" fill="url(#warm)" opacity=".75"/>
+    <rect x="1588" y="-184.4" width="60" height="156.8" rx="7" fill="url(#cool)"/><rect x="1616.5" y="-286.8" width="3" height="294.9" rx="1.5" fill="url(#cool)" opacity=".75"/>
+    </g>
+  </defs>
+  <ellipse cx="1000" cy="380" rx="620" ry="380" fill="url(#glowWarm)"/>
+  <ellipse cx="360" cy="820" rx="560" ry="340" fill="url(#glowCool)"/>
+  <use href="#run" filter="url(#haze)" opacity=".95"/>
+  <use href="#run" filter="url(#soft)" mask="url(#focus)" opacity="0.9"/>
+  <rect width="1600" height="1000" filter="url(#grain)"/>
+</svg>
