@@ -43,7 +43,7 @@ function metaFor(page: Page, readAt: string | null): MetaStrip {
         ? 'Next on schedule'
         : `Next ${clockFromIso(new Date(Date.parse(readAt) + 15 * 60_000).toISOString())}`
     return {
-      pipes: ['Binance public data', readLabel, nextLabel, 'Paper trading'],
+      pipes: ['Binance public data', readLabel, nextLabel, 'Paper trading', 'On-chain data: Coin Metrics'],
       keys: [
         { k: '↑↓', label: 'setup' },
         { k: '↵', label: 'open chart' },

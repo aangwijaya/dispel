@@ -206,7 +206,7 @@ export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpe
           </svg>
           Why this read <kbd>E</kbd>
         </button>
-        <span className="mono">Trend · Momentum · Volume · Volatility · Breadth · Levels</span>
+        <span className="mono">Trend · Momentum · Volume · Volatility · Breadth · Levels · Positioning · On-chain</span>
       </div>
       <div className="why" id="why" hidden={!whyOpen}>
         {read.evidence.map((item) => (

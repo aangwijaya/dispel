@@ -4,7 +4,7 @@ import { composeRead } from './compose.ts'
 import { collectCopy, findC4Violations } from './__fixtures__/c4.ts'
 import { candidateAnswers, choice, makeResponse, marketAnswers } from './__fixtures__/answers.ts'
 import { mockCandidate, mockFacts, previousRead } from './__fixtures__/mock.ts'
-import type { ComposeInput, MarketFacts, ReadPayload } from './types.ts'
+import type { ComposeInput, DerivativesFacts, MarketFacts, OnchainFacts, ReadPayload } from './types.ts'
 
 const AS_OF = '2026-09-28T14:30:00.000Z'
 
@@ -50,7 +50,10 @@ function fixtureFacts(): MarketFacts[] {
   ]
 }
 
-function composeFixture(previousReads: ComposeInput['previousReads'] = []): ReadPayload {
+function composeFixture(
+  previousReads: ComposeInput['previousReads'] = [],
+  extra: Partial<ComposeInput> = {},
+): ReadPayload {
   const facts = fixtureFacts()
   const sol = mockCandidate('SOL', '15m-1h')
   const link = mockCandidate('LINK', '1h-4h', { pattern: 'momentum_turn' })
@@ -60,11 +63,49 @@ function composeFixture(previousReads: ComposeInput['previousReads'] = []): Read
       regime: choice('constructive', 0.8),
       bias: choice('bullish', 0.9),
     }),
+    positioning: choice('crowded_long', 0.8),
+    onchain_alignment: choice('supports', 0.8),
     ...candidateAnswers('SOL'),
     ...candidateAnswers('LINK', { type: 'momentum_turn' }),
   })
   const mapped = mapAnswers(answers, [sol, link])
-  return composeRead({ asOf: AS_OF, facts, candidates: [], mapped, previousReads })
+  return composeRead({ asOf: AS_OF, facts, candidates: [], mapped, previousReads, ...extra })
+}
+
+const DERIVATIVES: DerivativesFacts = {
+  as_of_utc: AS_OF,
+  venues_answered: ['gate_futures'],
+  venues_failed: ['binance_futures', 'hyperliquid'],
+  funding: { btc: { current_8h_pct: -0.01, avg_24h_8h_pct: 0.005, by_venue_8h_pct: { gate_futures: -0.01 } } },
+  open_interest_usd: { btc: 12_000_000_000 },
+  oi_change_pct: { btc: { '1h': 6.2, '4h': 2, '24h': 1 } },
+  price_change_pct: { btc: { '1h': 0.2, '4h': 0.4, '24h': 1.2 } },
+  liquidations_24h_usd: { btc: { long: 60_000_000, short: 5_000_000 } },
+  long_short_account_ratio: { btc: 1.4 },
+}
+
+function onchainFacts(date: string, netflow: number): OnchainFacts {
+  return {
+    as_of_date: date,
+    btc: {
+      netflow_ntv_today: netflow,
+      netflow_ntv_7d_sum: netflow * 6,
+      netflow_today_vs_30d_avg_pct: -150,
+      exchange_supply_30d_change_pct: -1.2,
+      active_addresses_vs_30d_avg_pct: 4,
+    },
+    eth: {
+      netflow_ntv_today: netflow,
+      netflow_ntv_7d_sum: netflow * 5,
+      netflow_today_vs_30d_avg_pct: -120,
+      exchange_supply_30d_change_pct: -0.5,
+      active_addresses_vs_30d_avg_pct: 2,
+    },
+    stablecoin_supply_usd: 160_000_000_000,
+    stablecoin_supply_7d_change_pct: 0.5,
+    stablecoin_supply_30d_change_pct: 2.1,
+    btc_mempool: { tx_count: 41_000, fastest_fee_sat_vb: 9, fastest_fee_vs_7d_median_pct: -20 },
+  }
 }
 
 describe('composeRead', () => {
@@ -80,7 +121,17 @@ describe('composeRead', () => {
     expect(payload.breadth.up + payload.breadth.down).toBe(4)
     expect(payload.stats.strength).toBeGreaterThanOrEqual(0)
     expect(payload.stats.strength).toBeLessThanOrEqual(100)
-    expect(payload.evidence).toHaveLength(6)
+    expect(payload.evidence).toHaveLength(8)
+    expect(payload.evidence.map((well) => well.label)).toEqual([
+      'Trend',
+      'Momentum',
+      'Volume',
+      'Volatility',
+      'Breadth',
+      'Levels',
+      'Positioning',
+      'On-chain',
+    ])
     expect(payload.caution.length).toBeGreaterThan(0)
     expect(payload.tags.BTC).toBeDefined()
     expect(payload.tags.SOL?.label).toBe('Setup')
@@ -122,6 +173,48 @@ describe('composeRead', () => {
 
   it('keeps every user-facing string inside the DESIGN C4 voice', () => {
     const payload = composeFixture([previousRead({ regimeIndex: 1 })])
+    expect(findC4Violations(collectCopy(payload))).toEqual([])
+  })
+
+  it('marks the new wells unavailable when the sources did not answer', () => {
+    const payload = composeFixture()
+    const positioning = payload.evidence.find((well) => well.label === 'Positioning')
+    const onchain = payload.evidence.find((well) => well.label === 'On-chain')
+    expect(positioning?.state).toBe('Unavailable')
+    expect(onchain?.state).toBe('Unavailable')
+  })
+
+  it('wires derivatives and on-chain facts into the wells and events', () => {
+    const previousInputs: ComposeInput['previousInputs'] = [
+      { asOf: '2026-09-28T14:15:00.000Z', derivatives: null, onchain: onchainFacts('2026-09-26', -900) },
+      { asOf: '2026-09-29T14:15:00.000Z', derivatives: null, onchain: onchainFacts('2026-09-27', -800) },
+      {
+        asOf: '2026-09-29T23:00:00.000Z',
+        derivatives: {
+          ...DERIVATIVES,
+          funding: { btc: { current_8h_pct: 0.012, avg_24h_8h_pct: 0.01, by_venue_8h_pct: { gate_futures: 0.012 } } },
+        },
+        onchain: onchainFacts('2026-09-28', -700),
+      },
+    ]
+    const payload = composeFixture([], {
+      derivatives: DERIVATIVES,
+      onchain: onchainFacts('2026-09-29', -1250),
+      previousInputs,
+    })
+
+    const positioning = payload.evidence.find((well) => well.label === 'Positioning')
+    expect(positioning?.state).toBe('Crowded long')
+    expect(positioning?.detail).toContain('BTC funding')
+    const onchain = payload.evidence.find((well) => well.label === 'On-chain')
+    expect(onchain?.state).toBe('Supports')
+    expect(onchain?.detail).toContain('as of Sep 29')
+
+    const kinds = payload.changes.map((event) => event.text)
+    expect(kinds.some((text) => text.includes('Funding flipped negative'))).toBe(true)
+    expect(kinds.some((text) => text.includes('open interest') && text.includes('last hour'))).toBe(true)
+    expect(kinds.some((text) => text.includes('liquidations in 24h'))).toBe(true)
+    expect(kinds.some((text) => text.includes('exchange outflows for 4 straight days'))).toBe(true)
     expect(findC4Violations(collectCopy(payload))).toEqual([])
   })
 })

@@ -35,7 +35,7 @@ describe('demo read layer', () => {
     for (const stance of STANCES) {
       const read = DEMO_READS[stance]
       expect(read.caution.length).toBeGreaterThan(0)
-      expect(read.evidence).toHaveLength(6)
+      expect(read.evidence).toHaveLength(8)
     }
   })
 

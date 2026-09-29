@@ -25,7 +25,8 @@ export const MARKET_QUESTION_IDS = ['regime', 'stance', 'bias', 'trend_strength'
 export const MARKET_QUESTIONS: Record<string, JevQuestion> = {
   regime: {
     type: 'choice',
-    instructions: 'Classify the crypto market regime described by `as_of_utc`, `breadth`, `btc` and `eth`.',
+    instructions:
+      'Classify the crypto market regime described by `as_of_utc`, `breadth`, `btc` and `eth`, and when present `derivatives` and `onchain`.',
     criteria: {
       risk_off:
         'Sellers in firm control: broad declines, BTC or ETH below a broken support level, volatility expanding.',
@@ -40,7 +41,7 @@ export const MARKET_QUESTIONS: Record<string, JevQuestion> = {
   stance: {
     type: 'choice',
     instructions:
-      "Given the market in `breadth`, `btc` and `eth`, and the candidate setups in `candidates`, what should a trader's stance be right now?",
+      "Given the market in `breadth`, `btc` and `eth`, the candidate setups in `candidates`, and when present `derivatives` and `onchain`, what should a trader's stance be right now?",
     criteria: {
       favorable: 'Clear direction and conditions support looking for entries now.',
       wait: 'Direction is mixed or volatility is elevated; no setup is strong enough to chase right now.',
@@ -72,7 +73,8 @@ export const MARKET_QUESTIONS: Record<string, JevQuestion> = {
   },
   risk: {
     type: 'score',
-    instructions: 'How costly would being wrong be right now, judged from `btc`, `eth` and `breadth`?',
+    instructions:
+      'How costly would being wrong be right now, judged from `btc`, `eth`, `breadth`, and when present `derivatives` and `onchain`?',
     criteria: [
       'Low: volatility near its normal range, price far from the nearest level, broad participation.',
       'Medium: volatility above normal or price close to a contested level.',
@@ -81,11 +83,46 @@ export const MARKET_QUESTIONS: Record<string, JevQuestion> = {
   },
 }
 
+export function positioningQuestion(): JevQuestion {
+  return {
+    type: 'choice',
+    instructions:
+      'Given `derivatives`, how are traders positioned in BTC and ETH right now? Use `derivatives.funding`, `open_interest_usd`, `oi_change_pct`, `liquidations_24h_usd` and `long_short_account_ratio`.',
+    criteria: {
+      crowded_long:
+        'Funding is clearly positive and open interest is high or rising while price stalls: longs pay to stay in and the trade looks crowded.',
+      crowded_short:
+        'Funding is clearly negative and open interest is high or rising while price holds: shorts pay to stay in and the trade looks crowded.',
+      building_leverage:
+        'Open interest is rising with mixed or modest funding: leverage is being added without a one-sided crowd yet.',
+      deleveraging:
+        'Open interest is falling across the 1h, 4h and 24h windows, or large liquidations have cleared positions.',
+      balanced: 'Funding near zero and open interest broadly flat: neither side is crowded.',
+    },
+  }
+}
+
+export function onchainAlignmentQuestion(): JevQuestion {
+  return {
+    type: 'choice',
+    instructions:
+      'Does the on-chain activity in `onchain` support, contradict, or say nothing clear about the price trend in `btc` and `eth`?',
+    criteria: {
+      supports:
+        'Exchange netflow, exchange supply and activity point the same way as the price trend (for example sustained outflows while price holds or rises, or rising active addresses in an uptrend).',
+      contradicts:
+        'On-chain flows or activity point against the price trend (for example sustained inflows into exchanges while price rises, or falling activity in an uptrend).',
+      unclear:
+        'The on-chain numbers are unavailable, stale, or genuinely mixed, so they add no directional information.',
+    },
+  }
+}
+
 export function candidateQuestions(symbol: string): Record<string, JevQuestion> {
   return {
     [`${symbol}_worth`]: {
       type: 'noul',
-      instructions: `Is the setup described in \`candidates.${symbol}\` worth a trader investigating now, given the market context in \`breadth\`, \`btc\` and \`eth\`?`,
+      instructions: `Is the setup described in \`candidates.${symbol}\` worth a trader investigating now, given the market context in \`breadth\`, \`btc\` and \`eth\`? When present, use the derivatives facts in \`candidates.${symbol}.derivatives\`; on-chain facts are market-wide only.`,
       criteria: {
         true: 'Worth investigating: the pattern is clearly present, the levels are concrete, and the market context does not contradict it.',
         false:
@@ -105,7 +142,7 @@ export function candidateQuestions(symbol: string): Record<string, JevQuestion> 
     },
     [`${symbol}_target_first`]: {
       type: 'noul',
-      instructions: `Will the price in \`candidates.${symbol}\` reach \`candidates.${symbol}.target\` before \`candidates.${symbol}.invalidation\` within \`candidates.${symbol}.horizon\`?`,
+      instructions: `Will the price in \`candidates.${symbol}\` reach \`candidates.${symbol}.target\` before \`candidates.${symbol}.invalidation\` within \`candidates.${symbol}.horizon\`? When present, use the derivatives facts in \`candidates.${symbol}.derivatives\` for the short-term odds.`,
       criteria: {
         true: 'The target is reached before the invalidation level within the stated horizon.',
         false:
@@ -128,8 +165,13 @@ export function candidateQuestionIds(symbol: string): string[] {
   return [`${symbol}_worth`, `${symbol}_type`, `${symbol}_target_first`, `${symbol}_risk`]
 }
 
-export function buildQuestions(candidates: Candidate[]): Record<string, JevQuestion> {
+export function buildQuestions(
+  candidates: Candidate[],
+  options?: { derivatives?: boolean; onchain?: boolean },
+): Record<string, JevQuestion> {
   const questions: Record<string, JevQuestion> = { ...MARKET_QUESTIONS }
+  if (options?.derivatives === true) questions.positioning = positioningQuestion()
+  if (options?.onchain === true) questions.onchain_alignment = onchainAlignmentQuestion()
   for (const candidate of candidates) {
     Object.assign(questions, candidateQuestions(candidate.symbol))
   }

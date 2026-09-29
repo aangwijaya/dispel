@@ -2,8 +2,12 @@ import type {
   BiasKey,
   Candidate,
   ChangeEvent,
+  DerivativesFacts,
   Evidence,
   MarketFacts,
+  OnchainAlignmentKey,
+  OnchainFacts,
+  PositioningKey,
   SetupTypeKey,
   StanceKey,
   Tone,
@@ -111,6 +115,32 @@ export function caution(volatility: VolatilityLevel, extendedSetups: number): st
   return 'Keep the invalidation levels visible. The next read can change the picture.'
 }
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+export function formatOnchainDate(date: string): string {
+  const [, month, day] = date.split('-')
+  const monthIndex = Number(month) - 1
+  const label = MONTHS[monthIndex] ?? month ?? ''
+  return `${label} ${Number(day)}`
+}
+
+export function formatMoneyCompact(value: number): string {
+  const abs = Math.abs(value)
+  const sign = value < 0 ? '-' : ''
+  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(1)}K`
+  return `${sign}$${abs.toFixed(0)}`
+}
+
+function signedPct(value: number, digits = 2): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`
+}
+
+function coinLabel(coin: string): string {
+  return coin.toUpperCase()
+}
+
 export function evidenceWells(input: {
   btc: MarketFacts
   up: number
@@ -119,8 +149,12 @@ export function evidenceWells(input: {
   volumePct: number
   volatility: VolatilityLevel
   medianAtrRatio: number
+  positioning: PositioningKey | null
+  onchainAlignment: OnchainAlignmentKey | null
+  derivatives: DerivativesFacts | null
+  onchain: OnchainFacts | null
 }): Evidence[] {
-  const { btc, up, down, coverage, volumePct, volatility, medianAtrRatio } = input
+  const { btc, up, down, coverage, volumePct, volatility, medianAtrRatio, positioning, onchainAlignment } = input
   const upShare = coverage === 0 ? 0.5 : up / coverage
   const trendTone: Tone = btc.trend4h.includes('higher')
     ? 'up'
@@ -176,7 +210,106 @@ export function evidenceWells(input: {
       tone: atResistance ? 'caution' : atSupport ? 'up' : 'neutral',
       detail: `BTC ${btc.nearestResistance === null ? 'no clear resistance' : formatNumber(btc.nearestResistance, btc.market.pricePrecision)} · ${btc.nearestSupport === null ? 'no clear support' : formatNumber(btc.nearestSupport, btc.market.pricePrecision)}`,
     },
+    positioningWell(input.derivatives, positioning),
+    onchainWell(input.onchain, onchainAlignment),
   ]
+}
+
+function positioningWell(derivatives: DerivativesFacts | null, positioning: PositioningKey | null): Evidence {
+  if (derivatives === null) {
+    return {
+      label: 'Positioning',
+      state: 'Unavailable',
+      tone: 'neutral',
+      detail: 'Derivatives sources did not answer this cycle',
+    }
+  }
+  const funding = derivatives.funding.btc
+  const oiChange = derivatives.oi_change_pct.btc?.['24h']
+  const fundingText =
+    funding === undefined
+      ? 'BTC funding n/a'
+      : `BTC funding ${signedPct(funding.current_8h_pct, 3)} 8h`
+  const oiText = oiChange == null ? '' : ` · OI ${signedPct(oiChange, 1)} 24h`
+  const detail = `${fundingText}${oiText}`
+  const states: Record<PositioningKey, { state: string; tone: Tone }> = {
+    crowded_long: { state: 'Crowded long', tone: 'caution' },
+    crowded_short: { state: 'Crowded short', tone: 'caution' },
+    building_leverage: { state: 'Leverage rising', tone: 'caution' },
+    deleveraging: { state: 'Deleveraging', tone: 'neutral' },
+    balanced: { state: 'Balanced', tone: 'neutral' },
+  }
+  const mapped = positioning === null ? { state: 'Unclear', tone: 'neutral' as Tone } : states[positioning]
+  return { label: 'Positioning', state: mapped.state, tone: mapped.tone, detail }
+}
+
+function onchainWell(onchain: OnchainFacts | null, alignment: OnchainAlignmentKey | null): Evidence {
+  if (onchain === null) {
+    return {
+      label: 'On-chain',
+      state: 'Unavailable',
+      tone: 'neutral',
+      detail: 'Sources did not answer this cycle',
+    }
+  }
+  const states: Record<OnchainAlignmentKey, { state: string; tone: Tone }> = {
+    supports: { state: 'Supports', tone: 'up' },
+    contradicts: { state: 'Contradicts', tone: 'down' },
+    unclear: { state: 'Unclear', tone: 'neutral' },
+  }
+  const mapped = alignment === null ? states.unclear : states[alignment]
+  const netflow = `${onchain.btc.netflow_ntv_7d_sum >= 0 ? '+' : ''}${formatNumber(onchain.btc.netflow_ntv_7d_sum, 0)} BTC 7d`
+  const stablecoins =
+    onchain.stablecoin_supply_30d_change_pct === null
+      ? 'stablecoins n/a'
+      : `stablecoins ${signedPct(onchain.stablecoin_supply_30d_change_pct, 1)} 30d`
+  return {
+    label: 'On-chain',
+    state: mapped.state,
+    tone: mapped.tone,
+    detail: `${netflow} · ${stablecoins} · as of ${formatOnchainDate(onchain.as_of_date)}`,
+  }
+}
+
+export function eventFundingFlip(coin: string, from: number, to: number, time: string): ChangeEvent {
+  return {
+    time,
+    subject: coinLabel(coin),
+    kind: 'caution',
+    text: `Funding flipped ${to < 0 ? 'negative' : 'positive'} on ${coinLabel(coin)} (${signedPct(to, 3)} 8h)`,
+    detail: `From ${signedPct(from, 3)}`,
+  }
+}
+
+export function eventOiSpike(coin: string, changePct: number, time: string): ChangeEvent {
+  return {
+    time,
+    subject: coinLabel(coin),
+    kind: 'caution',
+    text: `${coinLabel(coin)} open interest ${signedPct(changePct, 1)} in the last hour`,
+    detail: 'Moves of 5% or more can precede sharp reversals',
+  }
+}
+
+export function eventLiquidations(coin: string, longUsd: number, shortUsd: number, time: string): ChangeEvent {
+  const dominant = longUsd >= shortUsd ? 'long' : 'short'
+  return {
+    time,
+    subject: coinLabel(coin),
+    kind: 'caution',
+    text: `${coinLabel(coin)} saw ${formatMoneyCompact(longUsd + shortUsd)} of ${dominant} liquidations in 24h`,
+    detail: `Long ${formatMoneyCompact(longUsd)} · Short ${formatMoneyCompact(shortUsd)}`,
+  }
+}
+
+export function eventExchangeOutflows(asset: string, days: number, netflow7d: number, time: string): ChangeEvent {
+  return {
+    time,
+    subject: coinLabel(asset),
+    kind: 'info',
+    text: `${coinLabel(asset)} exchange outflows for ${days} straight days`,
+    detail: `7-day net ${netflow7d >= 0 ? '+' : ''}${Math.round(netflow7d)} ${coinLabel(asset)}`,
+  }
 }
 
 export function setupBias(type: SetupTypeKey, direction: Candidate['direction']): { label: string; tone: Tone } {

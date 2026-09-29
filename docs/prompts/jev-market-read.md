@@ -200,3 +200,98 @@ run the app, check favorable/wait/unclear/reduce-risk rendering from real rows (
 the market won't cooperate), stale and offline states, and that no request from the client ever
 contains the TypeSafe key. Update README and docs/specs.
 ```
+
+---
+
+## Phase 6: derivatives positioning + on-chain activity
+
+The live pipeline (Phases 1–5) is already built. This phase adds two new inputs to the Jev state.
+Sources were probed on 2026-09-30. From this dev machine, Binance futures, Bybit, OKX and Deribit
+were **blocked** (ISP), while **Hyperliquid** and **Gate.io** answered. The Edge Function runs from
+the Supabase project in **ap-northeast-1 (Tokyo)**, so what matters is what answers from there: the
+prompt makes the agent probe from the deployed function before relying on any source.
+
+Personal, non-commercial project: Coin Metrics Community data (CC BY-NC 4.0) is allowed with attribution.
+
+```text
+Plan Phase 6: add derivatives positioning (funding rate, open interest) and on-chain activity to the
+Jev read. Extend the existing engine in supabase/functions/_shared/read/ (marketData.ts, facts.ts,
+state.ts, questions.ts, answers.ts, compose.ts, templates.ts, types.ts) and
+supabase/functions/market-read/index.ts. Keep every rule from AGENTS.md and the kickoff prompt:
+code computes all numbers and all copy; Jev only judges; every payload goes through a sanitizer;
+pure logic stays testable with vitest; no new runtime dependency; the API key stays server-side.
+
+## Sources (all free, no key)
+Derivatives, per venue, each optional:
+- Binance USDⓈ-M (largest venue, may be geo-blocked from Tokyo):
+  GET https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT  (lastFundingRate, 8h)
+  GET https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT
+  GET https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=1h&limit=25
+- Gate.io (verified reachable):
+  GET https://api.gateio.ws/api/v4/futures/usdt/contracts/BTC_USDT  (funding_rate, 8h)
+  GET https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=1h&limit=25
+      (open_interest_usd, long_liq_usd, short_liq_usd, lsr_account)
+- Hyperliquid, an on-chain perp venue (verified reachable):
+  POST https://api.hyperliquid.xyz/info {"type":"metaAndAssetCtxs"}  (per coin: funding [HOURLY],
+  openInterest [in coins], markPx, premium, dayNtlVlm)
+  POST https://api.hyperliquid.xyz/info {"type":"fundingHistory","coin":"BTC","startTime":<ms>}
+  Hyperliquid has no OI history: compute its OI change from our own stored snapshots.
+On-chain (daily, about one day behind; refetch only when the UTC date changes, otherwise reuse the
+previous market_reads row's on-chain facts):
+- Coin Metrics Community: https://community-api.coinmetrics.io/v4/timeseries/asset-metrics
+  ?assets=btc,eth&metrics=FlowInExNtv,FlowOutExNtv,SplyExNtv,AdrActCnt&frequency=1d&page_size=35&paging_from=end
+  (10 requests / 6 s per IP; a "-status":"flash" value is preliminary). USDT/USDC: SplyCur.
+- DefiLlama: https://stablecoins.llama.fi/stablecoincharts/all (total stablecoin supply).
+- mempool.space: /api/v1/fees/recommended and /api/mempool (live BTC congestion, every cycle).
+
+## Step 0: probe from the deployed region (before building on any source)
+Add a probe mode to market-read: POST with the x-cron-secret header and {"probe":true} returns
+per-source { ok, http_status, latency_ms } without calling Jev or writing a row. I will deploy and
+run it once. Design so any source can be missing: record per-source health in a new
+`inputs_health` jsonb column on market_reads (migration), and omit failed sources from the state.
+
+## Facts code computes (pure functions + fixture tests per provider payload)
+- Funding normalised to an 8h-equivalent rate (Hyperliquid is hourly × 8). Per coin: current,
+  24h average, and an OI-weighted average across the venues that answered.
+- Open interest in USD per venue and summed: change over 1h, 4h, 24h (%). Use Binance/Gate history
+  where available, and our stored snapshots otherwise.
+- Price vs OI relationship as numbers only (price change % and OI change % over the same window).
+- Gate: 24h long vs short liquidations (USD) and the long/short account ratio.
+- On-chain: BTC/ETH exchange netflow (today, 7-day sum, vs 30-day daily average), exchange supply
+  30-day change %, active addresses vs 30-day average %, stablecoin supply 7d/30d change %, and the
+  BTC mempool tx count and fastest fee vs a 7-day median kept from our own rows.
+Derivatives facts apply market-wide (BTC, ETH) AND per setup candidate when that coin trades on a
+venue. On-chain facts are market-wide only.
+
+## State and questions
+- State: add `derivatives` (with `venues_answered`) and `onchain` (with `as_of_date` per source)
+  objects. Per candidate, add `candidates.<SYM>.derivatives` when available.
+- Mention `derivatives` and `onchain` in the regime, stance and risk instructions.
+- New market-wide Choice `positioning`, self-contained, e.g. "Given `derivatives`, how are traders
+  positioned?" with criteria crowded_long / crowded_short / building_leverage / deleveraging /
+  balanced, each with a concrete description.
+- New market-wide Choice `onchain_alignment`: "Does the on-chain activity in `onchain` support,
+  contradict, or say nothing clear about the price trend in `btc` and `eth`?"
+  (supports / contradicts / unclear).
+- Per candidate: include derivatives facts in the state that `<SYM>_worth` and
+  `<SYM>_target_first` already read, and say so in their instructions. No new per-candidate question.
+
+## UI (DESIGN.md C3; no engine name anywhere)
+- "Why this read" grows from 6 to 8 wells: add "Positioning" and "On-chain". Lay them out 4 × 2 on
+  desktop, 2 columns below 760px. The On-chain well shows its data date ("as of Sep 28"). A well
+  whose source failed shows "Unavailable", not stale numbers.
+- Changes panel: new code-detected events: funding flips sign, OI moves more than ±5% in 1h,
+  24h liquidations above a threshold, 3+ days of exchange outflows. Voice per DESIGN C4.
+- Meta strip: "On-chain data: Coin Metrics" (licence attribution). README: note the non-commercial
+  licence and list every source.
+
+## Verification
+typecheck/test/build green; fixtures for every provider payload including error and partial
+responses; a pipeline test where Binance fails but Gate and Hyperliquid answer; the probe run from
+the deployed function (I'll paste you the output); a real row showing the new facts, the two new
+answers and inputs_health. Store all new facts in the row so we can later check whether they improved
+the read.
+
+Plan only for now. Show me the updated state shape, the two new questions with full criteria text,
+and the migration, before writing code.
+```

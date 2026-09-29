@@ -136,6 +136,27 @@ select status_code, content, created from net._http_response order by created de
 previous answers were reused with fresh facts. If Binance cannot be reached from the project region,
 the function returns 503 and writes nothing, so the schedule simply retries in 15 minutes.
 
+### Inputs (derivatives + on-chain)
+
+Besides spot prices, every read gathers optional inputs; a failing source is recorded in
+`inputs_health` and left out of the state instead of failing the read:
+
+| Source | Facts |
+| --- | --- |
+| Binance USDⓈ-M futures | funding (8h), open interest and 1h/4h/24h OI history |
+| Gate.io futures | funding, OI history, 24h long/short liquidations, long/short account ratio |
+| Hyperliquid | hourly funding (normalised to 8h) and open interest per coin |
+| Coin Metrics Community | BTC/ETH exchange netflow, exchange supply, active addresses (daily) |
+| DefiLlama | total stablecoin supply (daily) |
+| mempool.space | BTC mempool size and fastest fee (live) |
+
+Coin Metrics Community data is used under **CC BY-NC 4.0** (personal, non-commercial project) with
+attribution shown in the Home meta strip. On-chain facts are refetched only when the UTC date changes
+and are reused from the previous row otherwise; open-interest windows fall back to our stored
+snapshots. The computed facts are kept in `market_reads.inputs` and per-source health in
+`inputs_health`. `POST {"probe":true}` with the cron secret returns a per-source probe report from
+the deployed region without calling Jev or writing a row.
+
 ## How money works
 
 All balance, position, average-entry and realized-P/L math runs inside Postgres `numeric`
