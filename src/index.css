@@ -1254,3 +1254,53 @@ kbd {
     padding: 20px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Lite mode — software renderers (src/lib/perf.ts).
+   Same look, no per-frame paint: animated conic border, drifting blurs and
+   backdrop filters are the expensive parts on CPU rasterizers.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root[data-perf='lite'] .ambient {
+  filter: blur(26px) saturate(115%);
+}
+
+:root[data-perf='lite'] .read-panel::before {
+  animation: none;
+}
+
+:root[data-perf='lite'] .aura img {
+  animation: none;
+}
+
+:root[data-perf='lite'] .welcome > img,
+:root[data-perf='lite'] .art {
+  animation: none;
+}
+
+:root[data-perf='lite'] .tape-track {
+  animation: none;
+}
+
+:root[data-perf='lite'] .stats,
+:root[data-perf='lite'] .why-bar {
+  backdrop-filter: none;
+  background: rgba(7, 8, 10, 0.92);
+}
+
+:root[data-perf='lite'] .sdot::after,
+:root[data-perf='lite'] .ribbon b:last-child::after {
+  animation: none;
+}
+
+:root[data-perf='lite'] .eq-chart circle:first-of-type,
+:root[data-perf='lite'] .verdict.enter,
+:root[data-perf='lite'] .events.enter li,
+:root[data-perf='lite'] .tr.flash,
+:root[data-perf='lite'] .tx.new {
+  animation: none;
+}
+
+:root[data-perf='lite'] .eq-chart circle:first-of-type {
+  display: none;
+}
