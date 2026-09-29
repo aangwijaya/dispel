@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   checkMinNotional,
+  looksLikeSecret,
   parseEmail,
   parseFundsAmount,
   parseOrderSide,
@@ -92,5 +93,24 @@ describe('checkMinNotional', () => {
   it('enforces the market minimum', () => {
     expect(checkMinNotional('64000', '0.00005', market).ok).toBe(false)
     expect(checkMinNotional('64000', '0.001', market).ok).toBe(true)
+  })
+})
+
+describe('looksLikeSecret', () => {
+  it('flags 12-word and 24-word phrases', () => {
+    expect(looksLikeSecret('one two three four five six seven eight nine ten eleven twelve')).toBe(true)
+    expect(looksLikeSecret(new Array(24).fill('word').join(' '))).toBe(true)
+  })
+
+  it('flags 64-character hex strings with or without 0x', () => {
+    expect(looksLikeSecret('a'.repeat(64))).toBe(true)
+    expect(looksLikeSecret(`0x${'b'.repeat(64)}`)).toBe(true)
+  })
+
+  it('does not flag public addresses or ordinary text', () => {
+    expect(looksLikeSecret('0x12abcdef1234567890abcdef1234567890A9F2')).toBe(false)
+    expect(looksLikeSecret('7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU')).toBe(false)
+    expect(looksLikeSecret('')).toBe(false)
+    expect(looksLikeSecret('deposit to my savings please')).toBe(false)
   })
 })

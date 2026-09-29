@@ -94,3 +94,13 @@ export function checkMinNotional(
   }
   return { ok: true, value: notional.toFixed(8) }
 }
+
+const SECRET_HEX_PATTERN = /^(0x)?[0-9a-fA-F]{64}$/
+
+export function looksLikeSecret(raw: string): boolean {
+  const value = raw.trim()
+  if (value === '') return false
+  if (SECRET_HEX_PATTERN.test(value)) return true
+  const words = value.split(/\s+/).filter(Boolean)
+  return words.length === 12 || words.length === 24
+}

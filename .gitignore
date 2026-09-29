@@ -27,3 +27,6 @@ supabase/.temp
 .claude
 .hermes
 skills-lock.json
+
+# local throwaway spikes (never committed)
+scripts/

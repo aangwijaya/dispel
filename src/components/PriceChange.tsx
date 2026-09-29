@@ -9,9 +9,9 @@ export function PriceChange({ value, className }: PriceChangeProps) {
   const numeric = value === null || value === undefined ? Number.NaN : Number(value)
 
   if (!Number.isFinite(numeric)) {
-    return <span className={`tabular-nums text-faint ${className ?? ''}`}>—</span>
+    return <span className={`tabular-nums text-smoke ${className ?? ''}`}>—</span>
   }
 
-  const tone = numeric > 0 ? 'text-buy' : numeric < 0 ? 'text-sell' : 'text-faint'
+  const tone = numeric > 0 ? 'text-up' : numeric < 0 ? 'text-down' : 'text-smoke'
   return <span className={`tabular-nums ${tone} ${className ?? ''}`}>{formatPercent(value)}</span>
 }
