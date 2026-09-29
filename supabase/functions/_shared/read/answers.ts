@@ -1,6 +1,8 @@
 import { candidateQuestionIds } from './questions.ts'
 import {
   BIAS_KEYS,
+  ONCHAIN_ALIGNMENT_KEYS,
+  POSITIONING_KEYS,
   REGIME_KEYS,
   SETUP_TYPE_KEYS,
   STANCE_KEYS,
@@ -14,6 +16,8 @@ import {
   type LevelIndex,
   type MappedRead,
   type MappedSetup,
+  type OnchainAlignmentKey,
+  type PositioningKey,
   type RegimeKey,
   type SetupTypeKey,
   type StanceKey,
@@ -115,6 +119,14 @@ function asSetupType(value: string): SetupTypeKey {
   return (SETUP_TYPE_KEYS as string[]).includes(value) ? (value as SetupTypeKey) : 'none'
 }
 
+function asPositioning(value: string): PositioningKey | null {
+  return (POSITIONING_KEYS as string[]).includes(value) ? (value as PositioningKey) : null
+}
+
+function asOnchainAlignment(value: string): OnchainAlignmentKey | null {
+  return (ONCHAIN_ALIGNMENT_KEYS as string[]).includes(value) ? (value as OnchainAlignmentKey) : null
+}
+
 export function confidenceLevel(confidence: number): LevelIndex {
   if (confidence < 0.5) return 0
   if (confidence <= 0.9) return 1
@@ -155,6 +167,13 @@ export function mapAnswers(response: JevResponse, candidates: Candidate[]): Mapp
   const trendAnswer = requireScore(response, 'trend_strength')
   const riskAnswer = requireScore(response, 'risk')
 
+  const positioningAnswer = response.answers.positioning
+  const positioning =
+    positioningAnswer?.type === 'choice' ? asPositioning(positioningAnswer.choice) : null
+  const onchainAnswer = response.answers.onchain_alignment
+  const onchainAlignment =
+    onchainAnswer?.type === 'choice' ? asOnchainAlignment(onchainAnswer.choice) : null
+
   const setups: MappedSetup[] = []
   for (const candidate of candidates) {
     const [worthId, typeId, targetId, riskId] = candidateQuestionIds(candidate.symbol)
@@ -193,5 +212,7 @@ export function mapAnswers(response: JevResponse, candidates: Candidate[]): Mapp
     trendScore: clamp(trendAnswer.score, 0, 4),
     riskScore: clamp(riskAnswer.score, 0, 4),
     setups: setups.slice(0, MAX_SETUPS),
+    positioning,
+    onchainAlignment,
   }
 }

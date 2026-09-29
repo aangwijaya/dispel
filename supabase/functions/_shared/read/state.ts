@@ -1,5 +1,14 @@
 import { median } from './indicators.ts'
-import { REGIME_KEYS, type Candidate, type MarketFacts, type PreviousReadSummary, type Ticker } from './types.ts'
+import {
+  REGIME_KEYS,
+  type Candidate,
+  type CandidateDerivatives,
+  type DerivativesFacts,
+  type MarketFacts,
+  type OnchainFacts,
+  type PreviousReadSummary,
+  type Ticker,
+} from './types.ts'
 
 export interface JevBreadthState {
   up_24h: number
@@ -37,6 +46,7 @@ export interface JevCandidateState {
   horizon: string
   distance_to_invalidation_pct: number
   reward_risk_ratio: number
+  derivatives?: CandidateDerivatives
 }
 
 export interface JevPreviousRead {
@@ -52,6 +62,8 @@ export interface JevState {
   breadth: JevBreadthState
   btc: JevMajorState
   eth: JevMajorState
+  derivatives?: DerivativesFacts
+  onchain?: OnchainFacts
   candidates: Record<string, JevCandidateState>
 }
 
@@ -98,6 +110,7 @@ export function candidateState(candidate: Candidate, rsi15m: number | null): Jev
     horizon: candidate.horizon,
     distance_to_invalidation_pct: round((Math.abs(facts.last - candidate.invalidation) / facts.last) * 100, 2),
     reward_risk_ratio: round(rewardRisk, 2),
+    ...(candidate.derivatives ? { derivatives: candidate.derivatives } : {}),
   }
 }
 
@@ -108,8 +121,10 @@ export function buildState(input: {
   previousRead: PreviousReadSummary | null
   candidates: Candidate[]
   rsi15mBySymbol: Record<string, number>
+  derivatives?: DerivativesFacts | null
+  onchain?: OnchainFacts | null
 }): JevState {
-  const { asOf, facts, tickers, previousRead, candidates, rsi15mBySymbol } = input
+  const { asOf, facts, tickers, previousRead, candidates, rsi15mBySymbol, derivatives = null, onchain = null } = input
   const btc = facts.find((item) => item.market.symbol === 'BTCUSDT')
   const eth = facts.find((item) => item.market.symbol === 'ETHUSDT')
   if (!btc || !eth) throw new Error('state requires BTC and ETH facts')
@@ -139,6 +154,8 @@ export function buildState(input: {
     },
     btc: majorState(btc),
     eth: majorState(eth),
+    ...(derivatives ? { derivatives } : {}),
+    ...(onchain ? { onchain } : {}),
     candidates: Object.fromEntries(
       candidates.map((candidate) => [candidate.symbol, candidateState(candidate, rsi15mBySymbol[candidate.symbol] ?? null)]),
     ),
