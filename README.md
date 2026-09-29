@@ -43,12 +43,34 @@ supabase db push              # applies supabase/migrations
 npm run tauri dev
 ```
 
-Linux desktop prerequisites:
+### Windows desktop (recommended)
+
+The desktop window is GPU-composited on WebView2 — the target platform and the smoothest path. On
+Windows:
+
+```powershell
+git clone https://github.com/aangwijaya/dispel.git
+cd dispel
+copy \\wsl.localhost\Ubuntu\home\<you>\projects\dispel\.env .env   # or recreate from .env.example
+npm install
+npm run tauri dev        # or: npm run tauri build
+```
+
+Prerequisites: Node 20+, the Rust MSVC toolchain (`rustup default stable-x86_64-pc-windows-msvc`)
+and the WebView2 runtime (preinstalled on Windows 11). Install dependencies from a native Windows
+path, not from `\\wsl.localhost\...` — `npm install` fetches OS-specific binaries.
+
+### Linux / WSLg
 
 ```bash
 sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
   libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 ```
+
+On WSLg the app rasterizes on the CPU and moves its windows through the WSL compositor, so window
+drag/resize and long scrolls stay less smooth than on Windows even with the lite rendering mode.
+`wsl --shutdown` (from Windows) often restores `/dev/dri` and GPU rendering; try `wsl --update` if
+it stays missing. Use WSL for development and the Windows build for daily use.
 
 ## Scripts
 
@@ -145,7 +167,5 @@ tape and the `.eq-chart` pulse, and replaces the `backdrop-filter` surfaces with
 look is unchanged; the per-frame paint cost is not. Force a mode with
 `localStorage.setItem('dispel-perf', 'full')` or `'lite'`.
 
-If the desktop app feels slower than the browser on the same machine, that is almost always the
-renderer: WSLg without `/dev/dri` rasterizes on the CPU while the browser uses the GPU. A
-`wsl --shutdown` from Windows often restores `/dev/dri`; otherwise the Windows/WebView2 build is the
-GPU-accelerated target platform.
+If the desktop app feels slower than the browser on the same machine, that is the renderer, not the
+page: see the Windows/Linux notes in Quick start.
