@@ -1,0 +1,388 @@
+<title>Dispel Sign-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Single dark theme by design (DESIGN.md B3). All colours explicit. */
+:root {
+  color-scheme: dark;
+  --void: #040506; --card: #07080a; --recessed: #111214; --badge: #1b1c1e;
+  --hair: rgba(255,255,255,.07);
+  --white: #ffffff; --mist: #e6e6e6; --ash: #9c9c9d; --smoke: #6a6b6c; --iron: #454647;
+  --up: #59d499; --down: #f0506e;
+  --key-soft: rgba(255,255,255,.05) 0 1px 0 0 inset, rgba(255,255,255,.08) 0 0 0 1px, rgba(0,0,0,.2) 0 -1px 0 0 inset;
+  --lift: rgba(0,0,0,.03) 0 7px 3px 0, rgba(0,0,0,.25) 0 4px 4px 0;
+  --f-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --f-mono: 'Geist Mono', 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--void); color: var(--ash); font-family: var(--f-ui); font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; padding-inline: 16px; padding-block: 28px 80px; }
+button, input { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--mist); outline-offset: 2px; border-radius: 6px; }
+.mono { font-family: var(--f-mono); font-size: 11px; letter-spacing: .02em; }
+kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 5px; font-family: var(--f-mono); font-size: 10px; line-height: 1; background: rgba(0,0,0,.08); color: var(--iron); }
+
+/* Page chrome (outside the app) */
+.spec { max-width: 1440px; margin: 0 auto 24px; display: flex; flex-wrap: wrap; gap: 12px 40px; align-items: flex-end; justify-content: space-between; }
+.spec h1 { margin: 0; font-size: 28px; font-weight: 400; letter-spacing: .2px; color: var(--white); }
+.spec p { margin: 6px 0 0; max-width: 66ch; font-size: 13px; color: var(--ash); }
+.ctl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.seg { display: inline-flex; gap: 2px; padding: 2px; background: var(--recessed); border-radius: 8px; box-shadow: 0 0 0 1px var(--hair); }
+.seg button { height: 28px; padding: 0 12px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--smoke); }
+.seg button:hover { color: var(--mist); }
+.seg button[aria-pressed="true"] { background: var(--badge); color: var(--white); box-shadow: var(--key-soft); }
+
+/* ═════════ Sign-in window ═════════ */
+.frame { container: frame / inline-size; max-width: 1440px; margin: 0 auto; }
+.win { position: relative; min-height: 900px; border-radius: 12px; overflow: hidden; background: var(--void); box-shadow: var(--key-soft), var(--lift); display: flex; flex-direction: column; isolation: isolate; }
+.top { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 44px 0; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--white); font-size: 14px; font-weight: 500; }
+.logo svg { width: 14px; height: 14px; }
+.top .mono { color: var(--smoke); }
+.live { display: inline-flex; align-items: center; gap: 8px; }
+.live i { width: 6px; height: 6px; border-radius: 50%; background: var(--up); }
+
+.center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; padding: 24px 24px 12px; text-align: center; }
+.center h2 { position: relative; z-index: 2; margin: 0; font-size: 44px; font-weight: 400; letter-spacing: .2px; line-height: 1.12; color: var(--white); }
+.center h2 span { display: block; color: var(--smoke); }
+.thesis { position: relative; z-index: 2; display: grid; justify-items: center; gap: 14px; }
+.define { display: inline-flex; align-items: baseline; gap: 10px; font-family: var(--f-mono); font-size: 12px; color: var(--smoke); letter-spacing: .02em; }
+.define b { font-weight: 500; color: var(--ash); letter-spacing: .04em; }
+.define i { font-style: normal; color: var(--smoke); }
+.define em { font-style: normal; color: var(--ash); }
+
+/* The sigil sits behind the box, centred on it, and dissolves into the page */
+.core { position: relative; width: 400px; max-width: 100%; }
+.sigil { position: absolute; left: 50%; top: 50%; width: 1040px; height: 1040px; transform: translate(-50%, -50%); z-index: 0; pointer-events: none;
+  -webkit-mask-image: radial-gradient(closest-side, #000 42%, rgba(0,0,0,.55) 72%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 42%, rgba(0,0,0,.55) 72%, transparent 100%); }
+.sigil svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+.box { position: relative; z-index: 1; text-align: left; border-radius: 16px; background: rgba(7,8,10,.94);
+  box-shadow: rgba(255,255,255,.06) 0 1px 0 0 inset, rgba(255,255,255,.1) 0 0 0 1px, 0 30px 80px -24px rgba(0,0,0,.9), 0 0 0 10px rgba(4,5,6,.55); }
+.auth { padding: 32px; }
+.auth h3 { margin: 0; font-size: 20px; font-weight: 400; letter-spacing: .2px; color: var(--white); }
+.auth .sub { margin: 6px 0 0; font-size: 13px; color: var(--ash); }
+.google { margin-top: 24px; width: 100%; height: 44px; display: flex; align-items: center; justify-content: center; gap: 12px; border-radius: 8px; background: #131314; box-shadow: inset 0 0 0 1px #8e918f; color: #e3e3e3; font-size: 14px; font-weight: 500; transition: background .15s; }
+.google:hover { background: #1b1c1e; }
+.google svg { width: 18px; height: 18px; flex: none; }
+.or { margin: 18px 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; color: var(--smoke); font-size: 12px; }
+.or::before, .or::after { content: ""; height: 1px; background: var(--hair); }
+.field { display: block; }
+.field + .field { margin-top: 14px; }
+.field > span { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 12px; color: var(--ash); }
+.input { position: relative; }
+.input input { width: 100%; height: 44px; padding: 0 14px; border: 0; border-radius: 8px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px var(--hair); color: var(--white); font-size: 14px; outline: none; transition: box-shadow .15s, background .15s; }
+.input input::placeholder { color: var(--smoke); }
+.input input:focus { background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+.input input[aria-invalid="true"] { box-shadow: inset 0 0 0 1px rgba(240,80,110,.65); }
+.input .show { position: absolute; right: 8px; top: 9px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12px; color: var(--ash); }
+.input .show:hover { color: var(--white); background: var(--badge); }
+.hint { margin-top: 7px; font-size: 12px; color: var(--smoke); }
+.msg { margin-top: 14px; font-size: 12px; line-height: 1.5; display: flex; gap: 8px; }
+.msg i { width: 6px; height: 6px; border-radius: 50%; flex: none; margin-top: 6px; }
+.msg.err { color: #ff9aae; } .msg.err i { background: var(--down); }
+.msg.ok { color: #9fe6c3; } .msg.ok i { background: var(--up); }
+.msg.info { color: var(--ash); } .msg.info i { background: var(--ash); }
+.primary { margin-top: 22px; width: 100%; height: 44px; border-radius: 8px; background: var(--mist); color: var(--iron); font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--lift); transition: background .15s; }
+.primary:hover { background: var(--white); }
+.primary[disabled] { opacity: .6; cursor: progress; }
+.switch { margin: 20px 0 0; font-size: 13px; color: var(--ash); }
+.switch button { color: var(--white); font-weight: 500; text-decoration: underline; text-decoration-color: rgba(255,255,255,.3); text-underline-offset: 3px; }
+.switch button:hover { text-decoration-color: var(--white); }
+
+.today { position: relative; z-index: 2; display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+.today .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--up); transform: translateY(-1px); }
+.today b { font-weight: 500; color: var(--white); }
+.today .mono { color: var(--smoke); }
+.tape { position: relative; z-index: 2; display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; padding: 16px 44px 24px; font-family: var(--f-mono); font-size: 11px; color: var(--smoke); }
+.tape span b { color: var(--ash); font-weight: 400; margin: 0 6px; }
+.tape .up { color: var(--up); } .tape .down { color: var(--down); }
+
+@container frame (max-width: 720px) {
+  .top { padding: 22px 20px 0; }
+  .top .ver { display: none; }
+  .center h2 { font-size: 30px; }
+  .sigil { width: 760px; height: 760px; }
+  .auth { padding: 24px 20px; }
+  .tape { padding: 14px 20px 20px; gap: 12px 18px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Notes */
+.notes { max-width: 1440px; margin: 64px auto 0; display: grid; gap: 40px; }
+.note { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 16px 40px; }
+@media (max-width: 860px) { .note { grid-template-columns: minmax(0, 1fr); } }
+.note h2 { margin: 0; font-size: 22px; font-weight: 400; letter-spacing: .2px; color: var(--white); line-height: 1.2; }
+.note header p { margin: 8px 0 0; font-size: 12px; color: var(--smoke); }
+.prose { max-width: 70ch; font-size: 14px; line-height: 1.65; color: var(--ash); }
+.prose p { margin: 0 0 12px; }
+.prose b { color: var(--white); font-weight: 500; }
+.prose code { font-family: var(--f-mono); font-size: 12px; background: var(--badge); padding: 1px 5px; border-radius: 4px; color: var(--mist); }
+</style>
+
+<header class="spec">
+  <div>
+    <h1>Sign in, with a sigil</h1>
+    <p>New artwork for Dispel's name: a spell that clears illusion, drawn as a scientific instrument. Fine lines, one coral arc, centred behind the sign-in box and dissolving into the page. Use the toggles to compare three headlines (B is recommended) and two art styles (A is chosen). Google sign-in is designed but not yet wired. Prices are mock data.</p>
+  </div>
+  <div class="ctl">
+    <span class="mono" style="color:#6a6b6c">LINE</span>
+    <div class="seg" id="copy" role="group" aria-label="Headline">
+      <button type="button" data-c="define" aria-pressed="false">A · Definition</button>
+      <button type="button" data-c="illusions" aria-pressed="true">B · Illusions</button>
+      <button type="button" data-c="noise" aria-pressed="false">C · Noise</button>
+    </div>
+    <span class="mono" style="color:#6a6b6c;margin-left:10px">ART</span>
+    <div class="seg" id="variant" role="group" aria-label="Artwork style">
+      <button type="button" data-v="astrolabe" aria-pressed="true">A · Astrolabe</button>
+      <button type="button" data-v="harmonograph" aria-pressed="false">B · Harmonograph</button>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+  <div class="win">
+    <div class="top">
+      <span class="logo"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>Dispel</span>
+      <span class="mono"><span class="live"><i></i>Markets live</span><span class="ver"> · v0.1.0</span></span>
+    </div>
+
+    <main class="center">
+      <div class="thesis">
+        <p class="define" id="definition"><b>dis·pel</b><i>/dɪˈspel/</i><em>a spell that clears illusion</em></p>
+        <h2 id="headline"></h2>
+      </div>
+
+      <div class="core">
+        <div class="sigil" id="sigil" aria-hidden="true"></div>
+        <div class="box">
+          <form class="auth" id="auth" novalidate>
+            <h3 id="title">Sign in to Dispel</h3>
+            <p class="sub" id="sub">Paper trading with live market prices.</p>
+            <button type="button" class="google" id="google">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+              Continue with Google
+            </button>
+            <div id="google-msg"></div>
+            <div class="or" aria-hidden="true">or</div>
+            <label class="field" for="email"><span>Email</span>
+              <div class="input"><input id="email" type="email" autocomplete="email" spellcheck="false" placeholder="you@example.com"></div>
+            </label>
+            <label class="field" for="password"><span>Password</span>
+              <div class="input"><input id="password" type="password" autocomplete="current-password" placeholder="At least 8 characters"><button type="button" class="show" id="show">Show</button></div>
+            </label>
+            <div class="hint" id="pw-hint" hidden>Use 8 or more characters. You'll confirm your email before signing in.</div>
+            <div id="msg"></div>
+            <button type="submit" class="primary" id="submit"><span id="submit-l">Sign in</span><kbd>↵</kbd></button>
+            <p class="switch" id="switch">New to Dispel? <button type="button" id="switch-btn">Create an account</button></p>
+          </form>
+        </div>
+      </div>
+
+      <div class="today" aria-label="Today's market read (mock)">
+        <span class="dot" aria-hidden="true"></span><b>Look for setups</b><span>Constructive market</span><span class="mono">· Today 14:32 UTC</span>
+      </div>
+    </main>
+
+    <div class="tape" aria-label="Live prices (mock)" id="tape"></div>
+  </div>
+</div>
+
+<div class="notes">
+  <section class="note">
+    <header><h2>The line</h2><p>Three ways to say what the sigil means.</p></header>
+    <div class="prose">
+      <p><b>B · Illusions (recommended):</b> “Markets are full of illusions. <span style="color:#6a6b6c">Dispel them before you trade.</span>” The brand name becomes the verb, the market is the subject, and trading is the payoff. It explains the name without a tagline, and it keeps the promise of the old line (see clearly first, trade second).</p>
+      <p><b>A · Definition:</b> keeps “See the market clearly before you trade it.” and adds a dictionary entry above it in mono: <span style="font-family:var(--f-mono);font-size:12px">dis·pel /dɪˈspel/ a spell that clears illusion</span>. It's the gentlest option. The philosophy reads like a footnote to the name.</p>
+      <p><b>C · Noise:</b> “Dispel the noise. <span style="color:#6a6b6c">Trade what's real.</span>” It's the shortest and punchiest, but “noise” is a word every trading app uses. Illusion is the word only Dispel can own.</p>
+    </div>
+  </section>
+
+  <section class="note">
+    <header><h2>Why a sigil</h2><p>Dispel: a spell that clears illusion.</p></header>
+    <div class="prose">
+      <p>The candles were literal: they said “trading” loudly, and every placement made them compete with the form. The new artwork starts from the <b>name</b>. To dispel is to break an illusion, and Dispel does that with measurement. So the image is a sigil built like a <b>scientific instrument</b>: graduated rings like an astrolabe, orbits, and one coral arc, the spell, whose tip glows softly.</p>
+      <p>A price line rises from the lower left and ends exactly at the tip of the arc: the moment the spell touches the market. It is the only trading reference, quiet enough to be found rather than announced.</p>
+      <p>Everything is hairline (1px at 6–28% white) except the coral arc and one coral node. The sigil is centred on the sign-in box and dissolves into the black at its edges, so the page reads as one surface: no panel, no background image.</p>
+    </div>
+  </section>
+  <section class="note">
+    <header><h2>A or B</h2><p>Same idea, two hands.</p></header>
+    <div class="prose">
+      <p><b>A · Astrolabe</b> is precise and architectural: rings, ticks, diamond nodes (echoing the logo) and slow counter-rotations. It feels like an instrument.</p>
+      <p><b>B · Harmonograph</b> is organic: interference curves drawn by two damped pendulums, like a spell written in light. It is pure maths (no randomness) and still.</p>
+      <p>Both are generated as vector SVG, so they can ship as a small asset file and stay sharp on any display. Motion is limited to A: the tick ring and the diamond nodes turn slowly (300s and 200s per turn) and the tip breathes. The arc and the line stay still, so nothing ever sweeps across text. All of it stops under reduced motion.</p>
+    </div>
+  </section>
+  <section class="note">
+    <header><h2>Google button</h2><p>Designed now, wired later.</p></header>
+    <div class="prose">
+      <p>It follows Google's dark-theme sign-in button: a <code>#131314</code> fill, a <code>#8e918f</code> outline, <code>#e3e3e3</code> text, and the four-colour “G”. Until OAuth ships, clicking it says “Google sign-in is coming soon. Use email for now.” Later: Supabase <code>signInWithOAuth({ provider: 'google' })</code> with a Tauri deep-link redirect.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const f = (n) => n.toFixed(2);
+  const rad = (d) => (d * Math.PI) / 180;
+  const spin = (dur, dir = 1) => reduce ? '' : `<animateTransform attributeName="transform" type="rotate" from="0" to="${360 * dir}" dur="${dur}s" repeatCount="indefinite"/>`;
+
+  // ───────── A · Astrolabe ─────────
+  function astrolabe() {
+    const W = 'rgba(255,255,255,';
+    let ticks = '';
+    for (let a = 0; a < 360; a += 2) {
+      const major = a % 30 === 0, mid = a % 10 === 0;
+      const len = major ? 22 : mid ? 13 : 6, op = major ? .38 : mid ? .2 : .11;
+      const x1 = 470 * Math.cos(rad(a)), y1 = 470 * Math.sin(rad(a));
+      const x2 = (470 - len) * Math.cos(rad(a)), y2 = (470 - len) * Math.sin(rad(a));
+      ticks += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${W}${op})" stroke-width="1"/>`;
+    }
+    let nodes = '';
+    for (let i = 0; i < 12; i++) {
+      const a = rad(i * 30 + 15), x = 350 * Math.cos(a), y = 350 * Math.sin(a), s = 5;
+      const hot = i === 10;
+      nodes += `<path d="M${f(x)} ${f(y - s)} L${f(x + s)} ${f(y)} L${f(x)} ${f(y + s)} L${f(x - s)} ${f(y)} Z" fill="${hot ? '#ff6363' : '#040506'}" stroke="${hot ? '#ff6363' : W + '.34)'}" stroke-width="1"/>`;
+    }
+    // Hypotrochoid: a many-pointed star, the "seal" at the centre (mostly hidden by the box, visible at the edges).
+    let star = '';
+    { const R = 7, r = 4, d = 6.2, k = 36; let pts = [];
+      for (let t = 0; t <= Math.PI * 2 * r; t += 0.01) {
+        const x = (R - r) * Math.cos(t) + d * Math.cos(((R - r) / r) * t), y = (R - r) * Math.sin(t) - d * Math.sin(((R - r) / r) * t);
+        pts.push(`${f(x * k)},${f(y * k)}`);
+      }
+      star = `<polyline points="${pts.join(' ')}" fill="none" stroke="${W}.075)" stroke-width="1"/>`; }
+    // The market: a rising path from the lower left that ends exactly at the spell's tip.
+    const TIP = -35, tipX = 410 * Math.cos(rad(TIP)), tipY = 410 * Math.sin(rad(TIP));
+    let curve = [];
+    for (let x = -500; x <= tipX; x += 3) {
+      const t = (x + 500) / (tipX + 500);
+      const base = 150 + (tipY - 150) * (t * t * (3 - 2 * t));
+      const y = base + (1 - t) * (18 * Math.sin(t * 13.7) + 7 * Math.sin(t * 31 + .6));
+      curve.push(`${f(x)},${f(y)}`);
+    }
+    const arc = (r, a0, a1) => { const x0 = r * Math.cos(rad(a0)), y0 = r * Math.sin(rad(a0)), x1 = r * Math.cos(rad(a1)), y1 = r * Math.sin(rad(a1)); return `M${f(x0)} ${f(y0)} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${f(x1)} ${f(y1)}`; };
+    return `<svg viewBox="-520 -520 1040 1040" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="arcG" gradientUnits="userSpaceOnUse" x1="${f(410 * Math.cos(rad(48)))}" y1="${f(410 * Math.sin(rad(48)))}" x2="${f(tipX)}" y2="${f(tipY)}">
+          <stop offset="0" stop-color="#ffc07a" stop-opacity="0"/><stop offset=".35" stop-color="#ffc07a" stop-opacity=".7"/><stop offset=".85" stop-color="#ff6363"/><stop offset="1" stop-color="#ff2f6d"/>
+        </linearGradient>
+        <linearGradient id="curveG" gradientUnits="userSpaceOnUse" x1="-500" y1="0" x2="${f(tipX)}" y2="0">
+          <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="#ffc07a" stop-opacity=".5"/><stop offset="1" stop-color="#ff6363" stop-opacity=".9"/>
+        </linearGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+      <circle r="470" fill="none" stroke="${W}.14)"/>
+      <g>${ticks}${spin(300)}</g>
+      <circle r="440" fill="none" stroke="${W}.07)" stroke-dasharray="2 7"/>
+      <g>
+        <path d="${arc(410, TIP, 48)}" fill="none" stroke="url(#arcG)" stroke-width="5" opacity=".4" filter="url(#glow)"/>
+        <path d="${arc(410, TIP, 48)}" fill="none" stroke="url(#arcG)" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="${f(tipX)}" cy="${f(tipY)}" r="9" fill="#ff6363" opacity=".4" filter="url(#glow)">${reduce ? '' : '<animate attributeName="opacity" values=".25;.55;.25" dur="4s" repeatCount="indefinite"/>'}</circle>
+        <circle cx="${f(tipX)}" cy="${f(tipY)}" r="3" fill="#fff"/>
+      </g>
+      <circle r="410" fill="none" stroke="${W}.05)"/>
+      <circle r="350" fill="none" stroke="${W}.08)"/>
+      <g>${nodes}${spin(200)}</g>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(28)"/>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(-28)"/>
+      <circle r="290" fill="none" stroke="${W}.05)" stroke-dasharray="1 5"/>
+      ${star}
+      <polyline points="${curve.join(' ')}" fill="none" stroke="url(#curveG)" stroke-width="1.3" stroke-linejoin="round"/>
+    </svg>`;
+  }
+
+  // ───────── B · Harmonograph ─────────
+  function harmonograph() {
+    const layer = (p, stroke, op) => {
+      const pts = [];
+      for (let t = 0; t < 520; t += 0.045) {
+        const x = p.a1 * Math.sin(p.f1 * t + p.p1) * Math.exp(-p.d * t) + p.a2 * Math.sin(p.f2 * t + p.p2) * Math.exp(-p.d * t);
+        const y = p.a1 * Math.sin(p.f3 * t + p.p3) * Math.exp(-p.d * t) + p.a2 * Math.sin(p.f4 * t + p.p4) * Math.exp(-p.d * t);
+        pts.push(`${f(x)},${f(y)}`);
+      }
+      return `<polyline points="${pts.join(' ')}" fill="none" stroke="${stroke}" stroke-width=".7" opacity="${op}" stroke-linejoin="round"/>`;
+    };
+    const A = { a1: 250, a2: 190, f1: 2, f2: 3.004, f3: 3, f4: 2.003, p1: 0, p2: 1.2, p3: 1.57, p4: .3, d: 0.0042 };
+    const B = { a1: 230, a2: 210, f1: 3, f2: 2.006, f3: 2, f4: 3.002, p1: .8, p2: 0, p3: 0, p4: 1.9, d: 0.0038 };
+    return `<svg viewBox="-520 -520 1040 1040" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="hA" gradientUnits="userSpaceOnUse" x1="-460" y1="-460" x2="460" y2="460"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#ffc07a"/><stop offset="1" stop-color="#ff6363"/></linearGradient>
+        <linearGradient id="hB" gradientUnits="userSpaceOnUse" x1="460" y1="-460" x2="-460" y2="460"><stop offset="0" stop-color="#8aa4ff"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+      </defs>
+      <circle r="470" fill="none" stroke="rgba(255,255,255,.08)"/>
+      <circle r="452" fill="none" stroke="rgba(255,255,255,.05)" stroke-dasharray="1 6"/>
+      ${layer(B, 'url(#hB)', .16)}
+      ${layer(A, 'url(#hA)', .3)}
+    </svg>`;
+  }
+
+  function setVariant(v) {
+    $('sigil').innerHTML = v === 'harmonograph' ? harmonograph() : astrolabe();
+    document.querySelectorAll('#variant button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  }
+  $('variant').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setVariant(b.dataset.v); });
+  setVariant(location.hash === '#harmonograph' ? 'harmonograph' : 'astrolabe');
+
+  // Headline options: two-tone, first phrase white, second phrase Smoke.
+  const COPY = {
+    define: { lines: ['See the market clearly', 'before you trade it.'], define: true },
+    illusions: { lines: ['Markets are full of illusions.', 'Dispel them before you trade.'], define: false },
+    noise: { lines: ['Dispel the noise.', "Trade what's real."], define: false }
+  };
+  function setCopy(c) {
+    const o = COPY[c];
+    $('headline').innerHTML = `${o.lines[0]}<span>${o.lines[1]}</span>`;
+    $('definition').hidden = !o.define;
+    document.querySelectorAll('#copy button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.c === c)));
+  }
+  $('copy').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setCopy(b.dataset.c); });
+  const h = location.hash.replace('#', '');
+  setCopy(COPY[h] ? h : 'illusions');
+
+  // ───────── Prices + form (mock) ─────────
+  const PRICES = [['BTC', '83,560.00', 1.12], ['ETH', '2,693.00', 0.84], ['SOL', '118.94', 3.42], ['LINK', '14.61', -0.56], ['BNB', '612.40', 0.21]];
+  $('tape').innerHTML = PRICES.map(([s, p, c]) => `<span>${s}<b>${p}</b><em class="${c >= 0 ? 'up' : 'down'}" style="font-style:normal">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</em></span>`).join('');
+
+  let mode = 'signin';
+  function setMode(next) {
+    mode = next;
+    const up = mode === 'signup';
+    $('title').textContent = up ? 'Create your account' : 'Sign in to Dispel';
+    $('sub').textContent = up ? 'Start with 10,000 USDT in paper funds.' : 'Paper trading with live market prices.';
+    $('submit-l').textContent = up ? 'Create account' : 'Sign in';
+    $('password').autocomplete = up ? 'new-password' : 'current-password';
+    $('pw-hint').hidden = !up;
+    $('switch').innerHTML = up ? 'Already have an account? <button type="button" id="switch-btn">Sign in</button>' : 'New to Dispel? <button type="button" id="switch-btn">Create an account</button>';
+    $('switch-btn').onclick = () => setMode(up ? 'signin' : 'signup');
+    $('msg').innerHTML = ''; $('google-msg').innerHTML = '';
+    ['email', 'password'].forEach((id) => $(id).removeAttribute('aria-invalid'));
+  }
+  $('switch-btn').onclick = () => setMode('signup');
+  $('show').addEventListener('click', () => { const p = $('password'); const hid = p.type === 'password'; p.type = hid ? 'text' : 'password'; $('show').textContent = hid ? 'Hide' : 'Show'; });
+  $('google').addEventListener('click', () => { $('google-msg').innerHTML = '<div class="msg info" role="status"><i></i><span>Google sign-in is coming soon. Use email for now.</span></div>'; });
+  $('auth').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = $('email').value.trim(), pw = $('password').value;
+    ['email', 'password'].forEach((id) => $(id).removeAttribute('aria-invalid'));
+    let err = '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err = 'Enter an email address like you@example.com.'; $('email').setAttribute('aria-invalid', 'true'); }
+    else if (pw.length < 8) { err = 'Passwords are at least 8 characters.'; $('password').setAttribute('aria-invalid', 'true'); }
+    if (err) { $('msg').innerHTML = `<div class="msg err" role="alert"><i></i><span>${err}</span></div>`; return; }
+    const b = $('submit'); b.disabled = true; $('submit-l').textContent = 'Working…';
+    setTimeout(() => {
+      b.disabled = false; $('submit-l').textContent = mode === 'signin' ? 'Sign in' : 'Create account';
+      $('msg').innerHTML = mode === 'signin'
+        ? '<div class="msg ok" role="status"><i></i><span>Signed in. This is a design mock, so nothing was sent.</span></div>'
+        : '<div class="msg ok" role="status"><i></i><span>Account created. Check your email to confirm, then sign in.</span></div>';
+    }, 700);
+  });
+})();
+</script>
