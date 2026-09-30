@@ -380,9 +380,9 @@ body { background:
   radial-gradient(900px 520px at -4% 60%, rgba(6,30,80,.32), transparent 70%),
   var(--void); }
 .app { isolation: isolate; }
-.ambient { position: absolute; z-index: -1; right: -16%; top: -520px; width: 1100px; height: 1100px; opacity: .5; pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000 35%, transparent); mask-image: radial-gradient(closest-side, #000 35%, transparent); }
+.ambient { position: absolute; z-index: -1; left: -560px; top: 340px; width: 1120px; height: 1120px; opacity: 1; pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); }
 .ambient svg, .sigil svg, .wsigil svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.side { background: rgba(4,5,6,.72); }
+.side { background: transparent; }
 .panel { background: rgba(7,8,10,.92); }
 
 /* Market read = the hero panel */
@@ -631,7 +631,7 @@ body { background:
         <p>On Sign-in the sigil is a promise. On Home it becomes an instrument, and every part of it <b>encodes the market read</b>:</p>
         <p><b>Arc length</b> is trend strength (40° plus 1.2° per point). <b>Arc colour</b> is the stance: amber to coral when favorable, pale gold to amber for Wait, grey and dashed when unclear, rose to crimson to reduce risk. <b>The price line</b> follows the bias into the arc's tip: it rises when bullish, chops sideways when mixed, lies flat when neutral, and falls from above into the tip when bearish. <b>Pace</b> is urgency: the tick ring turns once every 300s when favorable, 150s when reducing risk, and almost stops (600s) when unclear, when the whole instrument also fogs slightly.</p>
         <p>So a glance at the panel gives the mood before a word is read, and the sigil never shows anything the read doesn't say.</p>
-        <p>The sigil is generated as vector SVG from the read itself (stance, strength, bias), so there are no image files per state and it stays sharp on any display. The same generator draws the faint rings in the app background and the welcome banner.</p>
+        <p>The sigil is generated as vector SVG from the read itself (stance, strength, bias), so there are no image files per state and it stays sharp on any display. The same generator draws the rings that rise behind the navigation (anchored to the window's bottom-left corner, where the sidebar holds no data) and the welcome banner.</p>
       </div>
     </div>
   </section>
@@ -921,7 +921,7 @@ body { background:
     }
     let nodes = '';
     for (let i = 0; i < 12; i++) {
-      const a = rad(i * 30 + 15), x = 350 * Math.cos(a), y = 350 * Math.sin(a), sz = 5, hot = i === 10 && !M.fog && o.arc !== false;
+      const a = rad(i * 30 + 15), x = 350 * Math.cos(a), y = 350 * Math.sin(a), sz = 5, hot = i === 10 && !M.fog && (o.arc !== false || o.hot);
       nodes += `<path d="M${F(x)} ${F(y - sz)} L${F(x + sz)} ${F(y)} L${F(x)} ${F(y + sz)} L${F(x - sz)} ${F(y)} Z" fill="${hot ? M.a1 : '#040506'}" stroke="${hot ? M.a1 : W + '.34)'}"/>`;
     }
     let star = [];
@@ -972,7 +972,7 @@ body { background:
   }
   const MOOD_OF = { favorable: 'go', wait: 'wait', unclear: 'unclear', reduce: 'reduce' };
   let lastSigil = null;
-  $('ambient').innerHTML = sigil({ mood: 'go', strength: 0, id: 'amb', arc: false });
+  $('ambient').innerHTML = sigil({ mood: 'go', strength: 0, id: 'amb', arc: false, hot: true }).replace(/rgba\(255,255,255,([.\d]+)\)/g, (m, a) => `rgba(255,255,255,${Math.min(1, a * 1.9).toFixed(3)})`);
   document.querySelectorAll('.aura-card .sigil').forEach((el, i) => { el.innerHTML = sigil({ mood: el.dataset.mood, strength: Number(el.dataset.strength), id: `g${i}`, anim: false }); });
 
   // ───────── State ─────────
