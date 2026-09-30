@@ -1304,3 +1304,15 @@ kbd {
 :root[data-perf='lite'] .eq-chart circle:first-of-type {
   display: none;
 }
+
+/* Astrolabe sigil: wrapper owns the size, SVG fills it. */
+.sigil {
+  display: block;
+  flex: none;
+}
+
+.sigil > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
