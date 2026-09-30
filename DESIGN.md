@@ -22,7 +22,7 @@ Reference mocks (all values are mock design data):
 - [`design/portfolio-activity.html`](design/portfolio-activity.html): Portfolio + Activity
 - The Astrolabe sigil is generated in code from data (see B6). There are no image files for it.
 - [`design/assets/`](design/assets/): the **retired** Candle Light artwork (`dispel-hero.svg`, `aura-*.svg`,
-  `generate-hero.mjs`). It stays only until the app switches to the sigil; don't use it in new work.
+  `generate-hero.mjs`). Kept as reference only; the app draws the sigil in code and ships no image files.
 
 Precedence: Part C → Part B → Part A. A later part overrides an earlier one where they conflict.
 
@@ -640,8 +640,8 @@ Sidebar: **Home** (default landing, with a change count) · Trade · Portfolio �
 
 ---
 
-## Next implementation: from Candle Light to the sigil (design only; implement separately)
-The app already follows Parts B and C with the Candle Light artwork. Moving it to this document:
+## From Candle Light to the sigil (shipped)
+The app now follows Parts B and C with the Astrolabe sigil:
 - **Generator**: one pure module (e.g. `src/lib/sigil.ts`) that returns the sigil SVG from `{ mood, strength, arc,
   hot, … }` per B6, rendered through a small component. No image files.
 - **Sign in** (`LoginForm`): the centred layout, headline, solid box, Google button with the "coming soon" note,
@@ -651,4 +651,4 @@ The app already follows Parts B and C with the Candle Light artwork. Moving it t
 - **All working screens**: the ambient becomes the rings-only sigil behind a transparent sidebar (B6).
 - **Trade**: the setup seal and the live-price tip. **Portfolio**: the allocation dial and the equity tip ring.
   **Activity**: the Paper cash fragment.
-- Remove `src/assets/dispel-hero.svg` and `aura-*.svg` (and `design/assets/`) once nothing imports them.
+- `src/assets/dispel-hero.svg` and `aura-*.svg` are gone; only `design/assets/` keeps the retired artwork.

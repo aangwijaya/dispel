@@ -176,16 +176,16 @@ Market data tries `api.binance.com` / `stream.binance.com` first and automatical
 
 ## Design
 
-`DESIGN.md` is the source of truth; `design/` holds the reference mocks and the Candle Light
-artwork. The theme is dark only (light mode was retired with the refactor). The Tauri window can be
-resized down to 720×600; below 720px (web/mobile) the sidebar becomes a bottom tab bar.
+`DESIGN.md` is the source of truth; `design/` holds the reference mocks (and the retired Candle Light
+artwork under `design/assets/`). The theme is dark only (light mode was retired with the refactor). The
+Tauri window can be resized down to 720×600; below 720px (web/mobile) the sidebar becomes a bottom tab bar.
 
 ### Software renderers (WSLg, VMs)
 
 `src/lib/perf.ts` probes WebGL at startup. On a software renderer (llvmpipe, no `/dev/dri`) it sets
-`data-perf="lite"` on `<html>`, which stops the animated conic border, the drifting auras, the price
-tape and the `.eq-chart` pulse, and replaces the `backdrop-filter` surfaces with solid fills. The
-look is unchanged; the per-frame paint cost is not. Force a mode with
+`data-perf="lite"` on `<html>`, which drops the sigil's SMIL rotation, stops the animated conic border,
+the live-price tip breath and the `.eq-chart` pulse, and replaces the `backdrop-filter` surfaces with
+solid fills. The look is unchanged; the per-frame paint cost is not. Force a mode with
 `localStorage.setItem('dispel-perf', 'full')` or `'lite'`.
 
 If the desktop app feels slower than the browser on the same machine, that is the renderer, not the

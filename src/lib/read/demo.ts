@@ -1,8 +1,4 @@
 import type { MarketRead, Regime, Stance, Tone } from '../../types/read'
-import heroArt from '../../assets/dispel-hero.svg'
-import waitArt from '../../assets/aura-wait.svg'
-import unclearArt from '../../assets/aura-unclear.svg'
-import riskoffArt from '../../assets/aura-riskoff.svg'
 
 export const REGIMES: Regime[] = [
   { name: 'Risk-off', color: '#f0506e' },
@@ -24,13 +20,6 @@ export const VERDICT_TINT: Record<Stance, string> = {
   wait: '#f5d08a',
   unclear: '#bdbdbf',
   'reduce-risk': '#ffa3b4',
-}
-
-export const AURA_ART: Record<Stance, string> = {
-  favorable: heroArt,
-  wait: waitArt,
-  unclear: unclearArt,
-  'reduce-risk': riskoffArt,
 }
 
 export const TONE_COLOR: Record<Tone, string> = {
