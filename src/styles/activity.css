@@ -21,18 +21,16 @@
   flex-direction: column;
 }
 
-.cash > img {
+.cash .csigil {
   position: absolute;
   z-index: -1;
-  right: -30%;
-  bottom: -55%;
-  width: 120%;
-  height: 120%;
-  object-fit: cover;
-  opacity: 0.35;
-  filter: blur(2px);
-  -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent);
-  mask-image: radial-gradient(closest-side, #000 30%, transparent);
+  right: -260px;
+  bottom: -260px;
+  width: 520px;
+  height: 520px;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent);
+  mask-image: radial-gradient(closest-side, #000 55%, transparent);
 }
 
 .cash .big {

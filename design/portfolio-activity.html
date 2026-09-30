@@ -45,8 +45,9 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 
 /* App shell */
 .app { position: relative; display: grid; grid-template-columns: 188px minmax(0, 1fr); border-radius: 12px; overflow: hidden; box-shadow: var(--key-soft), var(--lift); background: var(--void); isolation: isolate; }
-.ambient { position: absolute; z-index: -1; right: -10%; top: -30%; width: 72%; height: 70%; object-fit: cover; opacity: .2; filter: blur(48px) saturate(120%); pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000, transparent); mask-image: radial-gradient(closest-side, #000, transparent); }
-.side { display: flex; flex-direction: column; padding: 12px 8px; border-right: 1px solid var(--hair); background: rgba(4,5,6,.72); }
+.ambient { position: absolute; z-index: -1; left: -560px; top: 340px; width: 1120px; height: 1120px; opacity: 1; pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); }
+.ambient svg, .csigil svg, .dial svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.side { display: flex; flex-direction: column; padding: 12px 8px; border-right: 1px solid var(--hair); background: transparent; }
 .logo { display: flex; align-items: center; gap: 9px; color: var(--white); font-size: 13px; font-weight: 500; height: 32px; padding: 0 10px; margin-bottom: 12px; }
 .logo svg { width: 14px; height: 14px; }
 .nav { display: grid; gap: 2px; }
@@ -144,6 +145,16 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 .rtag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--smoke); }
 .rtag i { width: 5px; height: 5px; border-radius: 50%; background: var(--c); }
 .alloc { padding: 0 16px 16px; }
+.alloc-top { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 8px 20px; align-items: center; }
+@container main (max-width: 520px) { .alloc-top { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+.dial { width: 176px; height: 176px; }
+.alloc-top .a-list { margin: 0; width: 100%; }
+.alloc-top .a-list li { grid-template-columns: 10px minmax(0, 1fr) auto; gap: 0 10px; align-items: start; padding: 6px 8px; }
+.alloc-top .a-list li .sw { margin-top: 3px; grid-column: 1; grid-row: 1; }
+.alloc-top .a-list li > span:nth-child(2) { grid-column: 2; grid-row: 1 / 3; min-width: 0; }
+.alloc-top .a-list li > span:nth-child(2) span { display: block; font-size: 10.5px; }
+.alloc-top .a-list li .num { grid-column: 3; grid-row: 1; text-align: right; }
+.alloc-top .a-list li .p { grid-column: 3; grid-row: 2; min-width: 0; }
 .stack { display: flex; gap: 3px; height: 14px; margin-top: 4px; }
 .stack i { border-radius: 4px; background: var(--c); position: relative; }
 .stack i:first-child { background: repeating-linear-gradient(135deg, rgba(156,156,157,.55) 0 3px, rgba(156,156,157,.3) 3px 6px); }
@@ -184,7 +195,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 .act-top { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 2fr); gap: 8px; }
 @container main (max-width: 1100px) { .act-top { grid-template-columns: minmax(0, 1fr); } }
 .cash { position: relative; overflow: hidden; isolation: isolate; padding: 20px 24px 18px; display: flex; flex-direction: column; }
-.cash > img { position: absolute; z-index: -1; right: -30%; bottom: -55%; width: 120%; height: 120%; object-fit: cover; opacity: .35; filter: blur(2px); -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent); mask-image: radial-gradient(closest-side, #000 30%, transparent); }
+.cash .csigil { position: absolute; z-index: -1; right: -260px; bottom: -260px; width: 520px; height: 520px; pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent); mask-image: radial-gradient(closest-side, #000 55%, transparent); }
 .cash .big { margin-top: 10px; font-size: 40px; font-weight: 400; letter-spacing: .2px; line-height: 1.05; color: var(--white); font-variant-numeric: tabular-nums; }
 .cash .big small { font-size: 15px; color: var(--smoke); margin-left: 6px; }
 .cash .sub { margin: 6px 0 0; font-size: 12px; color: var(--ash); }
@@ -297,7 +308,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 <header class="spec">
   <div>
     <h1>Portfolio & Activity</h1>
-    <p>Two more Dispel screens on the same foundation as Home, Sign-in and Trade. Portfolio answers “how am I doing, and how exposed am I?”. Activity moves paper funds safely and keeps the ledger readable. All figures are mock design data.</p>
+    <p>Two more Dispel screens with the Astrolabe sigil. Portfolio answers “how am I doing, and how exposed am I?”, with allocation drawn as an astrolabe dial. Activity moves paper funds safely and keeps the ledger readable. All figures are mock design data.</p>
   </div>
   <nav class="jump" aria-label="Jump to screen"><a href="#portfolio">Portfolio</a><a href="#activity">Activity</a><a href="#notes">Notes</a></nav>
 </header>
@@ -306,7 +317,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 <div class="label" id="portfolio"><h2>Portfolio</h2><span>1440 wide · paper account opened Sep 20</span></div>
 <div class="frame">
   <div class="app">
-    <img class="ambient" src="assets/dispel-hero.svg" alt="" aria-hidden="true">
+    <div class="ambient" aria-hidden="true"></div>
     <aside class="side">
       <span class="logo"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>Dispel</span>
       <nav class="nav" aria-label="Main navigation">
@@ -377,8 +388,10 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
           <section class="panel" aria-label="Allocation">
             <div class="p-head"><div><h4>Allocation</h4><p>Where your equity sits right now.</p></div></div>
             <div class="alloc">
-              <div class="stack" id="stack"></div>
-              <ul class="a-list" id="alist"></ul>
+              <div class="alloc-top">
+                <div class="dial" id="dial" role="img" aria-label="Allocation dial: cash 48.2%, SOL 25.4%, ETH 26.4% (mock)"></div>
+                <ul class="a-list" id="alist"></ul>
+              </div>
               <div class="hist-h"><span class="eyebrow">Last 7 days</span><span class="mono smoke">share of equity at 00:00 UTC</span></div>
               <div class="hist" id="hist" role="img" aria-label="Allocation by day: fully cash on Sep 20, about half in positions by Sep 27 (mock)"></div>
             </div>
@@ -413,7 +426,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 <div class="label" id="activity"><h2>Activity</h2><span>move paper funds · ledger</span></div>
 <div class="frame">
   <div class="app">
-    <img class="ambient" src="assets/dispel-hero.svg" alt="" aria-hidden="true">
+    <div class="ambient" aria-hidden="true"></div>
     <aside class="side">
       <span class="logo"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>Dispel</span>
       <nav class="nav" aria-label="Main navigation">
@@ -432,7 +445,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
       <main class="main">
         <div class="act-top">
           <section class="panel cash" aria-label="Paper cash">
-            <img src="assets/dispel-hero.svg" alt="" aria-hidden="true">
+            <div class="csigil" id="csigil" aria-hidden="true"></div>
             <span class="eyebrow">Paper cash</span>
             <div class="big" id="cash-big">5,054.28<small>USDT</small></div>
             <p class="sub">Spendable on Trade. Another 1,046.00 is reserved by an open limit order.</p>
@@ -518,7 +531,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
           <tr><td>Top of page</td><td>Four equal summary cards</td><td>One equity panel: a 40px figure, all-time and today chips, and an equity curve drawn against <b>net deposited</b>, so a deposit never looks like profit. The gap between the two lines is tinted green where you are ahead and rose where you are behind.</td></tr>
           <tr><td>Key figures</td><td>Cash, positions, equity, unrealized</td><td>Adds realized P/L (already stored on orders), fees paid and net deposited, each with a plain sub-label.</td></tr>
           <tr><td>Positions</td><td>Qty, entry, last, value, P/L</td><td>Adds weight, a <b>cushion bar</b> (distance to the setup's invalidation level, as in Exposure check) and the Read tag from Home. Rows open the chart.</td></tr>
-          <tr><td>Allocation</td><td>—</td><td>One stacked bar plus a legend. Cash is hatched grey. Positions use the categorical palette, never green or red.</td></tr>
+          <tr><td>Allocation</td><td>—</td><td>An <b>astrolabe dial</b>: a ring of 100 ticks (longer every 10%) with one arc per holding, and the cash share in the centre, plus a legend. Cash is hatched grey. Positions use the categorical palette, never green or red.</td></tr>
           <tr><td>Worth knowing</td><td>—</td><td>Three factual sentences about <i>this account</i> (cash share, concentration, the nearest level), marked “not advice”.</td></tr>
           <tr><td>Closed trades & orders</td><td>Only on Trade</td><td>Closed trades with realized P/L here. The open order shows where the price sits relative to its limit.</td></tr>
         </tbody>
@@ -541,6 +554,15 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
     </div>
   </section>
   <section class="note">
+    <header><h2>The sigil here</h2><p>Same instrument, quieter jobs.</p></header>
+    <div class="prose">
+      <p><b>Behind the navigation.</b> The same rings as Home and Trade rise from the window's bottom-left corner, so all four screens feel like one instrument.</p>
+      <p><b>Allocation as a dial.</b> On Portfolio the sigil becomes a measuring tool: the tick ring is a 0–100% scale and each holding is an arc on it, the way the market read's arc is on Home. It is the one place where the sigil's form carries account data.</p>
+      <p><b>The tip.</b> The last point of the equity curve gets the same thin ring as the live price on Trade. It stays green, because on this chart it means gain.</p>
+      <p><b>Paper cash.</b> A fragment of the sigil with its coral arc sits in the corner of the cash panel, where the candle crop used to be. Nothing on Activity's form or ledger sits over artwork.</p>
+    </div>
+  </section>
+  <section class="note">
     <header><h2>Colour</h2><p>Semantic colour stays semantic.</p></header>
     <div class="prose">
       <p>Deposits and withdrawals are <b>not profit or loss</b>, so the ledger never paints them green or red. Money in is Mist with a “+”, money out is Ash with a “−”, and direction is an arrow badge. Green and rose appear only where money was made or lost: P/L, the equity band and the closed-trade results.</p>
@@ -558,6 +580,106 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
   const sgn = (v, pp = 2) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmt(Math.abs(v), pp)}`;
   function rng(seed) { let a = seed; return () => { a = (a * 1103515245 + 12345) % 2147483648; return a / 2147483648; }; }
   function toast(id, text) { const t = $(id); t.textContent = text; t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => { t.hidden = true; }, 2600); }
+
+  // ───────── Sigil (Astrolabe) — shared with Sign-in; here it encodes the read ─────────
+  const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOODS = {
+    go:      { a0: '#ffc07a', a1: '#ff6363', spin: 300, pulse: 4,   tip: -35, line: 'up' },
+    wait:    { a0: '#ffe0a3', a1: '#e8b04a', spin: 360, pulse: 6,   tip: -35, line: 'chop' },
+    unclear: { a0: '#6a6b6c', a1: '#9c9c9d', spin: 600, pulse: 0,   tip: -35, line: 'flat', fog: true },
+    reduce:  { a0: '#ff9aab', a1: '#f0506e', spin: 150, pulse: 2.4, tip: -35, line: 'down' }
+  };
+  function sigil(o) {
+    const M = MOODS[o.mood], id = o.id, W = 'rgba(255,255,255,', anim = o.anim !== false && !REDUCE_MOTION;
+    const rad = (d) => (d * Math.PI) / 180, F = (n) => n.toFixed(1);
+    const spinT = (dur, dir = 1) => (anim && dur ? `<animateTransform attributeName="transform" type="rotate" from="0" to="${360 * dir}" dur="${dur}s" repeatCount="indefinite"/>` : '');
+    let ticks = '';
+    for (let a = 0; a < 360; a += 2) {
+      const major = a % 30 === 0, mid = a % 10 === 0, len = major ? 22 : mid ? 13 : 6, op = major ? .38 : mid ? .2 : .11;
+      ticks += `<line x1="${F(470 * Math.cos(rad(a)))}" y1="${F(470 * Math.sin(rad(a)))}" x2="${F((470 - len) * Math.cos(rad(a)))}" y2="${F((470 - len) * Math.sin(rad(a)))}" stroke="${W}${op})"/>`;
+    }
+    let nodes = '';
+    for (let i = 0; i < 12; i++) {
+      const a = rad(i * 30 + 15), x = 350 * Math.cos(a), y = 350 * Math.sin(a), sz = 5, hot = i === 10 && !M.fog && (o.arc !== false || o.hot);
+      nodes += `<path d="M${F(x)} ${F(y - sz)} L${F(x + sz)} ${F(y)} L${F(x)} ${F(y + sz)} L${F(x - sz)} ${F(y)} Z" fill="${hot ? M.a1 : '#040506'}" stroke="${hot ? M.a1 : W + '.34)'}"/>`;
+    }
+    let star = [];
+    for (let t = 0; t <= Math.PI * 8; t += 0.012) {
+      const x = 3 * Math.cos(t) + 6.2 * Math.cos(0.75 * t), y = 3 * Math.sin(t) - 6.2 * Math.sin(0.75 * t);
+      star.push(`${F(x * 36)},${F(y * 36)}`);
+    }
+    let art = '';
+    if (o.arc !== false) {
+      const len = 40 + o.strength * 1.2, T = M.tip, from = T, to = T + len, far = to, R = 410;
+      const tipX = R * Math.cos(rad(T)), tipY = R * Math.sin(rad(T));
+      const path = `M${F(R * Math.cos(rad(from)))} ${F(R * Math.sin(rad(from)))} A${R} ${R} 0 ${to - from > 180 ? 1 : 0} 1 ${F(R * Math.cos(rad(to)))} ${F(R * Math.sin(rad(to)))}`;
+      const pts = [];
+      for (let x = -500; x <= tipX; x += 3) {
+        const t = (x + 500) / (tipX + 500), ease = t * t * (3 - 2 * t);
+        let y;
+        if (M.line === 'up') y = 150 + (tipY - 150) * ease + (1 - t) * (18 * Math.sin(t * 13.7) + 7 * Math.sin(t * 31 + .6));
+        else if (M.line === 'down') y = -470 + (tipY + 470) * ease + (1 - t) * (14 * Math.sin(t * 12) + 6 * Math.sin(t * 29));
+        else if (M.line === 'chop') y = tipY + 30 * (1 - ease) + (1 - t * .7) * 34 * Math.sin(t * 23) * Math.cos(t * 6);
+        else y = tipY + 55 * (1 - ease) + 5 * Math.sin(t * 17);
+        pts.push(`${F(x)},${F(y)}`);
+      }
+      const pulse = anim && M.pulse ? `<animate attributeName="opacity" values=".2;.55;.2" dur="${M.pulse}s" repeatCount="indefinite"/>` : '';
+      art = `<defs>
+          <linearGradient id="${id}a" gradientUnits="userSpaceOnUse" x1="${F(R * Math.cos(rad(far)))}" y1="${F(R * Math.sin(rad(far)))}" x2="${F(tipX)}" y2="${F(tipY)}"><stop offset="0" stop-color="${M.a0}" stop-opacity="0"/><stop offset=".4" stop-color="${M.a0}" stop-opacity=".7"/><stop offset="1" stop-color="${M.a1}"/></linearGradient>
+          <linearGradient id="${id}l" gradientUnits="userSpaceOnUse" x1="-500" y1="0" x2="${F(tipX)}" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="${M.a0}" stop-opacity=".5"/><stop offset="1" stop-color="${M.a1}" stop-opacity=".9"/></linearGradient>
+          <filter id="${id}g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        </defs>
+        <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="5" opacity=".4" filter="url(#${id}g)"/>
+        <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="1.6" stroke-linecap="round"${M.fog ? ' stroke-dasharray="5 7"' : ''}/>
+        <polyline points="${pts.join(' ')}" fill="none" stroke="url(#${id}l)" stroke-width="1.3" stroke-linejoin="round"/>
+        <circle cx="${F(tipX)}" cy="${F(tipY)}" r="9" fill="${M.a1}" opacity=".4" filter="url(#${id}g)">${pulse}</circle>
+        <circle cx="${F(tipX)}" cy="${F(tipY)}" r="3" fill="#fff"/>`;
+    }
+    const body = `<circle r="470" fill="none" stroke="${W}.14)"/>
+      <g>${ticks}${spinT(M.spin)}</g>
+      <circle r="440" fill="none" stroke="${W}.07)" stroke-dasharray="2 7"/>
+      <circle r="410" fill="none" stroke="${W}.05)"/>
+      <circle r="350" fill="none" stroke="${W}.08)"/>
+      <g>${nodes}${spinT(M.spin * .66, -1)}</g>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(28)"/>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(-28)"/>
+      <circle r="290" fill="none" stroke="${W}.05)" stroke-dasharray="1 5"/>
+      <polyline points="${star.join(' ')}" fill="none" stroke="${W}.075)"/>
+      ${art}`;
+    const fog = M.fog ? `<defs><filter id="${id}f"><feGaussianBlur stdDeviation="1.1"/></filter></defs><g opacity=".72" filter="url(#${id}f)">${body}</g>` : body;
+    return `<svg viewBox="-520 -520 1040 1040" xmlns="http://www.w3.org/2000/svg">${fog}</svg>`;
+  }
+  const boost = (svg, k) => svg.replace(/rgba\(255,255,255,([.\d]+)\)/g, (m, a) => `rgba(255,255,255,${Math.min(1, a * k).toFixed(3)})`);
+  document.querySelectorAll('.ambient').forEach((el, i) => { el.innerHTML = boost(sigil({ mood: 'go', strength: 0, id: `amb${i}`, arc: false, hot: true }), 1.9); });
+  $('csigil').innerHTML = boost(sigil({ mood: 'go', strength: 0, id: 'cash', arc: false, hot: true }), 1.6);
+
+  // Allocation dial: a 0–100% tick ring with one arc per holding (astrolabe form, account data).
+  function dial(parts) {
+    const total = parts.reduce((a, p) => a + p.v, 0), rad = (d) => (d * Math.PI) / 180, F = (n) => n.toFixed(2), R = 70;
+    let ticks = '';
+    for (let k = 0; k < 100; k++) {
+      const a = rad(k * 3.6 - 90), long = k % 10 === 0, r1 = 88, r2 = long ? 80 : 84.5;
+      ticks += `<line x1="${F(r1 * Math.cos(a))}" y1="${F(r1 * Math.sin(a))}" x2="${F(r2 * Math.cos(a))}" y2="${F(r2 * Math.sin(a))}" stroke="rgba(255,255,255,${long ? .38 : .14})"/>`;
+    }
+    let start = -90, arcs = '';
+    parts.forEach((p) => {
+      const sweep = (p.v / total) * 360, a0 = start + 1.2, a1 = start + sweep - 1.2;
+      const d = `M${F(R * Math.cos(rad(a0)))} ${F(R * Math.sin(rad(a0)))} A${R} ${R} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${F(R * Math.cos(rad(a1)))} ${F(R * Math.sin(rad(a1)))}`;
+      arcs += `<path d="${d}" fill="none" stroke="${p.cash ? 'url(#hatch)' : p.c}" stroke-width="9"/>`;
+      start += sweep;
+    });
+    const cashShare = (parts.find((p) => p.cash).v / total) * 100;
+    return `<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="rgba(156,156,157,.28)"/><rect width="1.6" height="4" fill="rgba(156,156,157,.7)"/></pattern></defs>
+      <circle r="94" fill="none" stroke="rgba(255,255,255,.1)"/>
+      ${ticks}
+      <circle r="${R}" fill="none" stroke="#1b1c1e" stroke-width="9"/>
+      ${arcs}
+      <circle r="56" fill="none" stroke="rgba(255,255,255,.06)" stroke-dasharray="1 4"/>
+      <text y="4" text-anchor="middle" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400">${cashShare.toFixed(0)}%</text>
+      <text y="22" text-anchor="middle" fill="#6a6b6c" font-family="Geist Mono, monospace" font-size="9" letter-spacing=".6">IN CASH</text>
+    </svg>`;
+  }
 
   // ═════════ PORTFOLIO (mock data) ═════════
   const POS = [
@@ -583,14 +705,14 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
   $('pos').addEventListener('click', (e) => { const b = e.target.closest('[data-trade]'); if (b) toast('p-toast', `Trade · ${b.dataset.trade} opens with your position and its levels`); });
 
   const ALLOC = [['Cash', 'USDT', CASH, '#9c9c9d']].concat(POS.map((p) => [p.pair.split('/')[0], p.pair, p.qty * p.last, p.cat]));
-  $('stack').innerHTML = ALLOC.map(([n, , v, c]) => `<i style="flex:${v.toFixed(2)};--c:${c}" title="${n} ${(v / EQUITY * 100).toFixed(1)}%"></i>`).join('');
+  $('dial').innerHTML = dial(ALLOC.map(([n, , v, c]) => ({ v, c, cash: n === 'Cash' })));
   $('alist').innerHTML = ALLOC.map(([n, sub, v, c]) => `<li><span class="sw" style="--c:${c}${n === 'Cash' ? ';background:repeating-linear-gradient(135deg,rgba(156,156,157,.7) 0 2px,rgba(156,156,157,.35) 2px 4px)' : ''}"></span><span><b>${n}</b> <span class="smoke" style="font-size:11px">${sub}</span></span><span class="num white">${fmt(v)}</span><span class="p">${(v / EQUITY * 100).toFixed(1)}%</span></li>`).join('');
 
   // Allocation history (share of equity): [cash, SOL, ETH, other]
   const HIST = [['20', [100, 0, 0, 0]], ['21', [100, 0, 0, 0]], ['22', [84, 0, 0, 16]], ['23', [73, 12, 0, 15]], ['24', [66, 13, 0, 21]], ['25', [69, 13, 0, 18]], ['26', [52, 24, 24, 0]], ['Now', [48.2, 25.4, 26.4, 0]]];
   const HC = ['cash', '#8aa4ff', '#ffc07a', '#c79bff'];
   $('hist').innerHTML = HIST.map(([d, parts]) => `<div class="col ${d === 'Now' ? 'now' : ''}"><div class="bars">${parts.map((v, k) => v > 0 ? `<i class="${k === 0 ? 'cash' : ''}" style="flex:${v};--c:${HC[k]}"></i>` : '').join('')}</div><span>${d === 'Now' ? 'Now' : d}</span></div>`).join('');
-  $('alist').insertAdjacentHTML('beforeend', `<li><span class="sw other"></span><span><b>Other</b> <span class="smoke" style="font-size:11px">DOGE · LINK · AVAX, now sold</span></span><span class="num smoke">0.00</span><span class="p">0.0%</span></li>`);
+  $('alist').insertAdjacentHTML('beforeend', `<li><span class="sw other"></span><span><b>Other</b> <span class="smoke" style="font-size:11px">sold</span></span><span class="num smoke">0.00</span><span class="p">0.0%</span></li>`);
 
   const CLOSED = [
     { t: 'Sep 27 · 09:30', pair: 'AVAX/USDT', ico: 'AVX', qty: 8, basis: 30.95, exit: 31.62, fee: 0.25, held: '12m' },
@@ -651,6 +773,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
       <polyline points="${eP.join(' ')}" fill="none" stroke="#59d499" stroke-width="5" opacity=".35" filter="url(#glow)"/>
       <polyline points="${eP.join(' ')}" fill="none" stroke="#59d499" stroke-width="1.6" stroke-linejoin="round"/>
       <circle cx="${x(n - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="9" fill="#59d499" opacity=".18"><animate attributeName="r" values="5;12;5" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".35;0;.35" dur="2.4s" repeatCount="indefinite"/></circle>
+      <circle cx="${x(n - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="7" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1"/>
       <circle cx="${x(n - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="3.5" fill="#fff"/>
       ${tag(y(last), fmt(last, 0), '#e6e6e6', '#454647')}${tag(y(lb), fmt(lb, 0), '#1b1c1e', '#9c9c9d')}
       ${cross}</svg>`;

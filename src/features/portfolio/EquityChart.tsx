@@ -287,6 +287,14 @@ export function EquityChart({ equity, netDeposited, range }: EquityChartProps) {
             <animate attributeName="r" values="5;12;5" dur="2.4s" repeatCount="indefinite" />
             <animate attributeName="opacity" values=".35;0;.35" dur="2.4s" repeatCount="indefinite" />
           </circle>
+          <circle
+            cx={x(count - 1).toFixed(1)}
+            cy={y(lastEquity).toFixed(1)}
+            r="7"
+            fill="none"
+            stroke="rgba(255,255,255,.4)"
+            strokeWidth="1"
+          />
           <circle cx={x(count - 1).toFixed(1)} cy={y(lastEquity).toFixed(1)} r="3.5" fill="#fff" />
 
           <rect x={padLeft + plotWidth + 4} y={(y(lastEquity) - 9).toFixed(1)} width={padRight - 8} height="18" rx="5" fill="#e6e6e6" />

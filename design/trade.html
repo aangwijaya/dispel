@@ -1,4 +1,4 @@
-<title>Dispel Sign-in & Trade</title>
+<title>Dispel Trade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
@@ -41,51 +41,14 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 .label span { font-family: var(--f-mono); font-size: 11px; color: var(--smoke); }
 .frame { container: frame / inline-size; max-width: 1440px; margin: 0 auto; }
 .frame + .label { margin-top: 64px; }
+.ambient svg, .seal svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.seal { width: 22px; height: 22px; flex: none; }
 
-/* ═════════ SIGN-IN ═════════ */
-.login { position: relative; min-height: 860px; border-radius: 12px; overflow: hidden; box-shadow: var(--key-soft), var(--lift);
-  background:
-    radial-gradient(60% 55% at 78% 18%, rgba(120,18,40,.45), transparent 70%),
-    radial-gradient(55% 60% at 12% 92%, rgba(6,30,80,.7), transparent 70%),
-    #040506;
-  display: grid; grid-template-rows: auto 1fr auto; }
-.art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: translateX(4%) scale(1.14); animation: drift 38s ease-in-out infinite alternate; pointer-events: none; }
-@keyframes drift { to { transform: translateX(1%) scale(1.2) rotate(-1deg); } }
-.scrim { position: absolute; inset: 0; pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(4,5,6,.9) 0%, rgba(4,5,6,.55) 34%, rgba(4,5,6,0) 58%),
-    linear-gradient(0deg, rgba(4,5,6,.95) 0%, rgba(4,5,6,0) 26%),
-    linear-gradient(180deg, rgba(4,5,6,.6) 0%, rgba(4,5,6,0) 14%); }
-.l-top { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px; padding: 8px 8px 8px 14px; border-radius: 10px; background: rgba(7,8,10,.55); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 0 0 1px rgba(54,55,57,.8); }
+/* ═════════ Shared chrome ═════════ */
 .logo { display: flex; align-items: center; gap: 9px; color: var(--white); font-size: 13px; font-weight: 500; }
 .logo svg { width: 15px; height: 15px; }
-.l-top .r { display: flex; align-items: center; gap: 12px; }
 .pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 6px; background: var(--badge); font-size: 11px; font-weight: 500; color: var(--mist); white-space: nowrap; }
 .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 3px rgba(89,212,153,.18); }
-.l-top .mono { color: var(--smoke); }
-
-.l-body { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 48px; align-items: center; padding: 24px 56px 32px; }
-.pitch { max-width: 620px; }
-.pitch .eyebrow { color: #ff9b9b; }
-.pitch h3 { margin: 16px 0 0; font-size: 56px; font-weight: 400; letter-spacing: .22px; line-height: 1.08; color: var(--white); text-wrap: balance; }
-.pitch h3 em { font-style: normal; background: linear-gradient(92deg, #ffc07a 0%, #ff6363 45%, #ff2f6d 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.pitch p { margin: 18px 0 0; font-size: 16px; line-height: 1.55; color: var(--ash); max-width: 52ch; }
-.teaser { margin-top: 28px; display: inline-grid; grid-template-columns: auto auto auto; gap: 0; border-radius: 12px; background: rgba(7,8,10,.62); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: var(--key-soft); overflow: hidden; max-width: 100%; }
-.teaser > div { padding: 12px 16px; min-width: 0; }
-.teaser > div + div { border-left: 1px solid var(--hair); }
-.teaser .k { font-size: 11px; color: var(--smoke); }
-.teaser .v { margin-top: 3px; font-size: 15px; color: var(--white); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-.teaser .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 3px rgba(89,212,153,.18); }
-.teaser svg { width: 64px; height: 20px; }
-.t-note { margin-top: 10px; font-family: var(--f-mono); font-size: 11px; color: var(--smoke); }
-
-.auth { border-radius: 16px; padding: 28px; background: rgba(7,8,10,.74); backdrop-filter: blur(28px) saturate(140%); -webkit-backdrop-filter: blur(28px) saturate(140%); box-shadow: var(--key), 0 30px 80px rgba(0,0,0,.45); }
-.auth h4 { margin: 0; font-size: 24px; font-weight: 400; letter-spacing: .2px; color: var(--white); }
-.auth .sub { margin: 6px 0 0; font-size: 13px; color: var(--ash); }
-.seg { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 10px; background: var(--recessed); box-shadow: 0 0 0 1px var(--hair); }
-.seg button { height: 30px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--smoke); }
-.seg button:hover { color: var(--mist); }
-.seg button[aria-pressed="true"] { background: var(--badge); color: var(--white); box-shadow: var(--key-soft); }
 .field { margin-top: 16px; display: block; }
 .field > span { display: flex; justify-content: space-between; font-size: 12px; color: var(--ash); margin-bottom: 6px; }
 .input { position: relative; }
@@ -93,32 +56,11 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 .input input::placeholder { color: var(--smoke); }
 .input input:focus { box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), 0 0 0 4px rgba(255,99,99,.12); }
 .input input[aria-invalid="true"] { box-shadow: inset 0 0 0 1px rgba(240,80,110,.7); }
-.input .show { position: absolute; right: 6px; top: 7px; height: 26px; padding: 0 8px; border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--ash); }
-.input .show:hover { color: var(--white); background: var(--badge); }
-.hint { margin-top: 6px; font-size: 11px; color: var(--smoke); }
-.msg { margin-top: 14px; padding: 9px 12px; border-radius: 8px; font-size: 12px; line-height: 1.45; }
-.msg.err { background: rgba(240,80,110,.1); color: #ff8fa5; box-shadow: inset 0 0 0 1px rgba(240,80,110,.25); }
-.msg.ok { background: rgba(89,212,153,.08); color: #8fe3bb; box-shadow: inset 0 0 0 1px rgba(89,212,153,.22); }
-.primary { margin-top: 20px; width: 100%; height: 42px; border-radius: 8px; background: var(--mist); color: var(--iron); font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--lift); transition: background .15s; }
-.primary:hover { background: var(--white); }
-.primary kbd { background: rgba(0,0,0,.08); box-shadow: none; color: var(--iron); }
-.primary[disabled] { opacity: .6; cursor: progress; }
-.fine { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--hair); display: grid; gap: 8px; }
-.fine div { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: var(--ash); line-height: 1.45; }
-.fine svg { width: 14px; height: 14px; flex: none; margin-top: 1px; color: var(--smoke); }
-
-.tape { position: relative; z-index: 2; overflow: hidden; border-top: 1px solid rgba(255,255,255,.07); background: rgba(4,5,6,.6); height: 38px; display: flex; align-items: center; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-.tape-track { display: flex; gap: 32px; white-space: nowrap; animation: tape 60s linear infinite; padding-left: 32px; font-family: var(--f-mono); font-size: 11px; }
-.tape-track span { color: var(--ash); } .tape-track b { color: var(--white); font-weight: 500; margin: 0 6px; }
-@keyframes tape { to { transform: translateX(-50%); } }
-
-@container frame (max-width: 1080px) { .l-body { grid-template-columns: minmax(0, 1fr); padding: 16px 24px 32px; gap: 32px; } .auth { max-width: 440px; } .pitch h3 { font-size: 40px; } .scrim { background: linear-gradient(0deg, rgba(4,5,6,.95) 0%, rgba(4,5,6,.5) 60%, rgba(4,5,6,.3) 100%); } }
-@container frame (max-width: 560px) { .l-body { padding: 8px 16px 24px; } .pitch h3 { font-size: 32px; } .teaser { grid-template-columns: 1fr; } .teaser > div + div { border-left: 0; border-top: 1px solid var(--hair); } .l-top .mono { display: none; } .auth { padding: 20px; } }
 
 /* ═════════ TRADE ═════════ */
 .app { position: relative; display: grid; grid-template-columns: 188px minmax(0, 1fr); border-radius: 12px; overflow: hidden; box-shadow: var(--key-soft), var(--lift); background: var(--void); isolation: isolate; }
-.ambient { position: absolute; z-index: -1; right: -8%; top: -38%; width: 70%; height: 90%; object-fit: cover; opacity: .22; filter: blur(46px) saturate(120%); pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000, transparent); mask-image: radial-gradient(closest-side, #000, transparent); }
-.side { display: flex; flex-direction: column; padding: 12px 8px; border-right: 1px solid var(--hair); background: rgba(4,5,6,.7); }
+.ambient { position: absolute; z-index: -1; left: -560px; top: 340px; width: 1120px; height: 1120px; opacity: 1; pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); }
+.side { display: flex; flex-direction: column; padding: 12px 8px; border-right: 1px solid var(--hair); background: transparent; }
 .side .logo { height: 32px; padding: 0 10px; margin-bottom: 12px; }
 .nav { display: grid; gap: 2px; }
 .nav button { height: 32px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--ash); text-align: left; }
@@ -184,7 +126,12 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 .mh .star svg { width: 15px; height: 15px; }
 
 /* Setup context */
-.ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0 8px 8px; padding: 8px 12px; border-radius: 8px; background: linear-gradient(90deg, rgba(255,99,99,.09), rgba(17,18,20,1) 38%); box-shadow: inset 0 0 0 1px var(--hair); font-size: 12px; color: var(--ash); }
+.ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0 8px 8px; padding: 7px 12px 7px 9px; border-radius: 8px; background: linear-gradient(90deg, rgba(255,99,99,.07), rgba(17,18,20,1) 34%); box-shadow: inset 0 0 0 1px var(--hair); font-size: 12px; color: var(--ash); }
+.ctx .lead { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+.ctx { flex-wrap: nowrap; gap: 12px; white-space: nowrap; min-width: 0; }
+.ctx > span { flex: none; }
+.ctx > span.ctx-sum { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@container frame (max-width: 900px) { .ctx { flex-wrap: wrap; white-space: normal; } }
 .ctx b { color: var(--white); font-weight: 500; }
 .ctx .sep { width: 1px; height: 14px; background: var(--slate); }
 .ctx .end { margin-left: auto; }
@@ -307,69 +254,17 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 
 <header class="spec">
   <div>
-    <h1>Sign-in & Trade</h1>
-    <p>Two Dispel screens built on the Raycast foundation in DESIGN.md. The artwork is original to Dispel: a rising run of candlesticks, blurred at the edges and sharp in the middle. All market figures are mock design data.</p>
+    <h1>Trade, with the sigil</h1>
+    <p>The working screen stays a terminal. The Astrolabe sigil appears in three quiet places: rings rising behind the navigation, a small seal on the setup strip, and the live price on the chart drawn as the spell's glowing tip. All market figures are mock design data.</p>
   </div>
-  <nav class="jump" aria-label="Jump to screen"><a href="#signin">Sign in</a><a href="#trade">Trade</a><a href="#notes">Notes</a></nav>
+  <nav class="jump" aria-label="Jump to section"><a href="#trade">Trade</a><a href="#notes">Notes</a></nav>
 </header>
-
-<!-- ═════════ SIGN-IN ═════════ -->
-<div class="label" id="signin"><h2>Sign in</h2><span>first screen · 1440 × 860</span></div>
-<div class="frame">
-  <div class="login">
-    <img class="art" src="assets/dispel-hero.svg" alt="" aria-hidden="true">
-    <div class="scrim"></div>
-
-    <div class="l-top">
-      <span class="logo"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>Dispel</span>
-      <div class="r"><span class="mono">v0.1.0</span><span class="pill"><i></i>Markets live</span></div>
-    </div>
-
-    <div class="l-body">
-      <section class="pitch">
-        <span class="eyebrow">Paper trading terminal</span>
-        <h3>See the market clearly <em>before you trade it.</em></h3>
-        <p>Dispel reads the market for you: its mood, the setups worth a look, and what to be careful of. Practise on live prices with paper funds. No real money, ever.</p>
-        <div class="teaser" aria-label="Today's market read preview (mock)">
-          <div><div class="k">Market read</div><div class="v"><span class="dot"></span>Look for setups</div></div>
-          <div><div class="k">Regime</div><div class="v">Constructive</div></div>
-          <div><div class="k">Worth a look</div><div class="v">4 setups <svg viewBox="0 0 64 20" aria-hidden="true"><polyline points="0,16 8,14 16,15 24,11 32,12 40,8 48,9 56,5 64,4" fill="none" stroke="#59d499" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div>
-        </div>
-        <div class="t-note">Today · 14:32 UTC · sign in to see the full read</div>
-      </section>
-
-      <form class="auth" id="auth" novalidate>
-        <h4 id="auth-title">Welcome back</h4>
-        <p class="sub" id="auth-sub">Sign in to your paper trading account.</p>
-        <div class="seg" role="group" aria-label="Account mode">
-          <button type="button" data-m="signin" aria-pressed="true">Sign in</button>
-          <button type="button" data-m="signup" aria-pressed="false">Create account</button>
-        </div>
-        <label class="field" for="email"><span>Email</span>
-          <div class="input"><input id="email" type="email" autocomplete="email" spellcheck="false" placeholder="you@example.com"></div>
-        </label>
-        <label class="field" for="password"><span>Password</span>
-          <div class="input"><input id="password" type="password" autocomplete="current-password" placeholder="At least 8 characters"><button type="button" class="show" id="show">Show</button></div>
-        </label>
-        <div class="hint" id="pw-hint" hidden>Use 8 or more characters. You'll confirm your email before signing in.</div>
-        <div id="auth-msg"></div>
-        <button type="submit" class="primary" id="submit"><span id="submit-l">Sign in</span><kbd>↵</kbd></button>
-        <div class="fine">
-          <div><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Paper trading only. No real funds, exchange keys or wallets.</div>
-          <div><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 8h2.5l1.5-4 2.5 8 1.5-4H14"/></svg>Live public prices from Binance.</div>
-        </div>
-      </form>
-    </div>
-
-    <div class="tape" aria-label="Live prices (mock)"><div class="tape-track" id="tape"></div></div>
-  </div>
-</div>
 
 <!-- ═════════ TRADE ═════════ -->
 <div class="label" id="trade"><h2>Trade</h2><span>opened from a setup on Home · 1440 × 940</span></div>
 <div class="frame">
   <div class="app">
-    <img class="ambient" src="assets/dispel-hero.svg" alt="" aria-hidden="true">
+    <div class="ambient" id="ambient" aria-hidden="true"></div>
     <aside class="side">
       <span class="logo"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>Dispel</span>
       <nav class="nav" aria-label="Main navigation">
@@ -472,21 +367,13 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
 <!-- ═════════ NOTES ═════════ -->
 <div class="notes" id="notes">
   <section class="note">
-    <header><h2>The artwork: Candle Light</h2><p>Original to Dispel, not borrowed from Raycast.</p></header>
-    <div>
-      <div class="artcard"><img src="assets/dispel-hero.svg" alt="Dispel Candle Light artwork: a rising run of tilted candlesticks, hazy at the edges and in focus at the centre"><span>design/assets/dispel-hero.svg · 5 KB</span></div>
-      <div class="prose" style="margin-top:16px">
-        <p>Raycast uses diagonal bars of light. Dispel uses a <b>scripted rising staircase of 14 long candlesticks</b> tilted 28°, so it reads as streaks of light first and a chart second. Up candles are warm (amber → coral → rose) and down candles are cool (periwinkle → cobalt → deep space). The whole run is blurred into haze, with a crisp copy masked into the centre. <b>The noise clears where you look</b>, which is what the name promises.</p>
-        <p>It is one deterministic SVG (5 KB, generated by <code>design/assets/generate-hero.mjs</code>) that scales to any window without pixelation. Sign-in uses it full-bleed with a slow 38-second drift. Trade uses the same file as a blurred ambient glow at 22% opacity behind the top right, so the terminal isn't flat black but no chart data ever sits on colour.</p>
-      </div>
-      <div class="swatches">
-        <div class="sw"><i style="background:#ffc07a"></i><div><b>Amber</b><span>#ffc07a art</span></div></div>
-        <div class="sw"><i style="background:#ff6363"></i><div><b>Coral</b><span>#ff6363 brand</span></div></div>
-        <div class="sw"><i style="background:#ff2f6d"></i><div><b>Rose</b><span>#ff2f6d art</span></div></div>
-        <div class="sw"><i style="background:#2d52d6"></i><div><b>Cobalt</b><span>#2d52d6 art</span></div></div>
-        <div class="sw"><i style="background:#02193b"></i><div><b>Deep space</b><span>#02193b art</span></div></div>
-        <div class="sw"><i style="background:#780f28"></i><div><b>Maroon glow</b><span>login backdrop</span></div></div>
-      </div>
+    <header><h2>The sigil on Trade</h2><p>Three quiet places, never behind data.</p></header>
+    <div class="prose">
+      <p>Trade is where people act, so the sigil steps back. It appears in three places, each with a job:</p>
+      <p><b>Background rings.</b> The Astrolabe's rings, ticks and nodes (no arc, no line, one coral node) rise from the bottom-left corner of the window, behind the navigation, and turn once every 300s. The sidebar is transparent and holds no data, so the rings read clearly there, while the 92%-opaque panels keep them out of the data. It is the same layer as on Home, so moving between screens feels like one instrument.</p>
+      <p><b>The setup seal.</b> When Trade is opened from a setup, the strip above the chart starts with a 22px seal: a ring, 12 ticks, and a coral arc whose length is the setup's odds. It says “this context came from the market read” without a word.</p>
+      <p><b>The spell's tip on the chart.</b> The last price is drawn exactly like the tip of the arc on Sign-in and Home: a white core, a thin ring, and a coral glow that breathes every 4s. It is the only living point on the chart. Candles, levels and the crosshair stay plain.</p>
+      <p>No sigil sits behind the chart, the order book or the order ticket. Under reduced motion the rings and the tip stop.</p>
     </div>
   </section>
 
@@ -496,9 +383,6 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
       <table class="cmp">
         <thead><tr><th>Area</th><th>MVP</th><th>New</th></tr></thead>
         <tbody>
-          <tr><td>Sign-in layout</td><td>A small centred form on a plain cream canvas</td><td>Full-bleed artwork, a product pitch with a preview of today's read, and a glass card for the form</td></tr>
-          <tr><td>Sign-in form</td><td>Pill tabs, black button</td><td>Recessed segmented control, inset fields with a coral focus halo, Mist primary with <kbd>↵</kbd>, show/hide password, inline errors that say how to fix them</td></tr>
-          <tr><td>Sign-in trust</td><td>One line of fine print</td><td>Two plain promises (paper only / live public prices) and a scrolling live price tape</td></tr>
           <tr><td>Trade surfaces</td><td>Edge-to-edge columns split by borders</td><td>Five panels on void with the soft keycap edge, plus a faint brand glow behind the header</td></tr>
           <tr><td>Market list</td><td>Plain rows with a hover star</td><td>Search (<kbd>/</kbd>), Watchlist/All tabs, monograms, and a Read dot that carries the Home context</td></tr>
           <tr><td>Chart</td><td>Chart only</td><td>OHLC readout, crosshair, setup invalidation and target drawn as price lines, last-price tag, volume toggle</td></tr>
@@ -534,38 +418,84 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
   const fmt = (v, pp) => v.toLocaleString('en-US', { minimumFractionDigits: pp, maximumFractionDigits: pp });
   const pct = (v) => `<span class="${v > 0 ? 'up' : v < 0 ? 'down' : 'smoke'}">${v > 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
 
-  // ───────── Sign-in ─────────
-  $('tape').innerHTML = [0, 1].map(() => MARKETS.map((m) => `<span>${m.base}<b>${fmt(m.px, m.pp)}</b>${pct(m.ch)}</span>`).join('')).join('');
-  const auth = { mode: 'signin' };
-  function setMode(m) {
-    auth.mode = m;
-    document.querySelectorAll('#auth .seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.m === m)));
-    $('auth-title').textContent = m === 'signin' ? 'Welcome back' : 'Create your account';
-    $('auth-sub').textContent = m === 'signin' ? 'Sign in to your paper trading account.' : 'Start with 10,000 USDT in paper funds.';
-    $('submit-l').textContent = m === 'signin' ? 'Sign in' : 'Create account';
-    $('password').autocomplete = m === 'signin' ? 'current-password' : 'new-password';
-    $('pw-hint').hidden = m === 'signin';
-    $('auth-msg').innerHTML = '';
-    ['email', 'password'].forEach((id) => $(id).removeAttribute('aria-invalid'));
+  // ───────── Sigil (Astrolabe) — shared with Sign-in; here it encodes the read ─────────
+  const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOODS = {
+    go:      { a0: '#ffc07a', a1: '#ff6363', spin: 300, pulse: 4,   tip: -35, line: 'up' },
+    wait:    { a0: '#ffe0a3', a1: '#e8b04a', spin: 360, pulse: 6,   tip: -35, line: 'chop' },
+    unclear: { a0: '#6a6b6c', a1: '#9c9c9d', spin: 600, pulse: 0,   tip: -35, line: 'flat', fog: true },
+    reduce:  { a0: '#ff9aab', a1: '#f0506e', spin: 150, pulse: 2.4, tip: -35, line: 'down' }
+  };
+  function sigil(o) {
+    const M = MOODS[o.mood], id = o.id, W = 'rgba(255,255,255,', anim = o.anim !== false && !REDUCE_MOTION;
+    const rad = (d) => (d * Math.PI) / 180, F = (n) => n.toFixed(1);
+    const spinT = (dur, dir = 1) => (anim && dur ? `<animateTransform attributeName="transform" type="rotate" from="0" to="${360 * dir}" dur="${dur}s" repeatCount="indefinite"/>` : '');
+    let ticks = '';
+    for (let a = 0; a < 360; a += 2) {
+      const major = a % 30 === 0, mid = a % 10 === 0, len = major ? 22 : mid ? 13 : 6, op = major ? .38 : mid ? .2 : .11;
+      ticks += `<line x1="${F(470 * Math.cos(rad(a)))}" y1="${F(470 * Math.sin(rad(a)))}" x2="${F((470 - len) * Math.cos(rad(a)))}" y2="${F((470 - len) * Math.sin(rad(a)))}" stroke="${W}${op})"/>`;
+    }
+    let nodes = '';
+    for (let i = 0; i < 12; i++) {
+      const a = rad(i * 30 + 15), x = 350 * Math.cos(a), y = 350 * Math.sin(a), sz = 5, hot = i === 10 && !M.fog && (o.arc !== false || o.hot);
+      nodes += `<path d="M${F(x)} ${F(y - sz)} L${F(x + sz)} ${F(y)} L${F(x)} ${F(y + sz)} L${F(x - sz)} ${F(y)} Z" fill="${hot ? M.a1 : '#040506'}" stroke="${hot ? M.a1 : W + '.34)'}"/>`;
+    }
+    let star = [];
+    for (let t = 0; t <= Math.PI * 8; t += 0.012) {
+      const x = 3 * Math.cos(t) + 6.2 * Math.cos(0.75 * t), y = 3 * Math.sin(t) - 6.2 * Math.sin(0.75 * t);
+      star.push(`${F(x * 36)},${F(y * 36)}`);
+    }
+    let art = '';
+    if (o.arc !== false) {
+      const len = 40 + o.strength * 1.2, T = M.tip, from = T, to = T + len, far = to, R = 410;
+      const tipX = R * Math.cos(rad(T)), tipY = R * Math.sin(rad(T));
+      const path = `M${F(R * Math.cos(rad(from)))} ${F(R * Math.sin(rad(from)))} A${R} ${R} 0 ${to - from > 180 ? 1 : 0} 1 ${F(R * Math.cos(rad(to)))} ${F(R * Math.sin(rad(to)))}`;
+      const pts = [];
+      for (let x = -500; x <= tipX; x += 3) {
+        const t = (x + 500) / (tipX + 500), ease = t * t * (3 - 2 * t);
+        let y;
+        if (M.line === 'up') y = 150 + (tipY - 150) * ease + (1 - t) * (18 * Math.sin(t * 13.7) + 7 * Math.sin(t * 31 + .6));
+        else if (M.line === 'down') y = -470 + (tipY + 470) * ease + (1 - t) * (14 * Math.sin(t * 12) + 6 * Math.sin(t * 29));
+        else if (M.line === 'chop') y = tipY + 30 * (1 - ease) + (1 - t * .7) * 34 * Math.sin(t * 23) * Math.cos(t * 6);
+        else y = tipY + 55 * (1 - ease) + 5 * Math.sin(t * 17);
+        pts.push(`${F(x)},${F(y)}`);
+      }
+      const pulse = anim && M.pulse ? `<animate attributeName="opacity" values=".2;.55;.2" dur="${M.pulse}s" repeatCount="indefinite"/>` : '';
+      art = `<defs>
+          <linearGradient id="${id}a" gradientUnits="userSpaceOnUse" x1="${F(R * Math.cos(rad(far)))}" y1="${F(R * Math.sin(rad(far)))}" x2="${F(tipX)}" y2="${F(tipY)}"><stop offset="0" stop-color="${M.a0}" stop-opacity="0"/><stop offset=".4" stop-color="${M.a0}" stop-opacity=".7"/><stop offset="1" stop-color="${M.a1}"/></linearGradient>
+          <linearGradient id="${id}l" gradientUnits="userSpaceOnUse" x1="-500" y1="0" x2="${F(tipX)}" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="${M.a0}" stop-opacity=".5"/><stop offset="1" stop-color="${M.a1}" stop-opacity=".9"/></linearGradient>
+          <filter id="${id}g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        </defs>
+        <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="5" opacity=".4" filter="url(#${id}g)"/>
+        <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="1.6" stroke-linecap="round"${M.fog ? ' stroke-dasharray="5 7"' : ''}/>
+        <polyline points="${pts.join(' ')}" fill="none" stroke="url(#${id}l)" stroke-width="1.3" stroke-linejoin="round"/>
+        <circle cx="${F(tipX)}" cy="${F(tipY)}" r="9" fill="${M.a1}" opacity=".4" filter="url(#${id}g)">${pulse}</circle>
+        <circle cx="${F(tipX)}" cy="${F(tipY)}" r="3" fill="#fff"/>`;
+    }
+    const body = `<circle r="470" fill="none" stroke="${W}.14)"/>
+      <g>${ticks}${spinT(M.spin)}</g>
+      <circle r="440" fill="none" stroke="${W}.07)" stroke-dasharray="2 7"/>
+      <circle r="410" fill="none" stroke="${W}.05)"/>
+      <circle r="350" fill="none" stroke="${W}.08)"/>
+      <g>${nodes}${spinT(M.spin * .66, -1)}</g>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(28)"/>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(-28)"/>
+      <circle r="290" fill="none" stroke="${W}.05)" stroke-dasharray="1 5"/>
+      <polyline points="${star.join(' ')}" fill="none" stroke="${W}.075)"/>
+      ${art}`;
+    const fog = M.fog ? `<defs><filter id="${id}f"><feGaussianBlur stdDeviation="1.1"/></filter></defs><g opacity=".72" filter="url(#${id}f)">${body}</g>` : body;
+    return `<svg viewBox="-520 -520 1040 1040" xmlns="http://www.w3.org/2000/svg">${fog}</svg>`;
   }
-  document.querySelector('#auth .seg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setMode(b.dataset.m); });
-  $('show').addEventListener('click', () => { const p = $('password'); const hidden = p.type === 'password'; p.type = hidden ? 'text' : 'password'; $('show').textContent = hidden ? 'Hide' : 'Show'; });
-  $('auth').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = $('email').value.trim(), pw = $('password').value;
-    ['email', 'password'].forEach((id) => $(id).removeAttribute('aria-invalid'));
-    let err = '';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err = 'Enter an email address like you@example.com.'; $('email').setAttribute('aria-invalid', 'true'); }
-    else if (pw.length < 8) { err = 'Passwords are at least 8 characters.'; $('password').setAttribute('aria-invalid', 'true'); }
-    if (err) { $('auth-msg').innerHTML = `<div class="msg err" role="alert">${err}</div>`; return; }
-    const btn = $('submit'); btn.disabled = true; $('submit-l').textContent = 'Working…';
-    setTimeout(() => {
-      btn.disabled = false; $('submit-l').textContent = auth.mode === 'signin' ? 'Sign in' : 'Create account';
-      $('auth-msg').innerHTML = auth.mode === 'signin'
-        ? '<div class="msg ok" role="status">Signed in. This is a design mock, so nothing was sent.</div>'
-        : '<div class="msg ok" role="status">Account created. Check your email to confirm, then sign in.</div>';
-    }, 700);
-  });
+  // A 22px seal of the sigil for the setup strip: ring, 12 ticks, an arc as long as the setup's odds, the tip.
+  function seal(color, odds) {
+    const rad = (d) => (d * Math.PI) / 180, F = (n) => n.toFixed(2);
+    let ticks = '';
+    for (let a = 0; a < 360; a += 30) ticks += `<line x1="${F(10.5 * Math.cos(rad(a)))}" y1="${F(10.5 * Math.sin(rad(a)))}" x2="${F(9 * Math.cos(rad(a)))}" y2="${F(9 * Math.sin(rad(a)))}" stroke="rgba(255,255,255,.35)" stroke-width=".8"/>`;
+    const T = -35, len = 40 + odds * 1.6, r = 6.6;
+    const tx = r * Math.cos(rad(T)), ty = r * Math.sin(rad(T)), ex = r * Math.cos(rad(T + len)), ey = r * Math.sin(rad(T + len));
+    return `<svg viewBox="-12 -12 24 24" aria-hidden="true"><circle r="10.5" fill="none" stroke="rgba(255,255,255,.22)" stroke-width=".8"/>${ticks}<circle r="${r}" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".8"/><path d="M${F(tx)} ${F(ty)} A${r} ${r} 0 ${len > 180 ? 1 : 0} 1 ${F(ex)} ${F(ey)}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linecap="round"/><circle cx="${F(tx)}" cy="${F(ty)}" r="1.6" fill="#fff"/></svg>`;
+  }
+  $('ambient').innerHTML = sigil({ mood: 'go', strength: 0, id: 'amb', arc: false, hot: true }).replace(/rgba\(255,255,255,([.\d]+)\)/g, (m, a) => `rgba(255,255,255,${Math.min(1, a * 1.9).toFixed(3)})`);
 
   // ───────── Trade state ─────────
   const ui = { sel: 2, tf: '15m', levels: true, vol: true, side: 'buy', type: 'limit', pctSel: null, mkTab: 'all', ordTab: 'positions', bkTab: 'book', hover: null, q: '' };
@@ -618,7 +548,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
     $('star').onclick = () => { m.watch = !m.watch; renderHeader(); renderList(); };
     const s = m.setup;
     $('ctx').hidden = !s;
-    if (s) $('ctx').innerHTML = `<span class="eyebrow" style="color:#ff9b9b">Setup</span><span><b>${s.bias}</b> · ${s.text}</span><span class="sep"></span><span>Invalid below <b class="down num">${fmt(s.inv, m.pp)}</b></span><span class="sep"></span><span>Target <b class="num">${fmt(s.tgt, m.pp)}</b></span><span class="sep"></span><span class="mono">${s.hz}</span><button type="button" class="ghost end" id="ctx-hide">Hide</button>`;
+    if (s) $('ctx').innerHTML = `<span class="lead"><span class="seal" title="Setup read · 68% odds">${seal('#ff6363', 68)}</span><span class="eyebrow" style="color:#ff9b9b">Setup</span></span><span class="ctx-sum"><b>${s.bias}</b> · ${s.text}</span><span class="sep"></span><span>Invalid below <b class="down num">${fmt(s.inv, m.pp)}</b></span><span class="sep"></span><span>Target <b class="num">${fmt(s.tgt, m.pp)}</b></span><span class="sep"></span><span class="mono">${s.hz}</span><button type="button" class="ghost end" id="ctx-hide">Hide</button>`;
     const h = $('ctx-hide'); if (h) h.onclick = () => { $('ctx').hidden = true; };
     $('lv-toggle').hidden = !s;
   }
@@ -652,7 +582,13 @@ kbd { display: inline-flex; align-items: center; justify-content: center; min-wi
     const tag = (yy, text, bg, fg) => `<rect x="${PL + pw + 4}" y="${(yy - 9).toFixed(1)}" width="${PR - 8}" height="18" rx="5" fill="${bg}"/><text x="${PL + pw + 10}" y="${(yy + 3.5).toFixed(1)}" fill="${fg}" font-size="10" font-weight="500" font-family="Geist Mono, monospace">${text}</text>`;
     const levels = lv.map((l) => `<line x1="${PL}" x2="${PL + pw}" y1="${y(l.v).toFixed(1)}" y2="${y(l.v).toFixed(1)}" stroke="${l.c}" stroke-dasharray="4 4" opacity=".85"/><text x="${PL + 8}" y="${(y(l.v) - 6).toFixed(1)}" fill="${l.c}" font-size="10" font-family="Geist Mono, monospace">${l.l} · ${fmt(l.v, m.pp)}</text>${tag(y(l.v), fmt(l.v, m.pp), l.c === '#f0506e' ? '#3a1119' : '#1b1c1e', l.c)}`).join('');
     const last = data[n - 1];
-    const lastLine = `<line x1="${PL}" x2="${PL + pw}" y1="${y(last.c).toFixed(1)}" y2="${y(last.c).toFixed(1)}" stroke="rgba(255,255,255,.28)" stroke-dasharray="2 3"/>${tag(y(last.c), fmt(last.c, m.pp), '#e6e6e6', '#454647')}`;
+    const tipX = x(n - 1).toFixed(1), tipY = y(last.c).toFixed(1);
+    const breathe = REDUCE_MOTION ? '' : '<animate attributeName="opacity" values=".22;.6;.22" dur="4s" repeatCount="indefinite"/><animate attributeName="r" values="8;11;8" dur="4s" repeatCount="indefinite"/>';
+    const lastLine = `<line x1="${PL}" x2="${PL + pw}" y1="${tipY}" y2="${tipY}" stroke="rgba(255,255,255,.28)" stroke-dasharray="2 3"/>${tag(y(last.c), fmt(last.c, m.pp), '#e6e6e6', '#454647')}
+      <defs><filter id="tipGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+      <circle cx="${tipX}" cy="${tipY}" r="9" fill="#ff6363" opacity=".4" filter="url(#tipGlow)">${breathe}</circle>
+      <circle cx="${tipX}" cy="${tipY}" r="6.5" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1"/>
+      <circle cx="${tipX}" cy="${tipY}" r="2.6" fill="#fff"/>`;
     let cross = '';
     const hv = ui.hover;
     if (hv != null && data[hv.i]) {

@@ -6,7 +6,7 @@ import { MarketReadPanel } from './MarketReadPanel'
 import { SetupsPanel } from './SetupsPanel'
 import { ChangesPanel } from './ChangesPanel'
 import { Floor } from './Floor'
-import heroArt from '../../assets/dispel-hero.svg'
+import { Sigil } from '../../components/Sigil'
 
 interface HomeProps {
   userId: string
@@ -90,7 +90,7 @@ export function Home({
     <>
       {firstLaunch ? (
         <div className="welcome">
-          <img src={heroArt} alt="" aria-hidden="true" />
+          <Sigil className="wsigil" mood="favorable" size={460} strength={71} />
           <div>
             <span className="eyebrow">First launch</span>
             <h3>

@@ -44,3 +44,12 @@ export function applyPerformanceMode(): PerformanceMode {
   }
   return mode
 }
+
+/** Reads the mode applied at startup; cheap enough for render paths. */
+export function isLiteMode(): boolean {
+  try {
+    return document.documentElement.dataset.perf === 'lite'
+  } catch {
+    return false
+  }
+}
