@@ -826,11 +826,11 @@ kbd {
   height: 100%;
   object-fit: cover;
   transform: translateX(4%) scale(1.14);
-  animation: drift 38s ease-in-out infinite alternate;
+  animation: art-drift 38s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
-@keyframes drift {
+@keyframes art-drift {
   to {
     transform: translateX(1%) scale(1.2) rotate(-1deg);
   }
