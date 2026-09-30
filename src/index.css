@@ -253,17 +253,13 @@ kbd {
 .ambient {
   position: absolute;
   z-index: -1;
-  right: -10%;
-  top: -30%;
-  width: 72%;
-  height: 80%;
-  object-fit: cover;
-  opacity: 0.2;
-  filter: blur(48px) saturate(120%);
+  left: -560px;
+  bottom: -560px;
+  width: 1120px;
+  height: 1120px;
   pointer-events: none;
-  -webkit-mask-image: radial-gradient(closest-side, #000, transparent);
-  mask-image: radial-gradient(closest-side, #000, transparent);
-  transition: opacity 0.8s;
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, rgba(0, 0, 0, 0.55) 84%, transparent);
+  mask-image: radial-gradient(closest-side, #000 62%, rgba(0, 0, 0, 0.55) 84%, transparent);
 }
 
 .side {
@@ -271,7 +267,7 @@ kbd {
   flex-direction: column;
   padding: 12px 8px;
   border-right: 1px solid var(--hair);
-  background: rgba(4, 5, 6, 0.72);
+  background: transparent;
 }
 
 .logo {
@@ -801,6 +797,10 @@ kbd {
   .meta-strip {
     display: none;
   }
+
+  .ambient {
+    display: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1274,19 +1274,7 @@ kbd {
    backdrop filters are the expensive parts on CPU rasterizers.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-:root[data-perf='lite'] .ambient {
-  filter: blur(26px) saturate(115%);
-}
-
 :root[data-perf='lite'] .read-panel::before {
-  animation: none;
-}
-
-:root[data-perf='lite'] .aura img {
-  animation: none;
-}
-
-:root[data-perf='lite'] .welcome > img {
   animation: none;
 }
 

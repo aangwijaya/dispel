@@ -1,6 +1,5 @@
 import type { CSSProperties } from 'react'
 import {
-  AURA_ART,
   BIAS_LABEL,
   REGIMES,
   STANCE_COLOR,
@@ -8,7 +7,8 @@ import {
   VOLATILITY_LABEL,
   regimeAt,
 } from '../../lib/read/demo'
-import type { MarketRead, Stance, Tone } from '../../types/read'
+import type { MarketRead, Tone } from '../../types/read'
+import { Sigil } from '../../components/Sigil'
 
 const TONE_CLASS: Record<Tone, string> = {
   up: 'up',
@@ -48,15 +48,7 @@ export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpe
   return (
     <section className="panel read-panel" id="read" aria-label="Market read" data-stance={read.stance} style={style}>
       <div className="aura" aria-hidden="true">
-        {(Object.keys(AURA_ART) as Stance[]).map((stance) => (
-          <img
-            key={stance}
-            data-s={stance}
-            src={AURA_ART[stance]}
-            className={stance === read.stance ? 'on' : undefined}
-            alt=""
-          />
-        ))}
+        <Sigil key={read.stance} mood={read.stance} strength={read.stats.strength} size={760} className="fade" />
       </div>
 
       <div className="read-grid">
@@ -86,7 +78,6 @@ export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpe
         <section>
           <div className="today-h">
             <span className="eyebrow">Market regime</span>
-            <span className="mono smoke">risk scale</span>
           </div>
           <div className="regime-now">
             <b>{regime.name}</b>

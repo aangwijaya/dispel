@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { MARKETS, DEFAULT_SYMBOL, getMarket } from '../../lib/markets'
 import { supabase } from '../../lib/supabase'
-import { AURA_ART } from '../../lib/read/demo'
 import { changedCount } from '../../lib/read/diff'
+import { Sigil } from '../../components/Sigil'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { BottomNav } from './BottomNav'
@@ -128,7 +128,7 @@ export function AppShell({ userId, email }: AppShellProps) {
 
   return (
     <div className="app">
-      <img className="ambient" src={AURA_ART[marketRead.read.stance]} alt="" aria-hidden="true" />
+      <Sigil className="ambient" mood="favorable" size={1120} arc={false} hot strokeBoost={1.9} />
       <Sidebar page={page} changeCount={changeCount} onNavigate={setPage} />
       <div className="mainwrap">
         <TopBar title={title} email={email} demo={marketRead.source === 'demo'} onSignOut={signOut} />
