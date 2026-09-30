@@ -42,6 +42,9 @@ export function TradingChart({ market, setup }: TradingChartProps) {
   const volumeRef = useRef<ISeriesApi<'Histogram'> | null>(null)
   const priceLinesRef = useRef<IPriceLine[]>([])
   const lastCandleRef = useRef<Ohlc | null>(null)
+  const lastTimeRef = useRef<UTCTimestamp | null>(null)
+  const tipRef = useRef<HTMLDivElement | null>(null)
+  const positionTipRef = useRef<() => void>(() => {})
 
   const [timeframe, setTimeframe] = useState<Timeframe>('15m')
   const [volumeOn, setVolumeOn] = useState(true)
@@ -106,13 +109,34 @@ export function TradingChart({ market, setup }: TradingChartProps) {
     candleRef.current = candles
     volumeRef.current = volume
 
+    const positionTip = () => {
+      const tip = tipRef.current
+      const series = candleRef.current
+      const last = lastCandleRef.current
+      const time = lastTimeRef.current
+      if (!tip || !series || !last || time === null) return
+      const y = series.priceToCoordinate(last.close)
+      const x = chart.timeScale().timeToCoordinate(time)
+      if (x === null || y === null) {
+        tip.style.display = 'none'
+        return
+      }
+      tip.style.display = ''
+      tip.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`
+    }
+    positionTipRef.current = positionTip
+    chart.timeScale().subscribeVisibleTimeRangeChange(positionTip)
+
     const observer = new ResizeObserver(() => {
       chart.applyOptions({ width: container.clientWidth, height: container.clientHeight })
+      positionTip()
     })
     observer.observe(container)
 
     return () => {
       observer.disconnect()
+      chart.timeScale().unsubscribeVisibleTimeRangeChange(positionTip)
+      positionTipRef.current = () => {}
       chart.remove()
       chartRef.current = null
       candleRef.current = null
@@ -125,6 +149,7 @@ export function TradingChart({ market, setup }: TradingChartProps) {
     let cancelled = false
     setLoading(true)
     setError(null)
+    if (tipRef.current) tipRef.current.style.display = 'none'
 
     fetchKlines(market.symbol, timeframe)
       .then((candles) => {
@@ -152,9 +177,11 @@ export function TradingChart({ market, setup }: TradingChartProps) {
         const last = candles[candles.length - 1]
         if (last) {
           lastCandleRef.current = { open: last.open, high: last.high, low: last.low, close: last.close }
+          lastTimeRef.current = last.time as UTCTimestamp
           setOhlc(lastCandleRef.current)
         }
         chartRef.current?.timeScale().fitContent()
+        positionTipRef.current()
       })
       .catch((cause) => {
         if (!cancelled) setError(cause instanceof Error ? cause.message : 'Failed to load chart data.')
@@ -188,7 +215,9 @@ export function TradingChart({ market, setup }: TradingChartProps) {
         color: candle.close >= candle.open ? COLORS.upVolume : COLORS.downVolume,
       })
       lastCandleRef.current = { open: candle.open, high: candle.high, low: candle.low, close: candle.close }
+      lastTimeRef.current = time
       setOhlc(lastCandleRef.current)
+      positionTipRef.current()
     })
   }, [market.symbol, timeframe])
 
@@ -305,6 +334,11 @@ export function TradingChart({ market, setup }: TradingChartProps) {
           ) : null}
         </div>
         <div ref={containerRef} className="chart-host" />
+        <div ref={tipRef} className="chart-tip" style={{ display: 'none' }} aria-hidden="true">
+          <span className="tip-glow" />
+          <span className="tip-ring" />
+          <span className="tip-core" />
+        </div>
         {loading ? <div className="chart-state">Loading chart…</div> : null}
         {error ? (
           <div className="chart-error">

@@ -3,7 +3,7 @@
 /* Welcome (first launch) — the one brand-tinted surface */
 .welcome {
   position: relative;
-  overflow: clip;
+  overflow: hidden;
   isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -12,24 +12,24 @@
   padding: 20px 24px;
   min-height: 112px;
   border-radius: var(--r-panel);
-  background: linear-gradient(90deg, #1d0a0d 0%, #3a1a1c 55%, rgba(69, 35, 36, 0.5) 100%);
+  background:
+    radial-gradient(520px 220px at 88% 50%, rgba(255, 99, 99, 0.09), transparent 70%),
+    #0a0b0d;
   box-shadow: var(--key-soft);
-  color: #f3dcdc;
+  color: var(--ash);
   font-size: var(--t-body);
 }
 
-.welcome > img {
+.welcome .wsigil {
   position: absolute;
   z-index: -1;
-  right: -6%;
-  top: -60%;
-  width: 60%;
-  height: 220%;
-  object-fit: cover;
-  opacity: 0.85;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 45%);
-  mask-image: linear-gradient(90deg, transparent, #000 45%);
-  animation: drift 42s ease-in-out infinite alternate;
+  right: -60px;
+  top: 110%;
+  width: 460px;
+  height: 460px;
+  transform: translateY(-50%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 5%, #000 50%);
+  mask-image: linear-gradient(90deg, transparent 5%, #000 50%);
 }
 
 .welcome h3 {
@@ -42,20 +42,17 @@
 
 .welcome h3 em {
   font-style: normal;
-  background: linear-gradient(92deg, #ffc07a, #ff6363 50%, #ff2f6d);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--smoke);
 }
 
 .welcome p {
   margin: 4px 0 0;
   font-size: 13px;
-  color: #d9b9b9;
+  color: var(--ash);
 }
 
 .welcome .eyebrow {
-  color: #ff9b9b;
+  color: var(--smoke);
 }
 
 .w-steps {
@@ -120,7 +117,7 @@
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: spin 16s linear infinite;
+  animation: read-orbit 16s linear infinite;
 }
 
 .read-panel[data-stance='wait']::before {
@@ -136,7 +133,7 @@
   animation-duration: 9s;
 }
 
-@keyframes spin {
+@keyframes read-orbit {
   to {
     --spin: 360deg;
   }
@@ -147,42 +144,27 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  -webkit-mask-image: radial-gradient(ellipse 62% 78% at 74% 34%, #000 25%, transparent 78%);
-  mask-image: radial-gradient(ellipse 62% 78% at 74% 34%, #000 25%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 95% at 72% 50%, #000 45%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 95% at 72% 50%, #000 45%, transparent 100%);
 }
 
-.aura img {
+.aura .sigil {
   position: absolute;
-  right: -8%;
-  top: -24%;
-  width: 82%;
-  height: 150%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1s ease;
-  animation: drift 42s ease-in-out infinite alternate;
+  width: 760px;
+  height: 760px;
+  left: calc(72% - 380px);
+  top: calc(50% - 380px);
 }
 
-.aura img.on {
-  opacity: 0.8;
+.sigil.fade {
+  animation: sigil-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-.aura img[data-s='favorable'].on {
-  opacity: 0.66;
-}
-
-.aura img[data-s='unclear'].on {
-  opacity: 0.9;
-  filter: blur(4px);
-}
-
-.aura img[data-s='reduce-risk'] {
-  animation-name: sink;
-}
-
-.aura img[data-s='reduce-risk'].on {
-  opacity: 0.85;
-  filter: blur(1.5px);
+@keyframes sigil-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) rotate(-4deg);
+  }
 }
 
 .aura::after {
@@ -192,28 +174,10 @@
   background: linear-gradient(
     90deg,
     rgba(7, 8, 10, 0.96) 0%,
-    rgba(7, 8, 10, 0.82) 38%,
-    rgba(7, 8, 10, 0.25) 62%,
-    rgba(7, 8, 10, 0.5) 100%
+    rgba(7, 8, 10, 0.86) 40%,
+    rgba(7, 8, 10, 0.3) 64%,
+    rgba(7, 8, 10, 0.12) 100%
   );
-}
-
-@keyframes drift {
-  from {
-    transform: scale(1.02);
-  }
-  to {
-    transform: scale(1.12) translateX(-2%);
-  }
-}
-
-@keyframes sink {
-  from {
-    transform: scale(1.04);
-  }
-  to {
-    transform: scale(1.1) translateY(3%);
-  }
 }
 
 .read-grid {
@@ -269,10 +233,10 @@
   inset: -1px;
   border-radius: 50%;
   border: 1px solid var(--stance);
-  animation: ping 2.4s ease-out infinite;
+  animation: status-ping 2.4s ease-out infinite;
 }
 
-@keyframes ping {
+@keyframes status-ping {
   from {
     transform: scale(0.8);
     opacity: 0.9;
@@ -692,7 +656,7 @@
 
 .why {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 0 12px 12px;
 }
@@ -731,12 +695,14 @@
 }
 
 @container main (max-width: 600px) {
-  .why {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .why-bar .mono {
     display: none;
+  }
+}
+
+@container main (max-width: 760px) {
+  .why {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

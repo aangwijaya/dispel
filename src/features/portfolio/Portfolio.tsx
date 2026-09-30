@@ -4,6 +4,7 @@ import { formatPrice, formatQuantity } from '../../lib/market/format'
 import { getMarket, marketDisplayName } from '../../lib/markets'
 import { TONE_COLOR } from '../../lib/read/demo'
 import { setupForSymbol } from '../../lib/read/lookup'
+import { dialSvg } from '../../lib/sigil'
 import { fetchTransactions } from '../../lib/transactions'
 import type { Transaction } from '../../types/trading'
 import type { MarketRead } from '../../types/read'
@@ -141,6 +142,15 @@ export function Portfolio({ paper, read, onOpenActivity, onOpenTrade }: Portfoli
     ]
     return entries
   }, [rows, cash])
+
+  const dialParts = allocation.map((entry) => ({
+    value: Number(entry.value.toFixed(2)),
+    color: entry.color,
+    cash: entry.cash,
+  }))
+  const dialLabel = `Allocation: ${allocation
+    .map((entry) => `${entry.name} ${equity.isZero() ? '0' : entry.value.div(equity).mul(100).toFixed(1)}%`)
+    .join(', ')}`
 
   const histNow = useMemo(() => {
     const values = allocation.map((entry) => Number(entry.value.toFixed(2)))
@@ -461,44 +471,41 @@ export function Portfolio({ paper, read, onOpenActivity, onOpenTrade }: Portfoli
             </div>
           </div>
           <div className="alloc">
-            <div className="stack">
-              {allocation.map((entry) => (
-                <i
-                  key={entry.name}
-                  style={{ flex: Math.max(Number(entry.value.toFixed(2)), 0.0001), '--c': entry.color } as CSSProperties}
-                  title={`${entry.name} ${
-                    equity.isZero() ? '0' : entry.value.div(equity).mul(100).toFixed(1)
-                  }%`}
-                />
-              ))}
+            <div className="alloc-top">
+              <div
+                className="dial"
+                role="img"
+                aria-label={dialLabel}
+                dangerouslySetInnerHTML={{ __html: dialSvg(dialParts, 'alloc') }}
+              />
+              <ul className="a-list">
+                {allocation.map((entry) => (
+                  <li key={entry.name}>
+                    <span
+                      className="sw"
+                      style={
+                        {
+                          '--c': entry.color,
+                          ...(entry.cash
+                            ? {
+                                background:
+                                  'repeating-linear-gradient(135deg, rgba(156,156,157,.7) 0 2px, rgba(156,156,157,.35) 2px 4px)',
+                              }
+                            : {}),
+                        } as CSSProperties
+                      }
+                    />
+                    <span>
+                      <b>{entry.name}</b> <span className="smoke" style={{ fontSize: '11px' }}>{entry.sub}</span>
+                    </span>
+                    <span className="num">{money(entry.value.toFixed(2))}</span>
+                    <span className="p">
+                      {equity.isZero() ? '0.0' : entry.value.div(equity).mul(100).toFixed(1)}%
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="a-list">
-              {allocation.map((entry) => (
-                <li key={entry.name}>
-                  <span
-                    className="sw"
-                    style={
-                      {
-                        '--c': entry.color,
-                        ...(entry.cash
-                          ? {
-                              background:
-                                'repeating-linear-gradient(135deg, rgba(156,156,157,.7) 0 2px, rgba(156,156,157,.35) 2px 4px)',
-                            }
-                          : {}),
-                      } as CSSProperties
-                    }
-                  />
-                  <span>
-                    <b>{entry.name}</b> <span className="smoke" style={{ fontSize: '11px' }}>{entry.sub}</span>
-                  </span>
-                  <span className="num">{money(entry.value.toFixed(2))}</span>
-                  <span className="p">
-                    {equity.isZero() ? '0.0' : entry.value.div(equity).mul(100).toFixed(1)}%
-                  </span>
-                </li>
-              ))}
-            </ul>
             <div className="hist-h">
               <span className="eyebrow">Last 7 days</span>
               <span className="mono smoke">share of equity at 00:00 UTC</span>

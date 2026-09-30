@@ -2,6 +2,8 @@
  * market-read — Supabase Edge Function.
  *
  * Trigger: pg_cron + pg_net (or a manual curl) with the header `x-cron-secret`.
+ * Body {"probe":true} runs the source probe from the deployed region and returns per-source
+ * health without calling Jev or writing a row.
  * Fetches Binance public data, asks TypeSafe Jev for the market judgments, composes the
  * market-wide MarketRead payload and stores it in public.market_reads.
  *
@@ -9,21 +11,65 @@
  */
 import { mapAnswers, parseJevResponse, WORTH_THRESHOLD } from '../_shared/read/answers.ts'
 import { composeRead } from '../_shared/read/compose.ts'
+import {
+  computeCandidateDerivatives,
+  computeDerivatives,
+  type BinanceCoinInput,
+  type DerivativesInput,
+  type GateCoinInput,
+} from '../_shared/read/derivatives.ts'
 import { analyze, attachRsi15m, nearMiss, prescreen, selectCandidates } from '../_shared/read/facts.ts'
-import { parseKlinePayload, parseTickerPayload } from '../_shared/read/marketData.ts'
+import {
+  parseBinanceOiHistory,
+  parseBinanceOpenInterest,
+  parseBinancePremiumIndex,
+  parseCoinMetrics,
+  parseDefiLlamaStablecoins,
+  parseGateContract,
+  parseGateStats,
+  parseHyperliquidFunding,
+  parseHyperliquidMeta,
+  parseKlinePayload,
+  parseMempoolFees,
+  parseMempoolStats,
+  parseTickerPayload,
+  type HlAssetContext,
+} from '../_shared/read/marketData.ts'
+import { computeOnchain } from '../_shared/read/onchain.ts'
+import { median } from '../_shared/read/indicators.ts'
 import { buildQuestions } from '../_shared/read/questions.ts'
+import {
+  COINMETRICS_MARKET_METRICS,
+  HYPERLIQUID_INFO_URL,
+  MEMPOOL_FEES_URL,
+  MEMPOOL_STATS_URL,
+  STABLECOIN_CHARTS_URL,
+  binanceOpenInterest,
+  binanceOpenInterestHistory,
+  binancePremiumIndex,
+  coinmetricsMetricsUrl,
+  gateContractStatsUrl,
+  gateContractUrl,
+  hyperliquidFundingHistoryBody,
+} from '../_shared/read/sources.ts'
 import { buildState } from '../_shared/read/state.ts'
 import {
   SETUP_TYPE_KEYS,
   type Candidate,
+  type CandidateDerivatives,
+  type DerivativesFacts,
+  type InputsHealth,
   type JevResponse,
   type MarketFacts,
+  type OnchainFacts,
+  type PreviousInputs,
   type PreviousReadSummary,
   type SetupTypeKey,
   type StanceKey,
   type VolatilityLevel,
 } from '../_shared/read/types.ts'
 import { MARKETS } from '../../../src/lib/markets.ts'
+import { runProbe } from './probe.ts'
 
 interface DenoRuntime {
   env: { get(name: string): string | undefined }
@@ -52,6 +98,7 @@ interface StoredRead {
   read: unknown
   answers: unknown
   usage: unknown
+  inputs?: unknown
 }
 
 interface RunResult {
@@ -62,7 +109,15 @@ interface RunResult {
   forming: number
   jevLatencyMs: number
   usage: { input_tokens: number; output_tokens: number } | null
+  derivativesVenues: number
+  onchainDate: string | null
+  inputsHealth?: InputsHealth
 }
+
+const PERP_COINS: Array<{ key: 'btc' | 'eth'; perp: string; gate: string; hl: string }> = [
+  { key: 'btc', perp: 'BTCUSDT', gate: 'BTC', hl: 'BTC' },
+  { key: 'eth', perp: 'ETHUSDT', gate: 'ETH', hl: 'ETH' },
+]
 
 function requireEnv(name: string): string {
   const value = runtime.Deno.env.get(name)
@@ -72,6 +127,18 @@ function requireEnv(name: string): string {
 
 function messageOf(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause)
+}
+
+async function readJsonBody(request: Request): Promise<Record<string, unknown> | null> {
+  try {
+    const text = await request.text()
+    if (text.trim() === '') return null
+    const parsed: unknown = JSON.parse(text)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null
+    return parsed as Record<string, unknown>
+  } catch {
+    return null
+  }
 }
 
 function sleep(ms: number): Promise<void> {
@@ -241,10 +308,29 @@ function toPreviousSummary(row: StoredRead): PreviousReadSummary | null {
 
 async function recentReads(): Promise<StoredRead[]> {
   const payload = await supabaseRest(
-    `market_reads?select=as_of,status,model,read,answers,usage&order=created_at.desc&limit=${RECENT_READS}`,
+    `market_reads?select=as_of,status,model,read,answers,usage,inputs&order=created_at.desc&limit=${RECENT_READS}`,
   )
   if (!Array.isArray(payload)) return []
   return payload.filter(isStoredRead)
+}
+
+function asLooseRecord(value: unknown): Record<string, unknown> | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null
+  return value as Record<string, unknown>
+}
+
+function toPreviousInputs(row: StoredRead): PreviousInputs {
+  const inputs = asLooseRecord(row.inputs)
+  const derivatives = asLooseRecord(inputs?.derivatives)
+  const onchain = asLooseRecord(inputs?.onchain)
+  const derivativesOk =
+    derivatives !== null && Array.isArray(derivatives.venues_answered) && asLooseRecord(derivatives.open_interest_usd) !== null
+  const onchainOk = onchain !== null && typeof onchain.as_of_date === 'string' && asLooseRecord(onchain.btc) !== null
+  return {
+    asOf: row.as_of,
+    derivatives: derivativesOk ? (derivatives as unknown as DerivativesFacts) : null,
+    onchain: onchainOk ? (onchain as unknown as OnchainFacts) : null,
+  }
 }
 
 async function insertRead(row: {
@@ -254,6 +340,8 @@ async function insertRead(row: {
   read: unknown
   answers: unknown
   usage: unknown
+  inputs: unknown
+  inputsHealth: InputsHealth
 }): Promise<void> {
   await supabaseRest('market_reads', {
     method: 'POST',
@@ -265,7 +353,259 @@ async function insertRead(row: {
       read: row.read,
       answers: row.answers,
       usage: row.usage,
+      inputs: row.inputs,
+      inputs_health: row.inputsHealth,
     }),
+  })
+}
+
+type FetchResult = { ok: true; data: unknown } | { ok: false; error: string }
+
+async function fetchJsonTolerant(url: string, init?: RequestInit): Promise<FetchResult> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  try {
+    const response = await fetch(url, { ...init, signal: controller.signal })
+    const text = await response.text()
+    if (!response.ok) return { ok: false, error: `http_${response.status}` }
+    return { ok: true, data: JSON.parse(text) as unknown }
+  } catch (cause) {
+    return { ok: false, error: messageOf(cause) }
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+function postJson(body: unknown): RequestInit {
+  return { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+}
+
+function errorSummary(results: FetchResult[]): string {
+  return results
+    .filter((result): result is { ok: false; error: string } => !result.ok)
+    .map((result) => result.error)
+    .join(',')
+}
+
+interface DerivativesBundle {
+  facts: DerivativesFacts | null
+  contexts: HlAssetContext[]
+  health: InputsHealth
+}
+
+async function fetchDerivativesBundle(input: {
+  asOf: string
+  facts: MarketFacts[]
+  previousInputs: PreviousInputs[]
+}): Promise<DerivativesBundle> {
+  const { asOf, facts, previousInputs } = input
+  const health: InputsHealth = {}
+  const binance: DerivativesInput['binance'] = {}
+  const gate: DerivativesInput['gate'] = {}
+  const hlFunding: DerivativesInput['hyperliquid']['funding'] = {}
+  let contexts: HlAssetContext[] = []
+
+  let binanceError = ''
+  for (const coin of PERP_COINS) {
+    const [premium, interest, history] = await Promise.all([
+      fetchJsonTolerant(binancePremiumIndex(coin.perp)),
+      fetchJsonTolerant(binanceOpenInterest(coin.perp)),
+      fetchJsonTolerant(binanceOpenInterestHistory(coin.perp)),
+    ])
+    if (!premium.ok || !interest.ok || !history.ok) {
+      binanceError = errorSummary([premium, interest, history])
+      continue
+    }
+    const parsedPremium = parseBinancePremiumIndex(premium.data)
+    const parsedInterest = parseBinanceOpenInterest(interest.data)
+    if (!parsedPremium || parsedInterest === null) {
+      binanceError = 'invalid_payload'
+      continue
+    }
+    binance[coin.key] = {
+      premium: parsedPremium,
+      openInterest: parsedInterest,
+      history: parseBinanceOiHistory(history.data),
+    }
+  }
+  health.binance_futures =
+    Object.keys(binance).length > 0 ? { ok: true } : { ok: false, error: binanceError || 'unavailable' }
+
+  let gateError = ''
+  for (const coin of PERP_COINS) {
+    const [contract, stats] = await Promise.all([
+      fetchJsonTolerant(gateContractUrl(coin.gate)),
+      fetchJsonTolerant(gateContractStatsUrl(coin.gate)),
+    ])
+    if (!contract.ok || !stats.ok) {
+      gateError = errorSummary([contract, stats])
+      continue
+    }
+    const parsedContract = parseGateContract(contract.data)
+    if (!parsedContract) {
+      gateError = 'invalid_payload'
+      continue
+    }
+    gate[coin.key] = { contract: parsedContract, stats: parseGateStats(stats.data) }
+  }
+  health.gate_futures = Object.keys(gate).length > 0 ? { ok: true } : { ok: false, error: gateError || 'unavailable' }
+
+  const meta = await fetchJsonTolerant(HYPERLIQUID_INFO_URL, postJson({ type: 'metaAndAssetCtxs' }))
+  if (meta.ok) {
+    contexts = parseHyperliquidMeta(meta.data)
+    for (const coin of PERP_COINS) {
+      const history = await fetchJsonTolerant(
+        HYPERLIQUID_INFO_URL,
+        postJson(hyperliquidFundingHistoryBody(coin.hl, Date.now() - 25 * 3_600_000)),
+      )
+      if (history.ok) hlFunding[coin.key] = parseHyperliquidFunding(history.data)
+    }
+    health.hyperliquid = contexts.length > 0 ? { ok: true } : { ok: false, error: 'invalid_payload' }
+  } else {
+    health.hyperliquid = { ok: false, error: meta.error }
+  }
+
+  const btc = facts.find((item) => item.market.symbol === 'BTCUSDT')
+  const eth = facts.find((item) => item.market.symbol === 'ETHUSDT')
+  const derivativesInput: DerivativesInput = {
+    asOf,
+    binance,
+    gate,
+    hyperliquid: { contexts, funding: hlFunding },
+    priceHistory1h: {
+      btc: btc?.candles1h.map((candle) => candle.close) ?? [],
+      eth: eth?.candles1h.map((candle) => candle.close) ?? [],
+    },
+    change24hPct: { btc: btc?.change24h, eth: eth?.change24h },
+    previous: {
+      oiUsd: previousInputs.map((entry) => ({
+        asOf: entry.asOf,
+        openInterestUsd: entry.derivatives?.open_interest_usd ?? {},
+      })),
+      funding: previousInputs.map((entry) => ({ asOf: entry.asOf, funding: entry.derivatives?.funding ?? {} })),
+    },
+  }
+
+  return { facts: computeDerivatives(derivativesInput), contexts, health }
+}
+
+async function fetchOnchainBundle(input: {
+  asOf: string
+  previousInputs: PreviousInputs[]
+}): Promise<{ facts: OnchainFacts | null; health: InputsHealth }> {
+  const { asOf, previousInputs } = input
+  const health: InputsHealth = {}
+
+  const previousFees = previousInputs
+    .map((entry) => ({ asOf: entry.asOf, fee: entry.onchain?.btc_mempool?.fastest_fee_sat_vb }))
+    .filter((sample): sample is { asOf: string; fee: number } => typeof sample.fee === 'number')
+
+  const [feesResult, statsResult] = await Promise.all([
+    fetchJsonTolerant(MEMPOOL_FEES_URL),
+    fetchJsonTolerant(MEMPOOL_STATS_URL),
+  ])
+  const fastestFee = feesResult.ok ? parseMempoolFees(feesResult.data) : null
+  const txCount = statsResult.ok ? parseMempoolStats(statsResult.data) : null
+  const mempool = fastestFee !== null && txCount !== null ? { fastestFee, txCount } : null
+  health.mempool = mempool ? { ok: true } : { ok: false, error: errorSummary([feesResult, statsResult]) || 'invalid_payload' }
+
+  const today = asOf.slice(0, 10)
+  const recent = previousInputs.at(-1)
+  if (recent?.onchain && recent.asOf.slice(0, 10) === today) {
+    // On-chain data is daily; reuse the facts fetched earlier today and refresh the live mempool fields.
+    const cached = recent.onchain
+    const fees = previousFees.map((sample) => sample.fee)
+    const medianFee = fees.length >= 5 ? median(fees) : null
+    const feeChange =
+      mempool === null || medianFee === null || medianFee === 0
+        ? (cached.btc_mempool?.fastest_fee_vs_7d_median_pct ?? null)
+        : Math.round(((mempool.fastestFee - medianFee) / medianFee) * 100 * 10) / 10
+    health.coinmetrics = { ok: true }
+    health.defillama = { ok: true }
+    return {
+      facts: {
+        ...cached,
+        btc_mempool: mempool
+          ? { tx_count: mempool.txCount, fastest_fee_sat_vb: mempool.fastestFee, fastest_fee_vs_7d_median_pct: feeChange }
+          : cached.btc_mempool,
+      },
+      health,
+    }
+  }
+
+  // Coin Metrics pages per asset: one request per asset, otherwise a 35-row page can hold a single asset.
+  const [btcMetrics, ethMetrics, defillama] = await Promise.all([
+    fetchJsonTolerant(coinmetricsMetricsUrl(['btc'], COINMETRICS_MARKET_METRICS)),
+    fetchJsonTolerant(coinmetricsMetricsUrl(['eth'], COINMETRICS_MARKET_METRICS)),
+    fetchJsonTolerant(STABLECOIN_CHARTS_URL),
+  ])
+  const btcDays = btcMetrics.ok ? parseCoinMetrics(btcMetrics.data) : []
+  const ethDays = ethMetrics.ok ? parseCoinMetrics(ethMetrics.data) : []
+  health.coinmetrics =
+    btcDays.length > 0 && ethDays.length > 0
+      ? { ok: true }
+      : { ok: false, error: errorSummary([btcMetrics, ethMetrics]) || 'invalid_payload' }
+
+  const defillamaRows = defillama.ok ? parseDefiLlamaStablecoins(defillama.data) : null
+  const facts = computeOnchain({
+    asOf,
+    btcDays,
+    ethDays,
+    defillama: defillamaRows,
+    mempool,
+    previousFees,
+  })
+  health.defillama =
+    defillamaRows !== null && defillamaRows.length > 0 ? { ok: true } : { ok: false, error: defillama.ok ? 'invalid_payload' : defillama.error }
+
+  return { facts, health }
+}
+
+async function fetchCandidateDerivatives(input: {
+  candidate: Candidate
+  contexts: HlAssetContext[]
+  asOf: string
+}): Promise<CandidateDerivatives | null> {
+  const { candidate, contexts, asOf } = input
+  const binanceResults = await Promise.all([
+    fetchJsonTolerant(binancePremiumIndex(candidate.marketSymbol)),
+    fetchJsonTolerant(binanceOpenInterest(candidate.marketSymbol)),
+    fetchJsonTolerant(binanceOpenInterestHistory(candidate.marketSymbol)),
+  ])
+  let binance: BinanceCoinInput | undefined
+  if (binanceResults.every((result) => result.ok)) {
+    const [premiumResult, interestResult, historyResult] = binanceResults
+    const premium = premiumResult.ok ? parseBinancePremiumIndex(premiumResult.data) : null
+    const openInterest = interestResult.ok ? parseBinanceOpenInterest(interestResult.data) : null
+    const history = historyResult.ok ? parseBinanceOiHistory(historyResult.data) : []
+    if (premium && openInterest !== null) binance = { premium, openInterest, history }
+  }
+
+  let gate: GateCoinInput | undefined
+  if (!binance) {
+    const base = candidate.symbol
+    const [contractResult, statsResult] = await Promise.all([
+      fetchJsonTolerant(gateContractUrl(base)),
+      fetchJsonTolerant(gateContractStatsUrl(base)),
+    ])
+    if (contractResult.ok && statsResult.ok) {
+      const contract = parseGateContract(contractResult.data)
+      if (contract) gate = { contract, stats: parseGateStats(statsResult.data) }
+    }
+  }
+
+  const hyperliquidContext =
+    contexts.find((entry) => entry.coin.toUpperCase() === candidate.symbol.toUpperCase()) ?? null
+  if (!binance && !gate && !hyperliquidContext) return null
+
+  return computeCandidateDerivatives({
+    ...(binance ? { binance } : {}),
+    ...(gate ? { gate } : {}),
+    hyperliquidContext,
+    priceHistory1h: candidate.facts.candles1h.map((candle) => candle.close),
+    change24hPct: candidate.facts.change24h,
+    previousOiUsd: [],
+    asOf,
   })
 }
 
@@ -306,8 +646,13 @@ async function run(): Promise<RunResult> {
       forming: 0,
       jevLatencyMs: 0,
       usage: null,
+      derivativesVenues: 0,
+      onchainDate: null,
     }
   }
+
+  const rows = await recentReads()
+  const previousInputs = rows.map((row) => toPreviousInputs(row)).reverse()
 
   const drafts = facts.map((item) => prescreen(item)).filter((item): item is Candidate => item !== null)
   const selected = selectCandidates(drafts, MAX_CANDIDATES)
@@ -320,14 +665,25 @@ async function run(): Promise<RunResult> {
   }
   const formingCandidates = facts.flatMap((item) => nearMiss(item)).slice(0, MAX_FORMING)
 
-  const rows = await recentReads()
+  const asOf = new Date().toISOString()
+
+  const derivativesBundle = await fetchDerivativesBundle({ asOf, facts, previousInputs })
+  for (const candidate of candidates) {
+    candidate.derivatives = await fetchCandidateDerivatives({
+      candidate,
+      contexts: derivativesBundle.contexts,
+      asOf,
+    })
+  }
+  const onchainBundle = await fetchOnchainBundle({ asOf, previousInputs })
+  const inputsHealth: InputsHealth = { ...derivativesBundle.health, ...onchainBundle.health }
+
   const summaries = rows
     .map((row) => toPreviousSummary(row))
     .filter((item): item is PreviousReadSummary => item !== null)
     .reverse()
   const previousSummary = summaries.at(-1) ?? null
 
-  const asOf = new Date().toISOString()
   const rsi15mBySymbol: Record<string, number> = {}
   for (const candidate of candidates) {
     if (candidate.rsi15m !== null) rsi15mBySymbol[candidate.symbol] = candidate.rsi15m
@@ -340,8 +696,13 @@ async function run(): Promise<RunResult> {
     previousRead: previousSummary,
     candidates,
     rsi15mBySymbol,
+    derivatives: derivativesBundle.facts,
+    onchain: onchainBundle.facts,
   })
-  const questions = buildQuestions(candidates)
+  const questions = buildQuestions(candidates, {
+    derivatives: derivativesBundle.facts !== null,
+    onchain: onchainBundle.facts !== null,
+  })
 
   let status: 'ok' | 'degraded' = 'ok'
   let response: JevResponse
@@ -366,6 +727,9 @@ async function run(): Promise<RunResult> {
     candidates: formingCandidates,
     mapped,
     previousReads: summaries,
+    derivatives: derivativesBundle.facts,
+    onchain: onchainBundle.facts,
+    previousInputs,
   })
 
   await insertRead({
@@ -375,6 +739,8 @@ async function run(): Promise<RunResult> {
     read,
     answers: response.answers,
     usage: response.usage,
+    inputs: { derivatives: derivativesBundle.facts, onchain: onchainBundle.facts },
+    inputsHealth,
   })
 
   return {
@@ -385,6 +751,9 @@ async function run(): Promise<RunResult> {
     forming: formingCandidates.length,
     jevLatencyMs,
     usage: response.usage,
+    derivativesVenues: derivativesBundle.facts?.venues_answered.length ?? 0,
+    onchainDate: onchainBundle.facts?.as_of_date ?? null,
+    inputsHealth,
   }
 }
 
@@ -402,6 +771,16 @@ runtime.Deno.serve(async (request: Request): Promise<Response> => {
   }
   const provided = request.headers.get('x-cron-secret') ?? ''
   if (!safeEqual(provided, expected)) return json(401, { error: 'unauthorized' })
+
+  const body = await readJsonBody(request)
+  if (body?.probe === true) {
+    const sources = await runProbe()
+    const failed = Object.entries(sources)
+      .filter(([, report]) => !report.ok)
+      .map(([id]) => id)
+    console.log(JSON.stringify({ event: 'market_read_probe', failed, sources }))
+    return json(200, { probe: true, as_of_utc: new Date().toISOString(), sources })
+  }
 
   try {
     const result = await run()

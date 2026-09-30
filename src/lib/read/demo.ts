@@ -1,8 +1,4 @@
 import type { MarketRead, Regime, Stance, Tone } from '../../types/read'
-import heroArt from '../../assets/dispel-hero.svg'
-import waitArt from '../../assets/aura-wait.svg'
-import unclearArt from '../../assets/aura-unclear.svg'
-import riskoffArt from '../../assets/aura-riskoff.svg'
 
 export const REGIMES: Regime[] = [
   { name: 'Risk-off', color: '#f0506e' },
@@ -24,13 +20,6 @@ export const VERDICT_TINT: Record<Stance, string> = {
   wait: '#f5d08a',
   unclear: '#bdbdbf',
   'reduce-risk': '#ffa3b4',
-}
-
-export const AURA_ART: Record<Stance, string> = {
-  favorable: heroArt,
-  wait: waitArt,
-  unclear: unclearArt,
-  'reduce-risk': riskoffArt,
 }
 
 export const TONE_COLOR: Record<Tone, string> = {
@@ -110,6 +99,8 @@ const FAVORABLE: MarketRead = {
     { label: 'Volatility', state: 'Normal', tone: 'neutral', detail: 'ATR inside its 30-day band' },
     { label: 'Breadth', state: '12 / 18 up', tone: 'up', detail: 'Participation widening' },
     { label: 'Levels', state: 'At resistance', tone: 'caution', detail: 'BTC 119.2k · support 115.8k' },
+    { label: 'Positioning', state: 'Balanced', tone: 'neutral', detail: 'BTC funding +0.010% 8h · OI +2.4% 24h' },
+    { label: 'On-chain', state: 'Supports', tone: 'up', detail: 'BTC netflow −8,400 7d · as of Sep 27' },
   ],
   setups: [
     {
@@ -238,6 +229,8 @@ const WAIT: MarketRead = {
     { label: 'Volatility', state: 'Elevated', tone: 'caution', detail: 'ATR 1.9× its 30-day median' },
     { label: 'Breadth', state: '7 / 18 up', tone: 'down', detail: 'Participation narrowing' },
     { label: 'Levels', state: 'Mid-range', tone: 'neutral', detail: 'BTC between 115.8k and 119.2k' },
+    { label: 'Positioning', state: 'Leverage rising', tone: 'caution', detail: 'BTC funding +0.014% 8h · OI +6.1% 24h' },
+    { label: 'On-chain', state: 'Unclear', tone: 'neutral', detail: 'Flows mixed · as of Sep 27' },
   ],
   setups: [],
   forming: [
@@ -327,6 +320,8 @@ const UNCLEAR: MarketRead = {
     { label: 'Volatility', state: 'Low', tone: 'neutral', detail: 'Tightest 4h range in 11 days' },
     { label: 'Breadth', state: '9 / 18 up', tone: 'neutral', detail: 'Evenly split' },
     { label: 'Levels', state: 'Mid-range', tone: 'neutral', detail: 'BTC 116.9k – 118.6k box' },
+    { label: 'Positioning', state: 'Balanced', tone: 'neutral', detail: 'Funding near zero · OI flat' },
+    { label: 'On-chain', state: 'Unclear', tone: 'neutral', detail: 'Quiet flows · as of Sep 27' },
   ],
   setups: [
     {
@@ -419,6 +414,8 @@ const REDUCE_RISK: MarketRead = {
     { label: 'Volatility', state: 'Extreme', tone: 'caution', detail: 'ATR 2.6× its 30-day median' },
     { label: 'Breadth', state: '3 / 18 up', tone: 'down', detail: 'Selling is broad, not isolated' },
     { label: 'Levels', state: 'Below support', tone: 'down', detail: 'Next BTC support 112.4k' },
+    { label: 'Positioning', state: 'Crowded long', tone: 'caution', detail: 'BTC funding +0.021% 8h · OI +4.9% 24h' },
+    { label: 'On-chain', state: 'Contradicts', tone: 'down', detail: 'Inflows into exchanges · as of Sep 27' },
   ],
   setups: [],
   forming: [],

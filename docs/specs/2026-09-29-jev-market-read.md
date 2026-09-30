@@ -68,3 +68,24 @@ client: market_read_latest ──► useMarketRead ──► Home / Trade strip 
 - Verdict variety beyond `No clear read`/`Wait.` depends on the market; test rows can force the rest.
 - The TypeSafe key appeared in CLI output during setup; rotate it in the console if that transcript
   is considered sensitive, then re-run `supabase secrets set --env-file`.
+
+## Phase 6 — derivatives positioning + on-chain activity (2026-09-30)
+
+- **Step 0 probe from Tokyo:** all six sources answered — Binance USDⓈ-M 81 ms, Gate 384 ms,
+  Hyperliquid 100 ms, Coin Metrics 328 ms, DefiLlama 79 ms, mempool 316 ms.
+- **Inputs:** derivatives facts (8h-normalised funding per venue and OI-weighted average, OI in USD
+  with 1h/4h/24h changes, price-vs-OI, Gate 24h liquidations and long/short ratio) and daily on-chain
+  facts (Coin Metrics netflow/exchange supply/active addresses, DefiLlama stablecoin supply, live
+  mempool) are stored in `market_reads.inputs`; per-source health is in `inputs_health`. A failing
+  source is omitted, never fabricated; OI windows and the fee median fall back to stored snapshots.
+- **Questions:** `positioning` (crowded_long / crowded_short / building_leverage / deleveraging /
+  balanced) and `onchain_alignment` (supports / contradicts / unclear), sent only when the matching
+  facts are present; regime, stance and risk instructions mention them when present.
+- **UI:** "Why this read" is 8 wells (4 x 2 on desktop, 2 columns below 760px) and shows
+  "Unavailable" when a source failed; new Changes events for funding sign flips, +-5% 1h OI moves,
+  large 24h liquidations (BTC $50M / ETH $25M) and 3+ days of exchange outflows; the Home meta strip
+  carries the Coin Metrics attribution (CC BY-NC 4.0, personal non-commercial use).
+- **Deployment gotchas found:** Coin Metrics pages per asset, so fetch btc and eth separately;
+  DefiLlama `stablecoincharts/all` uses unix-second dates and `totalCirculatingUSD.peggedUSD`.
+- **Verified live:** all six sources ok, latest payload shows the two new wells with real numbers,
+  and a pipeline test covers Binance futures failing while Gate + Hyperliquid answer.

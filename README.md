@@ -136,6 +136,27 @@ select status_code, content, created from net._http_response order by created de
 previous answers were reused with fresh facts. If Binance cannot be reached from the project region,
 the function returns 503 and writes nothing, so the schedule simply retries in 15 minutes.
 
+### Inputs (derivatives + on-chain)
+
+Besides spot prices, every read gathers optional inputs; a failing source is recorded in
+`inputs_health` and left out of the state instead of failing the read:
+
+| Source | Facts |
+| --- | --- |
+| Binance USDⓈ-M futures | funding (8h), open interest and 1h/4h/24h OI history |
+| Gate.io futures | funding, OI history, 24h long/short liquidations, long/short account ratio |
+| Hyperliquid | hourly funding (normalised to 8h) and open interest per coin |
+| Coin Metrics Community | BTC/ETH exchange netflow, exchange supply, active addresses (daily) |
+| DefiLlama | total stablecoin supply (daily) |
+| mempool.space | BTC mempool size and fastest fee (live) |
+
+Coin Metrics Community data is used under **CC BY-NC 4.0** (personal, non-commercial project) with
+attribution shown in the Home meta strip. On-chain facts are refetched only when the UTC date changes
+and are reused from the previous row otherwise; open-interest windows fall back to our stored
+snapshots. The computed facts are kept in `market_reads.inputs` and per-source health in
+`inputs_health`. `POST {"probe":true}` with the cron secret returns a per-source probe report from
+the deployed region without calling Jev or writing a row.
+
 ## How money works
 
 All balance, position, average-entry and realized-P/L math runs inside Postgres `numeric`
@@ -155,16 +176,16 @@ Market data tries `api.binance.com` / `stream.binance.com` first and automatical
 
 ## Design
 
-`DESIGN.md` is the source of truth; `design/` holds the reference mocks and the Candle Light
-artwork. The theme is dark only (light mode was retired with the refactor). The Tauri window can be
-resized down to 720×600; below 720px (web/mobile) the sidebar becomes a bottom tab bar.
+`DESIGN.md` is the source of truth; `design/` holds the reference mocks (and the retired Candle Light
+artwork under `design/assets/`). The theme is dark only (light mode was retired with the refactor). The
+Tauri window can be resized down to 720×600; below 720px (web/mobile) the sidebar becomes a bottom tab bar.
 
 ### Software renderers (WSLg, VMs)
 
 `src/lib/perf.ts` probes WebGL at startup. On a software renderer (llvmpipe, no `/dev/dri`) it sets
-`data-perf="lite"` on `<html>`, which stops the animated conic border, the drifting auras, the price
-tape and the `.eq-chart` pulse, and replaces the `backdrop-filter` surfaces with solid fills. The
-look is unchanged; the per-frame paint cost is not. Force a mode with
+`data-perf="lite"` on `<html>`, which drops the sigil's SMIL rotation, stops the animated conic border,
+the live-price tip breath and the `.eq-chart` pulse, and replaces the `backdrop-filter` surfaces with
+solid fills. The look is unchanged; the per-frame paint cost is not. Force a mode with
 `localStorage.setItem('dispel-perf', 'full')` or `'lite'`.
 
 If the desktop app feels slower than the browser on the same machine, that is the renderer, not the

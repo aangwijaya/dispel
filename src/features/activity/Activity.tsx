@@ -15,7 +15,7 @@ import { AddressDisplay } from '../../components/AddressDisplay'
 import type { Transaction, TransactionKind } from '../../types/trading'
 import type { PaperTrading } from '../trading/usePaperTrading'
 import { useTickers } from '../trading/useTickers'
-import heroArt from '../../assets/dispel-hero.svg'
+import { Sigil } from '../../components/Sigil'
 
 interface ActivityProps {
   paper: PaperTrading
@@ -381,7 +381,7 @@ export function Activity({ paper }: ActivityProps) {
     <>
       <div className="act-top">
         <section className="panel cash" aria-label="Paper cash">
-          <img src={heroArt} alt="" aria-hidden="true" />
+          <Sigil className="csigil" mood="favorable" size={520} arc={false} hot strokeBoost={1.6} />
           <span className="eyebrow">Paper cash</span>
           <div className="big">
             {cash !== null ? money(cash) : '—'}

@@ -380,8 +380,9 @@ body { background:
   radial-gradient(900px 520px at -4% 60%, rgba(6,30,80,.32), transparent 70%),
   var(--void); }
 .app { isolation: isolate; }
-.ambient { position: absolute; z-index: -1; right: -10%; top: -30%; width: 72%; height: 80%; object-fit: cover; opacity: .2; filter: blur(48px) saturate(120%); pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000, transparent); mask-image: radial-gradient(closest-side, #000, transparent); transition: opacity .8s; }
-.side { background: rgba(4,5,6,.72); }
+.ambient { position: absolute; z-index: -1; left: -560px; top: 340px; width: 1120px; height: 1120px; opacity: 1; pointer-events: none; -webkit-mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); mask-image: radial-gradient(closest-side, #000 62%, rgba(0,0,0,.55) 84%, transparent); }
+.ambient svg, .sigil svg, .wsigil svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.side { background: transparent; }
 .panel { background: rgba(7,8,10,.92); }
 
 /* Market read = the hero panel */
@@ -393,12 +394,9 @@ body { background:
 #read[data-stance="wait"]::before { animation-duration: 11s; }
 #read[data-stance="unclear"]::before { animation-duration: 30s; opacity: .45; }
 #read[data-stance="reduce"]::before { animation-duration: 9s; }
-.aura img[data-s="reduce"] { animation-name: sink; }
-.aura img[data-s="reduce"].on { opacity: .85; filter: blur(1.5px); }
 [hidden] { display: none !important; }
 /* Text over the aura: a tight dark halo keeps labels legible wherever the artwork's lines fall. */
 .read-grid > section:last-child :is(.eyebrow, .mono, .regime-now, .scale span, .ticks span, .shift strong, .shift p) { text-shadow: 0 0 2px #07080a, 0 0 6px #07080a, 0 0 10px rgba(7,8,10,.9); }
-@keyframes sink { from { transform: scale(1.04); } to { transform: scale(1.1) translateY(3%); } }
 .protect { margin: 4px 2px 8px; padding: 14px; border-radius: var(--r-ctl); background: linear-gradient(95deg, rgba(240,80,110,.12), var(--recessed) 60%); box-shadow: inset 0 0 0 1px rgba(240,80,110,.16); }
 .protect b { display: block; font-size: var(--t-sub); font-weight: 400; letter-spacing: .2px; color: var(--white); }
 .protect p { margin: 6px 0 0; font-size: var(--t-meta); color: var(--ash); line-height: 1.5; }
@@ -406,12 +404,11 @@ body { background:
 .obar i.broken { background: repeating-linear-gradient(135deg, var(--c) 0 3px, rgba(240,80,110,.25) 3px 6px); }
 @keyframes spin { to { --spin: 360deg; } }
 .aura { position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  -webkit-mask-image: radial-gradient(ellipse 62% 78% at 74% 34%, #000 25%, transparent 78%); mask-image: radial-gradient(ellipse 62% 78% at 74% 34%, #000 25%, transparent 78%); }
-.aura img { position: absolute; right: -8%; top: -24%; width: 82%; height: 150%; object-fit: cover; opacity: 0; transition: opacity 1s ease; animation: drift 42s ease-in-out infinite alternate; }
-.aura img.on { opacity: .8; }
-.aura img[data-s="go"].on { opacity: .66; }
-.aura img[data-s="unclear"].on { opacity: .9; filter: blur(4px); }
-.aura::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,8,10,.96) 0%, rgba(7,8,10,.82) 38%, rgba(7,8,10,.25) 62%, rgba(7,8,10,.5) 100%); }
+  -webkit-mask-image: radial-gradient(ellipse 50% 95% at 72% 50%, #000 45%, transparent 100%); mask-image: radial-gradient(ellipse 50% 95% at 72% 50%, #000 45%, transparent 100%); }
+.aura .sigil { position: absolute; width: 760px; height: 760px; left: calc(72% - 380px); top: calc(50% - 380px); }
+.sigil.fade { animation: sigil-in .9s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes sigil-in { from { opacity: 0; transform: scale(.97) rotate(-4deg); } }
+.aura::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,8,10,.96) 0%, rgba(7,8,10,.86) 40%, rgba(7,8,10,.3) 64%, rgba(7,8,10,.12) 100%); }
 @keyframes drift { from { transform: scale(1.02); } to { transform: scale(1.12) translateX(-2%); } }
 .stats, .why-bar { position: relative; background: rgba(7,8,10,.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 
@@ -444,12 +441,12 @@ body { background:
 .since { background: linear-gradient(180deg, rgba(255,255,255,.035), var(--recessed) 45%); box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
 
 /* Welcome (first launch) */
-.welcome { position: relative; overflow: hidden; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 16px 28px; padding: 20px 24px; min-height: 112px; border-radius: var(--r-panel); background: linear-gradient(90deg, #1d0a0d 0%, #3a1a1c 55%, rgba(69,35,36,.5) 100%); box-shadow: var(--key-soft); color: #f3dcdc; }
-.welcome > img { position: absolute; z-index: -1; right: -6%; top: -60%; width: 60%; height: 220%; object-fit: cover; opacity: .85; -webkit-mask-image: linear-gradient(90deg, transparent, #000 45%); mask-image: linear-gradient(90deg, transparent, #000 45%); animation: drift 42s ease-in-out infinite alternate; }
+.welcome { position: relative; overflow: hidden; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 16px 28px; padding: 20px 24px; min-height: 112px; border-radius: var(--r-panel); background: radial-gradient(520px 220px at 88% 50%, rgba(255,99,99,.09), transparent 70%), #0a0b0d; box-shadow: var(--key-soft); color: var(--ash); }
+.welcome .wsigil { position: absolute; z-index: -1; right: -60px; top: 110%; width: 460px; height: 460px; transform: translateY(-50%); -webkit-mask-image: linear-gradient(90deg, transparent 5%, #000 50%); mask-image: linear-gradient(90deg, transparent 5%, #000 50%); }
 .welcome h3 { margin: 4px 0 0; font-size: 24px; font-weight: 400; letter-spacing: .2px; color: #fff; }
-.welcome h3 em { font-style: normal; background: linear-gradient(92deg, #ffc07a, #ff6363 50%, #ff2f6d); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.welcome p { margin: 4px 0 0; font-size: 13px; color: #d9b9b9; }
-.welcome .eyebrow { color: #ff9b9b; }
+.welcome h3 em { font-style: normal; color: var(--smoke); }
+.welcome p { margin: 4px 0 0; font-size: 13px; color: var(--ash); }
+.welcome .eyebrow { color: var(--smoke); }
 .w-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
 .w-steps li { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 10px 0 6px; border-radius: 8px; background: rgba(4,5,6,.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: var(--key-soft); font-size: 12px; color: #fff; white-space: nowrap; }
 .welcome .btn { background: var(--mist); }
@@ -463,7 +460,8 @@ body { background:
 @media (max-width: 1200px) { .auras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 880px) { .auras { grid-template-columns: minmax(0, 1fr); } }
 .aura-card { position: relative; border-radius: var(--r-card); overflow: hidden; box-shadow: var(--key-soft); background: #040506; aspect-ratio: 16 / 10; }
-.aura-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.aura-card .sigil { position: absolute; height: 118%; aspect-ratio: 1; left: 50%; top: 46%; transform: translate(-50%, -50%); }
+.aura-card { aspect-ratio: 16 / 10; }
 .aura-card div { position: absolute; left: 12px; right: 12px; bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .aura-card b { font-size: 14px; font-weight: 500; color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.8); }
 .aura-card span { font-family: var(--f-mono); font-size: 10.5px; color: var(--mist); background: rgba(4,5,6,.7); padding: 2px 6px; border-radius: 5px; }
@@ -478,8 +476,8 @@ body { background:
 
 <header class="spec">
   <div>
-    <h1>Dispel Home, with character</h1>
-    <p>The Candle Light artwork from Sign-in now lives on Home and changes with the market. Switch Favorable, Wait and Unclear to watch the market read's glow, colour and pace change. Every price, score and event is mock design data.</p>
+    <h1>Dispel Home, with the sigil</h1>
+    <p>The Astrolabe sigil from Sign-in now lives on Home, and here it reads the market: its arc, colour, line and pace follow the market read. Switch Favorable, Wait, Unclear and Reduce risk to see it change. Every price, score and event is mock design data.</p>
   </div>
   <div class="controls" role="group" aria-label="Design states">
     <div class="ctl"><span class="eyebrow">Market</span>
@@ -501,7 +499,7 @@ body { background:
 
 <div class="frame">
   <div class="app">
-    <img class="ambient" id="ambient" src="assets/dispel-hero.svg" alt="" aria-hidden="true">
+    <div class="ambient" id="ambient" aria-hidden="true"></div>
     <aside class="side">
       <div class="brand"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg><b>Dispel</b></div>
       <nav class="nav" aria-label="Main navigation">
@@ -529,10 +527,7 @@ body { background:
         <!-- 1 · Market read -->
         <section class="panel" id="read" aria-label="Market read">
           <div class="aura" aria-hidden="true">
-            <img data-s="go" src="assets/dispel-hero.svg" alt="">
-            <img data-s="wait" src="assets/aura-wait.svg" alt="">
-            <img data-s="unclear" src="assets/aura-unclear.svg" alt="">
-            <img data-s="reduce" src="assets/aura-riskoff.svg" alt="">
+            <div class="sigil" id="aura-sigil"></div>
           </div>
           <div class="read-grid">
             <section>
@@ -543,7 +538,7 @@ body { background:
               <div class="well"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.5 15 14H1L8 1.5Zm-.75 4.5v4h1.5V6h-1.5Zm0 5.2v1.5h1.5v-1.5h-1.5Z"/></svg><span id="caution"></span></div>
             </section>
             <section>
-              <div class="today-h"><span class="eyebrow">Market regime</span><span class="mono smoke">risk scale</span></div>
+              <div class="today-h"><span class="eyebrow">Market regime</span></div>
               <div class="regime-now" id="regime-now"></div>
               <div class="scale" id="scale"></div>
               <div class="today-h ribbon-l"><span class="eyebrow">Today</span><span class="mono smoke">UTC</span></div>
@@ -624,18 +619,19 @@ body { background:
 <!-- ───────── Notes (internal) ───────── -->
 <div class="notes">
   <section class="note">
-    <header><h2>The market has a mood, and the screen shows it</h2><p>One artwork family, four states.</p></header>
+    <header><h2>The instrument reads the market</h2><p>One sigil, four readings.</p></header>
     <div>
       <div class="auras">
-        <div class="aura-card"><img src="assets/dispel-hero.svg" alt="Favorable aura: a rising run of warm coral candles, in focus"><div><b>Favorable</b><span>dispel-hero.svg</span></div></div>
-        <div class="aura-card"><img src="assets/aura-wait.svg" alt="Wait aura: a choppy amber and slate run, half in focus"><div><b>Wait</b><span>aura-wait.svg</span></div></div>
-        <div class="aura-card"><img src="assets/aura-unclear.svg" alt="Unclear aura: short grey candles lost in fog"><div><b>Unclear</b><span>aura-unclear.svg</span></div></div>
-        <div class="aura-card"><img src="assets/aura-riskoff.svg" alt="Reduce risk aura: a support line held three times, broken by a crimson candle, a failed retest, then a falling run"><div><b>Reduce risk</b><span>aura-riskoff.svg</span></div></div>
+        <div class="aura-card"><div class="sigil" data-mood="go" data-strength="71"></div><div><b>Favorable</b><span>strength 71 · rising</span></div></div>
+        <div class="aura-card"><div class="sigil" data-mood="wait" data-strength="44"></div><div><b>Wait</b><span>strength 44 · two-way</span></div></div>
+        <div class="aura-card"><div class="sigil" data-mood="unclear" data-strength="50"></div><div><b>Unclear</b><span>strength 50 · flat, fogged</span></div></div>
+        <div class="aura-card"><div class="sigil" data-mood="reduce" data-strength="78"></div><div><b>Reduce risk</b><span>strength 78 · falling</span></div></div>
       </div>
       <div class="prose" style="margin-top:16px">
-        <p>The four auras aren't recolours. Each is <b>generated from the shape of that market</b>. Favorable is a rising run in coral, mostly in focus. Wait is a choppy two-way run in amber and slate. Unclear is short, compressed candles in grey fog with only a small area in focus. A trader who glances at the market read picks up the mood before reading a word.</p>
-        <p><b>Reduce risk tells a story instead of showing a texture.</b> A support line is tested three times (white dots), then a crimson candle breaks it and the line turns to dashes. The retest from below fails (crimson dot) and the market falls, while relief bounces stay pale steel. It is the only aura whose bars stand upright rather than leaning, which makes it feel stiffer and more serious. It sinks slowly instead of drifting, and a vignette closes in from the edges.</p>
-        <p>All four come from one script (<code>design/assets/generate-hero.mjs</code>) and weigh about 6–7 KB each as vectors.</p>
+        <p>On Sign-in the sigil is a promise. On Home it becomes an instrument, and every part of it <b>encodes the market read</b>:</p>
+        <p><b>Arc length</b> is trend strength (40° plus 1.2° per point). <b>Arc colour</b> is the stance: amber to coral when favorable, pale gold to amber for Wait, grey and dashed when unclear, rose to crimson to reduce risk. <b>The price line</b> follows the bias into the arc's tip: it rises when bullish, chops sideways when mixed, lies flat when neutral, and falls from above into the tip when bearish. <b>Pace</b> is urgency: the tick ring turns once every 300s when favorable, 150s when reducing risk, and almost stops (600s) when unclear, when the whole instrument also fogs slightly.</p>
+        <p>So a glance at the panel gives the mood before a word is read, and the sigil never shows anything the read doesn't say.</p>
+        <p>The sigil is generated as vector SVG from the read itself (stance, strength, bias), so there are no image files per state and it stays sharp on any display. The same generator draws the rings that rise behind the navigation (anchored to the window's bottom-left corner, where the sidebar holds no data) and the welcome banner.</p>
       </div>
     </div>
   </section>
@@ -643,12 +639,12 @@ body { background:
   <section class="note">
     <header><h2>Where the accents go</h2><p>A strict budget so the terminal stays a terminal.</p></header>
     <div class="rules">
-      <div class="card rule"><span class="k">hero · 1 per screen</span><b>Market read carries the aura and the live border</b><p>A thin light travels around the panel edge in the stance colour with a coral tip. It moves at 16s per lap when favorable, 11s when the answer is Wait, 9s when it is time to reduce risk, and slows to 30s at 45% strength when the read is unclear. It is the only animated border in the app.</p></div>
+      <div class="card rule"><span class="k">hero · 1 per screen</span><b>Market read carries the sigil and the live border</b><p>A thin light travels around the panel edge in the stance colour with a coral tip. It moves at 16s per lap when favorable, 11s when the answer is Wait, 9s when it is time to reduce risk, and slows to 30s at 45% strength when the read is unclear. It is the only animated border in the app.</p></div>
       <div class="card rule"><span class="k">selection</span><b>A selected setup takes the colour of its bias</b><p>A soft tint moves in from the left, the monogram glows, and the detail pane gets a matching glow in its corner. Green for bullish, rose for bearish, grey for conditional. This is a tint, not a coloured bar on the edge.</p></div>
       <div class="card rule"><span class="k">caution</span><b>The caution well is amber-tinted</b><p>The one sentence every read must carry is tinted amber, so the warning is the second thing the eye finds after the verdict.</p></div>
       <div class="card rule"><span class="k">change</span><b>Regime shifts are marked in the new regime's colour</b><p>The shift event in Changes is tinted with the regime it moved to. The “Now” edge of the Today ribbon blinks slowly, and when the market state changes, events slide in one by one.</p></div>
-      <div class="card rule"><span class="k">motion</span><b>Slow, and only where something is live</b><p>The artwork drifts over 42s, the status dot pulses, and the verdict eases in when the read changes. Nothing moves on hover except colour. With reduced motion on, all of it stops and the border arc stays as a static accent.</p></div>
-      <div class="card rule"><span class="k">never</span><b>No colour behind data</b><p>The aura sits behind the regime column under a scrim. The stats row and the “Why this read” bar sit on frosted glass. Setups, Changes and the floor stay on solid panels.</p></div>
+      <div class="card rule"><span class="k">motion</span><b>Slow, and only where something is live</b><p>The sigil's tick ring and nodes turn slowly (150–600s per turn) and its tip breathes, the status dot pulses, and the verdict eases in when the read changes. Nothing moves on hover except colour. With reduced motion on, all of it stops and the border arc stays as a static accent.</p></div>
+      <div class="card rule"><span class="k">never</span><b>No colour behind data</b><p>The sigil sits behind the regime column under a scrim, and its labels carry a dark halo. The stats row and the “Why this read” bar sit on frosted glass. Setups, Changes and the floor stay on solid panels.</p></div>
     </div>
   </section>
 
@@ -906,10 +902,82 @@ body { background:
     </svg>`;
   }
 
+  // ───────── Sigil (Astrolabe) — shared with Sign-in; here it encodes the read ─────────
+  const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOODS = {
+    go:      { a0: '#ffc07a', a1: '#ff6363', spin: 300, pulse: 4,   tip: -35, line: 'up' },
+    wait:    { a0: '#ffe0a3', a1: '#e8b04a', spin: 360, pulse: 6,   tip: -35, line: 'chop' },
+    unclear: { a0: '#6a6b6c', a1: '#9c9c9d', spin: 600, pulse: 0,   tip: -35, line: 'flat', fog: true },
+    reduce:  { a0: '#ff9aab', a1: '#f0506e', spin: 150, pulse: 2.4, tip: -35, line: 'down' }
+  };
+  function sigil(o) {
+    const M = MOODS[o.mood], id = o.id, W = 'rgba(255,255,255,', anim = o.anim !== false && !REDUCE_MOTION;
+    const rad = (d) => (d * Math.PI) / 180, F = (n) => n.toFixed(1);
+    const spinT = (dur, dir = 1) => (anim && dur ? `<animateTransform attributeName="transform" type="rotate" from="0" to="${360 * dir}" dur="${dur}s" repeatCount="indefinite"/>` : '');
+    let ticks = '';
+    for (let a = 0; a < 360; a += 2) {
+      const major = a % 30 === 0, mid = a % 10 === 0, len = major ? 22 : mid ? 13 : 6, op = major ? .38 : mid ? .2 : .11;
+      ticks += `<line x1="${F(470 * Math.cos(rad(a)))}" y1="${F(470 * Math.sin(rad(a)))}" x2="${F((470 - len) * Math.cos(rad(a)))}" y2="${F((470 - len) * Math.sin(rad(a)))}" stroke="${W}${op})"/>`;
+    }
+    let nodes = '';
+    for (let i = 0; i < 12; i++) {
+      const a = rad(i * 30 + 15), x = 350 * Math.cos(a), y = 350 * Math.sin(a), sz = 5, hot = i === 10 && !M.fog && (o.arc !== false || o.hot);
+      nodes += `<path d="M${F(x)} ${F(y - sz)} L${F(x + sz)} ${F(y)} L${F(x)} ${F(y + sz)} L${F(x - sz)} ${F(y)} Z" fill="${hot ? M.a1 : '#040506'}" stroke="${hot ? M.a1 : W + '.34)'}"/>`;
+    }
+    let star = [];
+    for (let t = 0; t <= Math.PI * 8; t += 0.012) {
+      const x = 3 * Math.cos(t) + 6.2 * Math.cos(0.75 * t), y = 3 * Math.sin(t) - 6.2 * Math.sin(0.75 * t);
+      star.push(`${F(x * 36)},${F(y * 36)}`);
+    }
+    let art = '';
+    if (o.arc !== false) {
+      const len = 40 + o.strength * 1.2, T = M.tip, from = T, to = T + len, far = to, R = 410;
+      const tipX = R * Math.cos(rad(T)), tipY = R * Math.sin(rad(T));
+      const path = `M${F(R * Math.cos(rad(from)))} ${F(R * Math.sin(rad(from)))} A${R} ${R} 0 ${to - from > 180 ? 1 : 0} 1 ${F(R * Math.cos(rad(to)))} ${F(R * Math.sin(rad(to)))}`;
+      const pts = [];
+      for (let x = -500; x <= tipX; x += 3) {
+        const t = (x + 500) / (tipX + 500), ease = t * t * (3 - 2 * t);
+        let y;
+        if (M.line === 'up') y = 150 + (tipY - 150) * ease + (1 - t) * (18 * Math.sin(t * 13.7) + 7 * Math.sin(t * 31 + .6));
+        else if (M.line === 'down') y = -470 + (tipY + 470) * ease + (1 - t) * (14 * Math.sin(t * 12) + 6 * Math.sin(t * 29));
+        else if (M.line === 'chop') y = tipY + 30 * (1 - ease) + (1 - t * .7) * 34 * Math.sin(t * 23) * Math.cos(t * 6);
+        else y = tipY + 55 * (1 - ease) + 5 * Math.sin(t * 17);
+        pts.push(`${F(x)},${F(y)}`);
+      }
+      const pulse = anim && M.pulse ? `<animate attributeName="opacity" values=".2;.55;.2" dur="${M.pulse}s" repeatCount="indefinite"/>` : '';
+      art = `<defs>
+          <linearGradient id="${id}a" gradientUnits="userSpaceOnUse" x1="${F(R * Math.cos(rad(far)))}" y1="${F(R * Math.sin(rad(far)))}" x2="${F(tipX)}" y2="${F(tipY)}"><stop offset="0" stop-color="${M.a0}" stop-opacity="0"/><stop offset=".4" stop-color="${M.a0}" stop-opacity=".7"/><stop offset="1" stop-color="${M.a1}"/></linearGradient>
+          <linearGradient id="${id}l" gradientUnits="userSpaceOnUse" x1="-500" y1="0" x2="${F(tipX)}" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="${M.a0}" stop-opacity=".5"/><stop offset="1" stop-color="${M.a1}" stop-opacity=".9"/></linearGradient>
+          <filter id="${id}g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        </defs>
+        <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="5" opacity=".4" filter="url(#${id}g)"/>
+        <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="1.6" stroke-linecap="round"${M.fog ? ' stroke-dasharray="5 7"' : ''}/>
+        <polyline points="${pts.join(' ')}" fill="none" stroke="url(#${id}l)" stroke-width="1.3" stroke-linejoin="round"/>
+        <circle cx="${F(tipX)}" cy="${F(tipY)}" r="9" fill="${M.a1}" opacity=".4" filter="url(#${id}g)">${pulse}</circle>
+        <circle cx="${F(tipX)}" cy="${F(tipY)}" r="3" fill="#fff"/>`;
+    }
+    const body = `<circle r="470" fill="none" stroke="${W}.14)"/>
+      <g>${ticks}${spinT(M.spin)}</g>
+      <circle r="440" fill="none" stroke="${W}.07)" stroke-dasharray="2 7"/>
+      <circle r="410" fill="none" stroke="${W}.05)"/>
+      <circle r="350" fill="none" stroke="${W}.08)"/>
+      <g>${nodes}${spinT(M.spin * .66, -1)}</g>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(28)"/>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W}.06)" transform="rotate(-28)"/>
+      <circle r="290" fill="none" stroke="${W}.05)" stroke-dasharray="1 5"/>
+      <polyline points="${star.join(' ')}" fill="none" stroke="${W}.075)"/>
+      ${art}`;
+    const fog = M.fog ? `<defs><filter id="${id}f"><feGaussianBlur stdDeviation="1.1"/></filter></defs><g opacity=".72" filter="url(#${id}f)">${body}</g>` : body;
+    return `<svg viewBox="-520 -520 1040 1040" xmlns="http://www.w3.org/2000/svg">${fog}</svg>`;
+  }
+  const MOOD_OF = { favorable: 'go', wait: 'wait', unclear: 'unclear', reduce: 'reduce' };
+  let lastSigil = null;
+  $('ambient').innerHTML = sigil({ mood: 'go', strength: 0, id: 'amb', arc: false, hot: true }).replace(/rgba\(255,255,255,([.\d]+)\)/g, (m, a) => `rgba(255,255,255,${Math.min(1, a * 1.9).toFixed(3)})`);
+  document.querySelectorAll('.aura-card .sigil').forEach((el, i) => { el.innerHTML = sigil({ mood: el.dataset.mood, strength: Number(el.dataset.strength), id: `g${i}`, anim: false }); });
+
   // ───────── State ─────────
   const ui = { state: 'favorable', visit: 'returning', sel: 0, why: false, tab: 'gainers', enter: false };
   const VTINT = { go: '#a6efc9', wait: '#f5d08a', unclear: '#bdbdbf', reduce: '#ffa3b4' };
-  const AURA = { go: 'assets/dispel-hero.svg', wait: 'assets/aura-wait.svg', unclear: 'assets/aura-unclear.svg', reduce: 'assets/aura-riskoff.svg' };
   const cur = () => STATES[ui.state];
   const items = () => cur().exposure || (cur().setups.length ? cur().setups : cur().forming);
   const biasColor = (bc) => ({ up: '#59d499', down: '#f0506e', caution: '#e8b04a' }[bc] || '#9c9c9d');
@@ -919,12 +987,16 @@ body { background:
     $('read').style.setProperty('--stance', STANCE[S.stance]);
     $('read').style.setProperty('--vtint', VTINT[S.stance]);
     $('read').dataset.stance = S.stance;
-    document.querySelectorAll('.aura img').forEach((img) => img.classList.toggle('on', img.dataset.s === S.stance));
-    if (!$('ambient').src.endsWith(AURA[S.stance])) $('ambient').src = AURA[S.stance];
+    if (lastSigil !== ui.state) {
+      const el = $('aura-sigil');
+      el.innerHTML = sigil({ mood: MOOD_OF[ui.state], strength: S.stats.strength, id: 'read' });
+      if (lastSigil !== null) { el.classList.remove('fade'); void el.offsetWidth; el.classList.add('fade'); }
+      lastSigil = ui.state;
+    }
     $('nav-cnt').hidden = first;
     $('nav-cnt').textContent = String(S.since.filter((r) => r[0] !== 'same').length);
 
-    $('welcome').innerHTML = first ? `<div class="welcome"><img src="assets/dispel-hero.svg" alt="" aria-hidden="true">
+    $('welcome').innerHTML = first ? `<div class="welcome"><div class="wsigil" aria-hidden="true">${sigil({ mood: 'go', strength: 71, id: 'wel' })}</div>
       <div><span class="eyebrow">First launch</span><h3>Welcome to Dispel. <em>Start with the read.</em></h3><p>Everything on this screen explains itself. Nothing here asks you to trade.</p></div>
       <ol class="w-steps"><li><kbd>1</kbd>Read the market</li><li><kbd>2</kbd>Look at a setup</li><li><kbd>3</kbd>Open its chart</li><li><kbd>4</kbd>Paper trade, if you want</li></ol>
       <button type="button" class="btn" id="welcome-x">Got it</button></div>` : '';

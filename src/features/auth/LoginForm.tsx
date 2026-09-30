@@ -7,10 +7,10 @@ import { MARKETS } from '../../lib/markets'
 import { formatPercent, formatPrice } from '../../lib/market/format'
 import { getConnectionStatus, subscribeConnectionStatus, type DisplayStatus } from '../../lib/market/stream'
 import { useTickers } from '../trading/useTickers'
-import { TONE_COLOR, regimeAt } from '../../lib/read/demo'
+import { STANCE_COLOR, regimeAt } from '../../lib/read/demo'
 import { useMarketRead } from '../home/useMarketRead'
 import { DispelMark } from '../shell/nav'
-import heroArt from '../../assets/dispel-hero.svg'
+import { Sigil } from '../../components/Sigil'
 
 type Mode = 'signin' | 'signup'
 
@@ -21,6 +21,32 @@ const STATUS_LABEL: Record<DisplayStatus, string> = {
   idle: 'Idle',
 }
 
+/** The mock draws the sign-in arc from -35° to 48°; 40 + 1.2 × 36 ≈ 83°. */
+const SIGNIN_SIGIL_STRENGTH = 36
+
+function GoogleG() {
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+      />
+    </svg>
+  )
+}
+
 export function LoginForm() {
   const [mode, setMode] = useState<Mode>('signin')
   const [email, setEmail] = useState('')
@@ -28,6 +54,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [googleNote, setGoogleNote] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   const status = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus)
@@ -84,182 +111,153 @@ export function LoginForm() {
     setMode(next)
     setError(null)
     setNotice(null)
+    setGoogleNote(false)
   }
 
   return (
     <div className="login">
-      <img className="art" src={heroArt} alt="" aria-hidden="true" />
-      <div className="scrim" />
-
       <div className="l-top">
         <span className="logo">
           <DispelMark />
           Dispel
         </span>
-        <div className="r">
-          <span className="mono">v0.1.0</span>
-          <span className="pill">
+        <span className="mono">
+          <span className="live">
             <i style={status === 'connected' ? undefined : { background: 'var(--caution)' }} />
             {STATUS_LABEL[status]}
           </span>
-        </div>
+          <span className="ver"> · v0.1.0</span>
+        </span>
       </div>
 
-      <div className="l-body">
-        <section className="pitch">
-          <span className="eyebrow">Paper trading terminal</span>
-          <h3>
-            See the market clearly <em>before you trade it.</em>
-          </h3>
-          <p>
-            Dispel reads the market for you: its mood, the setups worth a look, and what to be careful of.
-            Practise on live prices with paper funds. No real money, ever.
-          </p>
-          <div className="teaser" aria-label="Today's market read preview (demo design data)">
-            <div>
-              <div className="k">Market read</div>
-              <div className="v">
-                <span className="dot" style={{ background: TONE_COLOR[read.biasTone] }} />
-                {read.verdict}
-              </div>
-            </div>
-            <div>
-              <div className="k">Regime</div>
-              <div className="v">{regime.name}</div>
-            </div>
-            <div>
-              <div className="k">Worth a look</div>
-              <div className="v">
-                {read.setups.length} setups{' '}
-                <svg viewBox="0 0 64 20" aria-hidden="true">
-                  <polyline
-                    points="0,16 8,14 16,15 24,11 32,12 40,8 48,9 56,5 64,4"
-                    fill="none"
-                    stroke="#59d499"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div className="t-note">Today · {read.time} · sign in to see the full read</div>
-        </section>
+      <main className="l-main">
+        <div className="thesis">
+          <h2>
+            Markets are full of illusions.
+            <span>Dispel them before you trade.</span>
+          </h2>
+        </div>
 
-        <form className="auth" onSubmit={handleSubmit} noValidate>
-          <h4>{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h4>
-          <p className="sub">
-            {mode === 'signin'
-              ? 'Sign in to your paper trading account.'
-              : 'Start with 10,000 USDT in paper funds.'}
-          </p>
+        <div className="core">
+          <Sigil mood="favorable" size={1040} strength={SIGNIN_SIGIL_STRENGTH} className="core-art" />
+          <div className="box">
+            <form className="auth" onSubmit={handleSubmit} noValidate>
+              <h3>{mode === 'signin' ? 'Sign in to Dispel' : 'Create your account'}</h3>
+              <p className="sub">
+                {mode === 'signin'
+                  ? 'Paper trading with live market prices.'
+                  : 'Start with 10,000 USDT in paper funds.'}
+              </p>
 
-          <div className="seg" role="group" aria-label="Account mode">
-            <button
-              type="button"
-              aria-pressed={mode === 'signin'}
-              onClick={() => switchMode('signin')}
-            >
-              Sign in
-            </button>
-            <button
-              type="button"
-              aria-pressed={mode === 'signup'}
-              onClick={() => switchMode('signup')}
-            >
-              Create account
-            </button>
-          </div>
-
-          <label className="field">
-            <span>Email</span>
-            <div className="input">
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                autoComplete="email"
-                spellCheck={false}
-                placeholder="you@example.com"
-                aria-invalid={error !== null}
-              />
-            </div>
-          </label>
-
-          <label className="field">
-            <span>Password</span>
-            <div className="input">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-                placeholder="At least 8 characters"
-                aria-invalid={error !== null}
-              />
-              <button
-                type="button"
-                className="show"
-                onClick={() => setShowPassword((value) => !value)}
-                aria-pressed={showPassword}
-              >
-                {showPassword ? 'Hide' : 'Show'}
+              <button type="button" className="google" onClick={() => setGoogleNote(true)}>
+                <GoogleG />
+                Continue with Google
               </button>
-            </div>
-          </label>
+              {googleNote ? (
+                <div className="msg msg-info" role="status">
+                  <i />
+                  <span>Google sign-in is coming soon. Use email for now.</span>
+                </div>
+              ) : null}
 
-          {mode === 'signup' ? (
-            <div className="hint">Use 8 or more characters. You'll confirm your email before signing in.</div>
-          ) : null}
+              <div className="or" aria-hidden="true">
+                or
+              </div>
 
-          {error ? <div className="msg err">{error}</div> : null}
-          {notice ? <div className="msg ok">{notice}</div> : null}
+              <label className="field">
+                <span>Email</span>
+                <div className="input">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    autoComplete="email"
+                    spellCheck={false}
+                    placeholder="you@example.com"
+                    aria-invalid={error !== null}
+                  />
+                </div>
+              </label>
 
-          <button type="submit" className="primary" disabled={submitting}>
-            <span>
-              {submitting ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Create account'}
-            </span>
-            <kbd>↵</kbd>
-          </button>
+              <label className="field">
+                <span>Password</span>
+                <div className="input">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                    placeholder="At least 8 characters"
+                    aria-invalid={error !== null}
+                  />
+                  <button
+                    type="button"
+                    className="show"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </label>
 
-          <div className="fine">
-            <div>
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-                <rect x="3" y="7" width="10" height="7" rx="1.5" />
-                <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" />
-              </svg>
-              Paper trading only. No real funds, exchange keys or wallets.
-            </div>
-            <div>
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-                <path d="M2 8h2.5l1.5-4 2.5 8 1.5-4H14" />
-              </svg>
-              Live public prices from Binance.
-            </div>
+              {mode === 'signup' ? (
+                <div className="hint">Use 8 or more characters. You'll confirm your email before signing in.</div>
+              ) : null}
+
+              {error ? (
+                <div className="msg msg-err" role="alert">
+                  <i />
+                  <span>{error}</span>
+                </div>
+              ) : null}
+              {notice ? (
+                <div className="msg msg-ok" role="status">
+                  <i />
+                  <span>{notice}</span>
+                </div>
+              ) : null}
+
+              <button type="submit" className="primary" disabled={submitting}>
+                <span>{submitting ? 'Working…' : mode === 'signin' ? 'Sign in' : 'Create account'}</span>
+                <kbd>↵</kbd>
+              </button>
+
+              <p className="switch">
+                {mode === 'signin' ? 'New to Dispel? ' : 'Already have an account? '}
+                <button type="button" onClick={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}>
+                  {mode === 'signin' ? 'Create an account' : 'Sign in'}
+                </button>
+              </p>
+            </form>
           </div>
-        </form>
-      </div>
-
-      <div className="tape" aria-hidden="true">
-        <div className="tape-track">
-          {[...MARKETS, ...MARKETS].map((market, index) => {
-            const ticker = tickers[market.symbol]
-            const change = ticker?.changePercent
-            return (
-              <span key={`${market.symbol}-${index}`}>
-                {market.displayName}
-                <b>{ticker ? formatPrice(ticker.lastPrice, market.pricePrecision) : '—'}</b>
-                {change ? (
-                  <span style={{ color: `var(${Number(change) >= 0 ? '--up' : '--down'})` }}>
-                    {formatPercent(change)}
-                  </span>
-                ) : (
-                  <span style={{ color: 'var(--smoke)' }}>—</span>
-                )}
-              </span>
-            )
-          })}
         </div>
+
+        <div className="today" aria-label="Today's market read">
+          <span className="dot" style={{ background: STANCE_COLOR[read.stance] }} aria-hidden="true" />
+          <b>{read.verdict}</b>
+          <span>{regime.name}</span>
+          <span className="mono">· {read.time}</span>
+        </div>
+      </main>
+
+      <div className="tape" aria-label="Live prices">
+        {MARKETS.slice(0, 5).map((market) => {
+          const ticker = tickers[market.symbol]
+          const change = ticker?.changePercent
+          const up = change === null || change === undefined ? null : Number(change) >= 0
+          return (
+            <span key={market.symbol}>
+              {market.baseAsset}
+              <b>{ticker ? formatPrice(ticker.lastPrice, market.pricePrecision) : '—'}</b>
+              {up === null ? (
+                <em className="flat">—</em>
+              ) : (
+                <em className={up ? 'up' : 'down'}>{formatPercent(change)}</em>
+              )}
+            </span>
+          )
+        })}
       </div>
     </div>
   )

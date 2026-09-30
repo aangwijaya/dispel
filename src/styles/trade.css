@@ -320,12 +320,12 @@
   height: 15px;
 }
 
-/* Setup context */
+/* Setup context: one line, the summary truncates */
 .ctx {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 8px 16px;
+  gap: 12px;
   margin: 0 8px 8px;
   padding: 8px 12px;
   border-radius: var(--r-ctl);
@@ -333,6 +333,47 @@
   box-shadow: inset 0 0 0 1px var(--hair);
   font-size: var(--t-meta);
   color: var(--ash);
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.ctx .lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.ctx .seal {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.ctx .seal svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.ctx > span {
+  flex: none;
+}
+
+.ctx > span.ctx-sum {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container main (max-width: 900px) {
+  .ctx {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
 }
 
 .ctx b {
@@ -459,6 +500,59 @@
 .chart-host {
   position: absolute;
   inset: 0;
+}
+
+/* Live price: the sigil's tip, drawn over the canvas */
+.chart-tip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.chart-tip > span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tip-glow {
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 99, 99, 0.4);
+  filter: blur(4px);
+  animation: tip-breathe 4s ease-in-out infinite;
+}
+
+@keyframes tip-breathe {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.73);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.tip-ring {
+  width: 13px;
+  height: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.tip-core {
+  width: 5.2px;
+  height: 5.2px;
+  background: #fff;
+}
+
+:root[data-perf='lite'] .tip-glow {
+  animation: none;
 }
 
 .ohlc {

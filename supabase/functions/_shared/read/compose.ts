@@ -8,7 +8,11 @@ import {
   decimalUtcHour,
   evidenceWells,
   explain,
+  eventExchangeOutflows,
+  eventFundingFlip,
   eventLevelTest,
+  eventLiquidations,
+  eventOiSpike,
   eventRegimeShift,
   eventSetup,
   eventVolatilityChange,
@@ -27,8 +31,11 @@ import type {
   Candidate,
   ChangeEvent,
   ComposeInput,
+  DerivativesFacts,
   MarketFacts,
   MappedSetup,
+  OnchainFacts,
+  PreviousInputs,
   PreviousReadSummary,
   ReadPayload,
   ReadTag,
@@ -109,12 +116,27 @@ function buildChanges(input: {
   facts: MarketFacts[]
   mapped: ComposeInput['mapped']
   previousReads: PreviousReadSummary[]
+  previousInputs: PreviousInputs[]
+  derivatives: DerivativesFacts | null
+  onchain: OnchainFacts | null
   volatility: VolatilityLevel
   up: number
   coverage: number
   medianRatio: number
 }): ChangeEvent[] {
-  const { asOf, facts, mapped, previousReads, volatility, up, coverage, medianRatio } = input
+  const {
+    asOf,
+    facts,
+    mapped,
+    previousReads,
+    previousInputs,
+    derivatives,
+    onchain,
+    volatility,
+    up,
+    coverage,
+    medianRatio,
+  } = input
   const events: ChangeEvent[] = []
   const previous = previousReads.at(-1)
   const now = clockOf(asOf)
@@ -156,6 +178,49 @@ function buildChanges(input: {
       const key = `${setup.symbol}:${setup.type}`
       if (currentKeys.has(key)) continue
       events.push({ ...eventSetup('removed', setup.symbol, setup.type), time: now })
+    }
+  }
+
+  // Derivatives events: funding sign flip, 1h OI spike, large 24h liquidations.
+  const previousFunding = previousInputs.at(-1)?.derivatives?.funding
+  for (const coin of ['btc', 'eth'] as const) {
+    const current = derivatives?.funding[coin]
+    const prior = previousFunding?.[coin]
+    if (current && prior) {
+      const before = Math.sign(prior.current_8h_pct)
+      const after = Math.sign(current.current_8h_pct)
+      if (before !== 0 && after !== 0 && before !== after) {
+        events.push(eventFundingFlip(coin, prior.current_8h_pct, current.current_8h_pct, now))
+      }
+    }
+    const oiChange = derivatives?.oi_change_pct[coin]?.['1h']
+    if (oiChange != null && Math.abs(oiChange) >= 5) {
+      events.push(eventOiSpike(coin, oiChange, now))
+    }
+    const liq = derivatives?.liquidations_24h_usd[coin]
+    const threshold = coin === 'btc' ? 50_000_000 : 25_000_000
+    if (liq && liq.long + liq.short >= threshold) {
+      events.push(eventLiquidations(coin, liq.long, liq.short, now))
+    }
+  }
+
+  // On-chain events: 3+ consecutive days of exchange outflows.
+  const onchainDays = new Map<string, OnchainFacts>()
+  for (const entry of previousInputs) {
+    if (entry.onchain) onchainDays.set(entry.onchain.as_of_date, entry.onchain)
+  }
+  if (onchain) onchainDays.set(onchain.as_of_date, onchain)
+  const orderedDays = [...onchainDays.values()].sort((a, b) => (a.as_of_date < b.as_of_date ? -1 : 1))
+  for (const asset of ['btc', 'eth'] as const) {
+    let streak = 0
+    for (let index = orderedDays.length - 1; index >= 0; index--) {
+      const day = orderedDays[index]
+      if (!day || day[asset].netflow_ntv_today >= 0) break
+      streak += 1
+    }
+    const latest = orderedDays.at(-1)
+    if (streak >= 3 && latest) {
+      events.push(eventExchangeOutflows(asset, streak, latest[asset].netflow_ntv_7d_sum, now))
     }
   }
 
@@ -245,7 +310,16 @@ function buildTags(
 }
 
 export function composeRead(input: ComposeInput): ReadPayload {
-  const { asOf, facts, candidates, mapped, previousReads } = input
+  const {
+    asOf,
+    facts,
+    candidates,
+    mapped,
+    previousReads,
+    derivatives = null,
+    onchain = null,
+    previousInputs = [],
+  } = input
   const btc = facts.find((item) => item.market.symbol === 'BTCUSDT')
   if (!btc) throw new Error('compose requires BTC facts')
 
@@ -297,7 +371,19 @@ export function composeRead(input: ComposeInput): ReadPayload {
       risk: Math.min(2, Math.max(0, Math.round(mapped.riskScore))) as 0 | 1 | 2,
       volatility,
     },
-    evidence: evidenceWells({ btc, up, down, coverage, volumePct, volatility, medianAtrRatio: medianRatio }),
+    evidence: evidenceWells({
+      btc,
+      up,
+      down,
+      coverage,
+      volumePct,
+      volatility,
+      medianAtrRatio: medianRatio,
+      positioning: mapped.positioning,
+      onchainAlignment: mapped.onchainAlignment,
+      derivatives,
+      onchain,
+    }),
     setups: orderedSetups,
     forming,
     changes: buildChanges({
@@ -305,6 +391,9 @@ export function composeRead(input: ComposeInput): ReadPayload {
       facts,
       mapped,
       previousReads,
+      previousInputs,
+      derivatives,
+      onchain,
       volatility,
       up,
       coverage,
