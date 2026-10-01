@@ -175,197 +175,198 @@ function pad(t0, t1, notes, { gain = db(-24), cutoff = (x) => 1200, attack = 0.4
   }
 }
 
-// ---------- 0 → 2.4 · illusion ----------
+// ---------- where the lens is, so each illusion fizzes the moment it breaks ----------
+// Mirrors lensR and the lens centre in reel.html (camera rotation ignored: well inside a frame for sound).
+const outCubic = (x) => 1 - (1 - x) ** 3
+const inOutCubic = (x) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2)
+function lensR(t) {
+  if (t < TL.lens[0]) return 0
+  if (t < TL.lens[1]) return 320 * (1 - 2 ** (-10 * seg(t, TL.lens[0], TL.lens[1])))
+  if (t < TL.expand[0]) return lerp(320, 412, -(Math.cos(Math.PI * seg(t, TL.lens[1], TL.expand[0])) - 1) / 2)
+  return lerp(412, 2500, inOutCubic(seg(t, TL.expand[0], TL.expand[1])))
+}
+function lensCentre(t) {
+  const k = inOutCubic(seg(t, TL.expand[0], TL.clarity))
+  const c = { x: lerp(1230, 1592, k), y: lerp(540, 413, k) }
+  if (t >= TL.lens[1] + 0.1) return c
+  const j = outCubic(seg(t, TL.lens[0], TL.lens[1] + 0.1))
+  return { x: lerp(1230 + 281.5, c.x, j), y: lerp(540 - 197.1, c.y, j) }
+}
+const dissolves = []
+for (const b of TL.bubbles) {
+  for (let t = TL.lens[0]; t <= TL.expand[1]; t += 1 / 240) {
+    const c = lensCentre(t)
+    if (lensR(t) >= Math.hypot(b.x - c.x, b.y - c.y) - 54) {
+      dissolves.push({ t, b })
+      break
+    }
+  }
+}
+const panX = (x) => clamp((x - 960) / 900, -1, 1)
+
+// ---------- 01 · Illusion ----------
 {
+  // a dissonant bed that thickens until the spell cuts it dead
   const lp = biquad()
   let a = 0, b = 0, c = 0
-  place(0, TL.slash, (t) => {
-    const I = lerp(0.3, 1, seg(t, 0, TL.slash) ** 3)
+  place(0, TL.spark, (t) => {
+    const I = lerp(0.3, 1, seg(t, 0, TL.spark) ** 2.6)
     a += (TAU * 55) / SR
     b += (TAU * 58.27) / SR
     c += (TAU * 82.4 * (1 + 0.004 * Math.sin(t * 5))) / SR
-    lp.set('lp', lerp(220, 1100, I), 1.2)
+    lp.set('lp', lerp(220, 1150, I), 1.2)
     const saw = (ph) => ((ph / TAU) % 1) * 2 - 1
     const wob = 1 + 0.25 * I * Math.sin(TAU * t * lerp(3, 9, I))
-    const fadeIn = seg(t, 0, 0.4)
-    const cut = 1 - seg(t, TL.slash - 0.012, TL.slash)
-    return fadeIn * cut * wob * I * lp.run(saw(a) + saw(b) + 0.8 * saw(c))
-  }, { gain: db(-20), verb: 0.15 })
-  // data chatter: blips grow denser as the noise builds
+    return seg(t, 0, 0.4) * (1 - seg(t, TL.spark - 0.012, TL.spark)) * wob * I * lp.run(saw(a) + saw(b) + 0.8 * saw(c))
+  }, { gain: db(-21), verb: 0.15 })
+  // market chatter: blips grow denser
   let t = 0.05
-  while (t < TL.slash - 0.02) {
-    const I = lerp(0.3, 1, seg(t, 0, TL.slash) ** 2)
+  while (t < TL.spark - 0.03) {
+    const I = lerp(0.3, 1, seg(t, 0, TL.spark) ** 2)
     const f = 1800 + rand() * 5200
     const len = 0.006 + rand() * 0.03
-    place(t, len * 3, (u) => Math.sin(TAU * f * u) * Math.exp(-u / len), { gain: db(-38 + 10 * I), pan: rand() * 1.6 - 0.8, verb: 0.2 })
-    t += (1 / lerp(9, 70, I)) * (0.4 + rand() * 1.2)
+    place(t, len * 3, (u) => Math.sin(TAU * f * u) * Math.exp(-u / len), { gain: db(-41 + 10 * I), pan: rand() * 1.6 - 0.8, verb: 0.2 })
+    t += (1 / lerp(9, 60, I)) * (0.4 + rand() * 1.2)
   }
-  // a soft tick as each headline word lands
-  for (let i = 0; i < 5; i++) click(0.2 + i * 0.13, { gain: db(-30), f: 900 + i * 90, pan: -0.4 + i * 0.2, verb: 0.35, body: 0.03 })
-  // riser into the spell, cut dead on the hit
-  whoosh(1.5, TL.slash - 1.5, { f0: 300, f1: 7000, q: 2, gain: db(-17), shape: (x) => x ** 2.4, verb: 0.2 })
-  glide(1.7, TL.slash - 1.7, 220, 880, { gain: db(-30), shape: (x) => x ** 2, verb: 0.2 })
-}
-
-// ---------- 2.4 → 3.0 · the spell ----------
-{
-  const d = TL.land - TL.slash
-  const endAngle = -47.8
-  whoosh(TL.slash, d + 0.15, {
-    f0: 5200, f1: 700, q: 1.1, gain: db(-12),
-    shape: (x) => { const p = clamp(x * (1 + 0.15 / d)); return Math.sin(Math.PI * p) ** 0.8 * (1 - x * 0.3) },
-    pan: (x) => 0.85 * Math.cos(((endAngle - 360 * (1 - clamp(x * 1.2))) * Math.PI) / 180),
-    verb: 0.45,
+  // every piece of hype arrives like a notification
+  const pings = [76, 79, 74, 81, 78, 77, 80, 75, 82, 79]
+  TL.bubbles.forEach((bub, i) => {
+    const pan = panX(bub.x)
+    bell(bub.at, hz(pings[i]), { gain: db(-23), decay: 0.32, pan, verb: 0.25, ratio: 2.01, index: 1.2 })
+    bell(bub.at + 0.07, hz(pings[i] + 5), { gain: db(-26), decay: 0.4, pan, verb: 0.25, ratio: 2.01, index: 1 })
   })
-  // the spell's shimmer
-  place(TL.slash, d + 0.4, (t) => {
-    const env = Math.sin(Math.PI * clamp(t / (d + 0.4))) ** 1.5
-    return env * (Math.sin(TAU * 2637 * t + 0.6 * Math.sin(TAU * 7 * t)) + 0.6 * Math.sin(TAU * 3520 * t) + 0.3 * Math.sin(TAU * 5274 * t))
-  }, { gain: db(-34), pan: 0.2, verb: 0.8 })
-  boom(TL.slash, { gain: db(-14), f0: 90, f1: 36, decay: 0.7, verb: 0.3 })
-  // it lands on the tip
-  bell(TL.land, hz(88), { gain: db(-20), decay: 1.4, pan: 0.35, verb: 0.7 })
-  kick(TL.land, { gain: db(-16), f0: 110, f1: 50, decay: 0.2 })
+  for (let i = 0; i < 5; i++) click(TL.captions[0] + 0.1 + i * 0.07, { gain: db(-32), f: 900 + i * 90, pan: -0.55, verb: 0.35, body: 0.03 })
+  // tension up to the spell
+  whoosh(1.7, TL.spark - 1.7, { f0: 300, f1: 7000, q: 2, gain: db(-18), shape: (x) => x ** 2.6, verb: 0.2 })
+  glide(1.9, TL.spark - 1.9, 220, 880, { gain: db(-31), shape: (x) => x ** 2, verb: 0.2 })
 }
 
-// ---------- 3.0 → 6.6 · the instrument ----------
+// ---------- 02 · Dispel ----------
 {
-  // rings drawing: airy rising tones
-  ;[[3.0, 57], [3.04, 64], [3.1, 69], [3.14, 71], [3.22, 76]].forEach(([t, m], i) =>
-    glide(t, 0.7, hz(m) * 0.98, hz(m), { gain: db(-33), shape: (x) => Math.sin(Math.PI * x) ** 2, pan: -0.5 + i * 0.25, verb: 0.7, harm: 0 }))
-  // tick ring: a ratchet that runs round the dial (mid + major ticks)
-  for (let a = 0; a < 360; a += 10) {
-    const ta = TL.ticks[0] + ((((a + 35) % 360) + 360) % 360) / 360 * (TL.ticks[1] - TL.ticks[0])
-    const major = a % 30 === 0
-    click(ta, { gain: db(major ? -22 : -30), f: major ? 2400 : 4200, pan: 0.75 * Math.cos((a * Math.PI) / 180), verb: 0.15 })
+  const sp = TL.spark
+  // the spell lands and the noise stops
+  boom(sp, { gain: db(-11), f0: 90, f1: 36, decay: 1.1, verb: 0.3 })
+  ;[76, 83, 88].forEach((m, i) => bell(sp + i * 0.012, hz(m), { gain: db(-19 - i * 2), decay: 2.2, pan: 0.45, verb: 0.85 }))
+  place(sp, 0.25, (t) => noise() * Math.exp(-t / 0.04), { gain: db(-24), verb: 0.6 })
+  // the lens opens
+  glide(TL.lens[0], 0.9, 700, 1760, { gain: db(-31), shape: (x) => Math.sin(Math.PI * x) ** 1.4, pan: 0.35, verb: 0.8, harm: 0.3 })
+  // each illusion breaks with a small glassy fizz where it stood
+  for (const { t, b } of dissolves) {
+    const pan = panX(b.x)
+    const hp = biquad().set('hp', 3500)
+    place(t, 0.5, (u) => hp.run(noise()) * Math.exp(-u / 0.07) * Math.min(1, u / 0.004), { gain: db(-27), pan, verb: 0.45 })
+    bell(t + 0.01, hz(96 + Math.floor(rand() * 5)), { gain: db(-33), decay: 0.25, pan, verb: 0.5, ratio: 2.7, index: 0.6 })
   }
-  // nodes pop in: an ascending pentatonic run
+  // the instrument draws itself, inside out
+  ;[[3.06, 57], [3.1, 64], [3.46, 69], [3.86, 71], [3.98, 76]].forEach(([t, m], i) =>
+    glide(t, 0.6, hz(m) * 0.98, hz(m), { gain: db(-34), shape: (x) => Math.sin(Math.PI * x) ** 2, pan: -0.3 + i * 0.2, verb: 0.75, harm: 0 }))
   const penta = [69, 72, 74, 76, 79, 81, 84, 86, 88, 91, 93, 96]
   for (let i = 0; i < 12; i++) {
     const a = i * 30 + 15
     const order = ((((a + 35) % 360) + 360) % 360) / 30
-    pluck(TL.nodes + order * 0.045, hz(penta[Math.floor(order)]), { gain: db(-27), pan: 0.7 * Math.cos((a * Math.PI) / 180), verb: 0.45 })
+    pluck(3.18 + order * 0.03, hz(penta[Math.floor(order)]), { gain: db(-29), pan: 0.6 * Math.cos((a * Math.PI) / 180), verb: 0.45 })
   }
-  // orbits and the seal being drawn
-  glide(3.7, 0.8, hz(62), hz(69), { gain: db(-34), pan: -0.4, verb: 0.6, harm: 0 })
-  glide(3.82, 0.8, hz(69), hz(62), { gain: db(-34), pan: 0.4, verb: 0.6, harm: 0 })
-  place(3.95, 1.25, (t) => Math.sin(Math.PI * clamp(t / 1.25)) * Math.sin(TAU * hz(93) * t) * (0.6 + 0.4 * Math.sin(TAU * 11 * t)), { gain: db(-38), pan: (t) => 0.5 * Math.sin(t * 5), verb: 0.8 })
-  // the price line climbs into the tip
-  glide(TL.line[0], TL.line[1] - TL.line[0] + 0.04, hz(57), hz(81), { gain: db(-27), shape: (x) => x ** 1.4, pan: (t) => lerp(-0.6, 0.35, t / 0.7), verb: 0.4, harm: 0.35 })
-  whoosh(TL.line[0], TL.line[1] - TL.line[0] + 0.04, { f0: 800, f1: 5000, q: 3, gain: db(-30), shape: (x) => x ** 2, pan: (x) => lerp(-0.6, 0.35, x), verb: 0.2 })
-  // ignition: pre-swell, sub, noise, chord of bells
-  whoosh(TL.ignite - 0.45, 0.45, { f0: 400, f1: 6000, q: 1, gain: db(-22), shape: (x) => x ** 3, verb: 0.3 })
-  boom(TL.ignite, { gain: db(-9), f0: 75, f1: 42, decay: 1.3 })
-  ;[76, 83, 88].forEach((m, i) => bell(TL.ignite + i * 0.012, hz(m), { gain: db(-20 - i * 2), decay: 2.2, pan: 0.35, verb: 0.8 }))
-  // callouts decode: tiny data chatter from each side
-  for (let i = 0; i < 4; i++) {
-    const st = TL.callouts + i * 0.07
-    const side = i < 2 ? 0.6 : -0.6
-    for (let k = 0; k < 14; k++) click(st + 0.2 + k * 0.022, { gain: db(-36), f: 5000 + rand() * 3000, pan: side, verb: 0.1, body: 0.004 })
+  // the one clean price line climbs into the tip
+  glide(TL.line[0], TL.line[1] - TL.line[0] + 0.04, hz(57), hz(81), { gain: db(-27), shape: (x) => x ** 1.4, pan: (t) => lerp(-0.4, 0.45, t / 0.68), verb: 0.4, harm: 0.35 })
+  for (let a = 0; a < 360; a += 10) {
+    const ta = 4.04 + ((((a + 35) % 360) + 360) % 360) / 360 * 0.56
+    const major = a % 30 === 0
+    click(ta, { gain: db(major ? -25 : -32), f: major ? 2400 : 4200, pan: 0.7 * Math.cos((a * Math.PI) / 180), verb: 0.15 })
   }
-  // pad under the whole instrument, opening at ignition
-  pad(3.0, TL.moods[0] + 0.1, [45, 52, 55, 59, 60], { gain: db(-25), cutoff: (x) => (x < 0.63 ? lerp(500, 900, x / 0.63) : 1500), attack: 0.9, release: 0.4 })
+  // the arc lights
+  ;[83, 88].forEach((m, i) => bell(TL.arc + i * 0.015, hz(m), { gain: db(-24 - 2 * i), decay: 1.6, pan: 0.5, verb: 0.8 }))
+  kick(TL.arc, { gain: db(-22), f0: 110, f1: 50, decay: 0.2 })
+  // the lens clears the whole frame
+  whoosh(TL.expand[0] - 0.15, TL.expand[1] - TL.expand[0] + 0.2, { f0: 250, f1: 6500, q: 0.9, gain: db(-15), shape: (x) => Math.sin(Math.PI * clamp(x * 1.05)) ** 1.2, pan: (x) => lerp(0.4, 0.1, x), verb: 0.3 })
+  glide(TL.expand[0], TL.clarity - TL.expand[0], hz(57), hz(76), { gain: db(-27), shape: (x) => x ** 1.8 * (1 - seg(x, 0.92, 1)), verb: 0.3, harm: 0.3 })
+  pad(sp + 0.05, TL.clarity + 0.1, [45, 52, 57, 59, 64], { gain: db(-27), cutoff: (x) => lerp(500, 1300, x), attack: 0.8, release: 0.3 })
 }
 
-// ---------- 6.6 → 9.3 · the read ----------
+// ---------- 03 · Clarity ----------
 {
-  whoosh(6.3, 0.7, { f0: 300, f1: 1400, q: 0.9, gain: db(-26), pan: (x) => lerp(-0.2, 0.4, x) })
-  const chords = [
-    { t: TL.moods[0], notes: [45, 52, 57, 59], cut: 420, hit: [69], hitGain: -26 },
-    { t: TL.moods[1], notes: [41, 48, 53, 56], cut: 700, hit: [65, 68], hitGain: -22 },
-    { t: TL.moods[2], notes: [50, 55, 57, 62], cut: 950, hit: [74, 79], hitGain: -22 },
-    { t: TL.moods[3], notes: [41, 48, 52, 57, 60], cut: 1600, hit: [72, 76, 81], hitGain: -20 },
-  ]
-  chords.forEach((c, i) => {
-    const end = i < 3 ? chords[i + 1].t + 0.05 : TL.cut
-    pad(c.t, end, c.notes, { gain: db(i === 3 ? -23 : -25), cutoff: (x) => (i === 3 ? lerp(c.cut, c.cut * 1.6, x) : c.cut), attack: 0.08, release: 0.25 })
-    c.hit.forEach((m, k) => bell(c.t + k * 0.015, hz(m), { gain: db(c.hitGain - k * 2), decay: i === 0 ? 0.5 : 1.1, pan: 0.3 - k * 0.2, verb: 0.6, index: i === 0 ? 0.8 : 2.4 }))
-    click(c.t, { gain: db(-24), f: 1500, pan: -0.5, verb: 0.15, body: 0.02 })
-    kick(c.t, { gain: db(i === 3 ? -16 : -20), f0: 120, f1: 48, decay: 0.22 })
-  })
-  // push into the tip
-  whoosh(TL.zoom, TL.cut - TL.zoom, { f0: 250, f1: 9000, q: 1.2, gain: db(-14), shape: (x) => x ** 2.2, pan: (x) => lerp(0.3, 0, x), verb: 0.2 })
-  glide(TL.zoom, TL.cut - TL.zoom, hz(57), hz(93), { gain: db(-26), shape: (x) => x ** 2.5, verb: 0.2, harm: 0.4 })
+  const c = TL.clarity
+  // the chord the illusion was hiding
+  kick(c, { gain: db(-14), f0: 140, f1: 46, decay: 0.3 })
+  place(c, 0.6, (t) => noise() * Math.exp(-t / 0.09), { gain: db(-30), verb: 0.8 })
+  pad(c, TL.trade + 0.05, [41, 48, 52, 57, 60, 64], { gain: db(-23), cutoff: (x) => lerp(1500, 2200, x), attack: 0.05, release: 0.3, verb: 0.65 })
+  ;[72, 76, 81].forEach((m, i) => bell(c + 0.02 + i * 0.02, hz(m), { gain: db(-22 - i * 2), decay: 1.8, pan: 0.2 - i * 0.2, verb: 0.75 }))
+  // the read writes itself
+  bell(TL.verdict + 0.05, hz(88), { gain: db(-27), decay: 1.2, pan: 0.3, verb: 0.7, index: 1.2 })
+  for (let k = 0; k < 18; k++) click(TL.verdict + 0.4 + (k / 18) ** 2 * 0.8, { gain: db(-36), f: 6000, pan: 0.2, verb: 0.05, body: 0.003 })
+  for (let k = 0; k < 14; k++) click(TL.verdict + 0.5 + k * 0.042, { gain: db(-39), f: 5200 + rand() * 2000, pan: -0.1, verb: 0.1, body: 0.003 })
+  // setups slide up, a pluck per row
+  whoosh(TL.setups - 0.05, 0.5, { f0: 600, f1: 2200, q: 1.2, gain: db(-30), pan: (x) => lerp(0.3, 0.1, x) })
+  ;[76, 79, 83].forEach((m, i) => pluck(TL.setups + 0.12 + i * 0.07, hz(m), { gain: db(-30), decay: 0.12, pan: 0.3, verb: 0.4 }))
+  // the cursor arrives and opens the chart
+  whoosh(TL.cursor, 0.5, { f0: 1800, f1: 900, q: 2.5, gain: db(-36), pan: (x) => lerp(0.7, 0.4, x) })
+  click(TL.openChart, { gain: db(-20), f: 1300, pan: 0.45, verb: 0.15, body: 0.02 })
+  whoosh(TL.nav[0], TL.nav[1] - TL.nav[0] + 0.1, { f0: 2400, f1: 500, q: 1, gain: db(-24), pan: (x) => lerp(0.5, -0.3, x), verb: 0.25 })
 }
 
-// ---------- 9.3 → 12.6 · the terminal ----------
+// ---------- 04 · Trade ----------
 {
-  kick(TL.cut, { gain: db(-8), f0: 170, f1: 46, decay: 0.35 })
-  place(TL.cut, 0.2, (t) => noise() * Math.exp(-t / 0.03), { gain: db(-20), verb: 0.4 })
-  bell(TL.cut, hz(88), { gain: db(-22), decay: 1, pan: 0.1, verb: 0.6 })
-  // candles rain in from the tip, right to left
+  const n0 = TL.nav[0]
+  // the chart rains in from its live tip, right to left
   const scale = [57, 60, 62, 64, 67, 69, 72, 74, 76, 79]
-  for (let i = 0; i < 56; i++) {
-    const ta = TL.cut - 0.08 + (55 - i) * 0.011
-    if (ta < TL.cut) continue
-    pluck(ta, hz(scale[Math.floor(rand() * scale.length)] + 12), { gain: db(-36), decay: 0.05, pan: lerp(-0.7, 0.6, i / 55), verb: 0.2 })
+  for (let i = 0; i < 56; i += 2) {
+    pluck(n0 + 0.1 + (55 - i) * 0.009, hz(scale[Math.floor(rand() * scale.length)] + 12), { gain: db(-37), decay: 0.05, pan: lerp(-0.4, 0.5, i / 55), verb: 0.2 })
   }
-  // price odometer ticking down to rest
-  for (let k = 0; k < 22; k++) {
-    const x = (k / 22) ** 2.2
-    click(TL.cut + 0.2 + x * 0.75, { gain: db(-34), f: 6200, pan: -0.3, verb: 0.05, body: 0.003 })
-  }
-  // levels and seal
-  whoosh(TL.cut + 0.4, 0.5, { f0: 1500, f1: 3500, q: 4, gain: db(-32), pan: (x) => lerp(-0.6, 0.5, x) })
-  whoosh(TL.cut + 0.52, 0.5, { f0: 1200, f1: 2800, q: 4, gain: db(-32), pan: (x) => lerp(-0.6, 0.5, x) })
-  glide(TL.cut + 0.55, 0.5, hz(76), hz(83), { gain: db(-32), shape: (x) => Math.sin(Math.PI * x), pan: -0.4, verb: 0.5, harm: 0 })
-  // typing 12.50
-  for (let k = 0; k < 5; k++) click(TL.type + k * 0.075, { gain: db(-24), f: 1100 + rand() * 300, pan: 0.45, verb: 0.08, body: 0.018 })
-  // B, the press, the fill
-  click(TL.buy, { gain: db(-18), f: 900, pan: 0.45, verb: 0.15, body: 0.03 })
-  kick(TL.buy, { gain: db(-18), f0: 200, f1: 90, decay: 0.08 })
-  bell(TL.buy + 0.14, hz(76), { gain: db(-20), decay: 0.9, pan: 0.2, verb: 0.6 })
-  bell(TL.buy + 0.26, hz(83), { gain: db(-19), decay: 1.3, pan: 0.25, verb: 0.6 })
-  // groove: bass on eighths, hats, kicks on the beat
-  const roots = [{ t: TL.cut, m: 33 }, { t: 10.5, m: 29 }, { t: 11.4, m: 36 }, { t: 12.0, m: 31 }]
-  for (let t = TL.cut; t < TL.resolve - 0.01; t += BEAT / 2) {
+  for (let k = 0; k < 18; k++) click(n0 + 0.15 + (k / 18) ** 2.2 * 0.75, { gain: db(-36), f: 6200, pan: -0.1, verb: 0.05, body: 0.003 })
+  whoosh(n0 + 0.5, 0.45, { f0: 1500, f1: 3500, q: 4, gain: db(-33), pan: (x) => lerp(-0.4, 0.4, x) })
+  // a light groove: the terminal at work
+  const roots = [{ t: TL.trade, m: 33 }, { t: 10.2, m: 29 }, { t: 11.4, m: 36 }, { t: 12.0, m: 31 }]
+  for (let t = TL.trade; t < TL.brand - 0.01; t += BEAT / 2) {
     const root = [...roots].reverse().find((r) => t >= r.t - 0.001).m
-    const oct = Math.round((t - TL.cut) / (BEAT / 2)) % 2 ? 12 : 0
+    const oct = Math.round((t - TL.trade) / (BEAT / 2)) % 2 ? 12 : 0
     const lp = biquad().set('lp', 380, 0.9)
     let ph = 0
     place(t, 0.3, (u) => {
       ph = (ph + hz(root + oct) / SR) % 1
       return lp.run(2 * ph - 1) * Math.exp(-u / 0.13) * Math.min(1, u / 0.002)
-    }, { gain: db(-19), verb: 0.05 })
+    }, { gain: db(-20), verb: 0.05 })
     const hp = biquad().set('hp', 7000)
-    place(t + BEAT / 4, 0.05, (u) => hp.run(noise()) * Math.exp(-u / 0.012), { gain: db(-31), pan: 0.3, verb: 0.1 })
+    place(t + BEAT / 4, 0.05, (u) => hp.run(noise()) * Math.exp(-u / 0.012), { gain: db(-32), pan: 0.3, verb: 0.1 })
   }
-  for (const t of [9.6, 10.2, 10.8, 11.4, 12.0]) kick(t, { gain: db(-15), f0: 130, f1: 46, decay: 0.24 })
-  pad(TL.cut, 10.55, [57, 60, 64, 71], { gain: db(-29), cutoff: () => 1400, attack: 0.3, release: 0.2 })
-  pad(10.5, 11.45, [53, 57, 60, 64], { gain: db(-29), cutoff: () => 1500, attack: 0.1, release: 0.2 })
+  for (let t = TL.trade; t < TL.brand - 0.01; t += BEAT) kick(t, { gain: db(-16), f0: 130, f1: 46, decay: 0.24 })
+  pad(TL.trade, 10.25, [57, 60, 64, 71], { gain: db(-29), cutoff: () => 1400, attack: 0.2, release: 0.2 })
+  pad(10.2, 11.45, [53, 57, 60, 64], { gain: db(-29), cutoff: () => 1500, attack: 0.1, release: 0.2 })
   pad(11.4, 12.05, [48, 55, 60, 64], { gain: db(-28), cutoff: () => 1700, attack: 0.1, release: 0.2 })
   pad(12.0, TL.logo - 0.08, [43, 50, 55, 59, 62], { gain: db(-27), cutoff: (x) => lerp(1200, 4200, x), attack: 0.1, release: 0.06 })
-  // whip pan to the portfolio
-  whoosh(TL.whip - 0.05, 0.55, { f0: 3000, f1: 350, q: 0.9, gain: db(-13), pan: (x) => lerp(0.7, -0.7, x), verb: 0.25 })
-  // the dial: its tick ring ratchets round, then one rising tone per holding
-  for (let i = 0; i < 100; i += 2) click(TL.dial + 0.05 + i * 0.0045, { gain: db(i % 10 === 0 ? -28 : -36), f: 5200, pan: 0.6 * Math.sin((i * 3.6 * Math.PI) / 180) - 0.3, verb: 0.08, body: 0.003 })
-  ;[69, 73, 76, 81].forEach((m, i) => glide(TL.dial + 0.2 + i * 0.1, 0.5, hz(m - 5), hz(m), { gain: db(-28), shape: (x) => Math.sin(Math.PI * clamp(x * 1.4)) ** 0.7, pan: -0.5 + i * 0.1, verb: 0.5, harm: 0.1 }))
-  for (let k = 0; k < 26; k++) click(TL.dial + 0.05 + (k / 26) ** 2.4 * 0.9, { gain: db(-35), f: 6600, pan: 0.45, verb: 0.05, body: 0.003 })
+  whoosh(TL.push[0], TL.push[1] - TL.push[0] + 0.1, { f0: 400, f1: 1600, q: 0.9, gain: db(-28), pan: (x) => lerp(-0.2, 0.4, x) })
+  // click one: 50% of the paper cash
+  click(TL.click1, { gain: db(-17), f: 1500, pan: 0.45, verb: 0.15, body: 0.02 })
+  bell(TL.click1 + 0.02, hz(84), { gain: db(-27), decay: 0.3, pan: 0.45, verb: 0.3, index: 0.8 })
+  for (let k = 0; k < 4; k++) click(TL.click1 + 0.08 + k * 0.055, { gain: db(-31), f: 1100 + rand() * 300, pan: 0.45, verb: 0.08, body: 0.015 })
+  for (let k = 0; k < 10; k++) click(TL.click1 + 0.1 + (k / 10) ** 2 * 0.35, { gain: db(-37), f: 6400, pan: 0.45, verb: 0.05, body: 0.003 })
+  // click two: Buy SOL, filled at market
+  click(TL.click2, { gain: db(-15), f: 900, pan: 0.45, verb: 0.15, body: 0.03 })
+  kick(TL.click2, { gain: db(-20), f0: 200, f1: 90, decay: 0.08 })
+  bell(TL.filled, hz(76), { gain: db(-19), decay: 0.9, pan: 0.35, verb: 0.6 })
+  bell(TL.filled + 0.12, hz(83), { gain: db(-18), decay: 1.4, pan: 0.4, verb: 0.65 })
+  for (let k = 0; k < 16; k++) click(TL.filled + 0.05 + (k / 16) ** 2.2 * 0.65, { gain: db(-37), f: 6600, pan: 0.45, verb: 0.05, body: 0.003 })
 }
 
-// ---------- 12.6 → 15 · resolve ----------
+// ---------- 05 · Brand ----------
 {
-  // inhale: everything is drawn into the diamond, then a breath of silence
-  whoosh(TL.resolve, TL.logo - TL.resolve - 0.06, { f0: 200, f1: 8000, q: 0.8, gain: db(-13), shape: (x) => x ** 3, pan: (x) => lerp(-0.3, -0.1, x), verb: 0.1 })
-  glide(TL.resolve, TL.logo - TL.resolve - 0.06, hz(45), hz(69), { gain: db(-24), shape: (x) => x ** 3, verb: 0.1, harm: 0.5 })
-  // the logo lands
-  boom(TL.logo, { gain: db(-7), f0: 90, f1: 34, decay: 2.2, verb: 0.3 })
-  kick(TL.logo, { gain: db(-10), f0: 180, f1: 50, decay: 0.3 })
-  place(TL.logo, 1.2, (t) => noise() * Math.exp(-t / 0.18), { gain: db(-28), verb: 0.9 })
-  pad(TL.logo, TL.duration, [33, 45, 52, 57, 61, 64, 71], { gain: db(-23), cutoff: (x) => lerp(900, 2400, Math.min(1, x * 2.5)), attack: 0.02, release: 0.1, verb: 0.7 })
-  ;[76, 81, 85, 88].forEach((m, i) => bell(TL.logo + i * 0.02, hz(m), { gain: db(-19 - i * 2), decay: 2.6, pan: -0.3 + i * 0.2, verb: 0.9 }))
-  // the arc ignites on the end card
+  const L = TL.logo
+  // the live tip flies to the logo: everything inhales, then a breath of silence
+  whoosh(TL.brand, L - TL.brand - 0.06, { f0: 200, f1: 8000, q: 0.8, gain: db(-14), shape: (x) => x ** 3, pan: (x) => lerp(0.4, -0.1, x), verb: 0.1 })
+  glide(TL.brand, L - TL.brand - 0.06, hz(45), hz(69), { gain: db(-25), shape: (x) => x ** 3, verb: 0.1, harm: 0.5 })
+  boom(L, { gain: db(-7), f0: 90, f1: 34, decay: 2.2, verb: 0.3 })
+  kick(L, { gain: db(-10), f0: 180, f1: 50, decay: 0.3 })
+  place(L, 1.2, (t) => noise() * Math.exp(-t / 0.18), { gain: db(-28), verb: 0.9 })
+  pad(L, TL.duration, [33, 45, 52, 57, 61, 64, 71], { gain: db(-23), cutoff: (x) => lerp(900, 2400, Math.min(1, x * 2.5)), attack: 0.02, release: 0.1, verb: 0.7 })
+  ;[76, 81, 85, 88].forEach((m, i) => bell(L + i * 0.02, hz(m), { gain: db(-19 - i * 2), decay: 2.6, pan: -0.3 + i * 0.2, verb: 0.9 }))
   bell(TL.endIgnite, hz(93), { gain: db(-22), decay: 1.8, pan: 0.55, verb: 0.9 })
   whoosh(TL.endIgnite - 0.1, 0.8, { f0: 5000, f1: 2000, q: 3, gain: db(-30), pan: () => 0.55, verb: 0.6 })
-  // tagline and meta strip: the quietest details
-  for (let i = 0; i < 11; i++) click(TL.tagline + i * 0.045 + (i >= 5 ? 0.12 : 0), { gain: db(-38), f: 1600, pan: -0.5 + i * 0.1, verb: 0.4, body: 0.02 })
+  for (let i = 0; i < 5; i++) click(TL.tagline + i * 0.06, { gain: db(-37), f: 1600, pan: -0.2 + i * 0.1, verb: 0.4, body: 0.02 })
   for (let k = 0; k < 16; k++) click(TL.meta + k * 0.025, { gain: db(-40), f: 6000, pan: 0, verb: 0.2, body: 0.003 })
 }
 
-// ---------- clock: an instrument that ticks while it measures ----------
-for (let t = TL.land + BEAT / 2; t < TL.zoom; t += BEAT / 2) {
-  const tock = Math.round((t - TL.land) / (BEAT / 2)) % 2 === 0
-  click(t, { gain: db(tock ? -35 : -38), f: tock ? 2100 : 2800, pan: tock ? -0.2 : 0.2, verb: 0.2, body: 0.006 })
+// ---------- clock: the instrument ticks while it measures ----------
+for (let t = TL.spark + BEAT / 2; t < TL.trade; t += BEAT / 2) {
+  const tock = Math.round((t - TL.spark) / (BEAT / 2)) % 2 === 0
+  click(t, { gain: db(tock ? -36 : -39), f: tock ? 2100 : 2800, pan: tock ? -0.2 : 0.2, verb: 0.2, body: 0.006 })
 }
 
 // ---------- reverb (Freeverb) and master ----------
