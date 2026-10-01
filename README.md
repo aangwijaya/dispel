@@ -89,6 +89,21 @@ code-signing certificate via `bundle.windows.signCommand` removes it.
 There is no auto-updater: bump `version` in `package.json`, `src-tauri/Cargo.toml` and
 `src-tauri/tauri.conf.json`, rebuild, and send the new installer.
 
+### GitHub Actions (all three platforms)
+
+`.github/workflows/release.yml` builds on GitHub's own runners, so a WSL or Windows machine only has to
+push. It runs manually (Actions → Release → Run workflow) or on a `v*` tag; every run uploads the
+bundles as artifacts and a tag run also opens a draft release. Add these repository secrets
+(Settings → Secrets and variables → Actions):
+
+| Secret | Purpose |
+| --- | --- |
+| `VITE_SUPABASE_URL` | baked into the frontend at build time |
+| `VITE_SUPABASE_ANON_KEY` | publishable key, the same value as `.env` |
+
+macOS and Windows builds are unsigned: Gatekeeper needs a right-click → Open and SmartScreen needs
+*More info* → *Run anyway* until signing certificates are configured.
+
 ### Linux / WSLg
 
 ```bash
