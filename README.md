@@ -63,7 +63,8 @@ path, not from `\\wsl.localhost\...` — `npm install` fetches OS-specific binar
 ### Build an installer for another PC
 
 `.env` values are baked into the frontend at build time, so the installer carries everything it needs:
-the target PC gets no repo, `.env`, or keys. Build on Windows:
+the target PC gets no repo, `.env`, or keys. `npm run build` (and therefore `tauri build`) fails with a
+clear message when they are missing. Build on Windows:
 
 ```powershell
 npm run tauri build
