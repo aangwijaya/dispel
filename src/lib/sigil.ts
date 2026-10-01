@@ -32,6 +32,8 @@ export interface SigilOptions {
   hot?: boolean
   animate?: boolean
   strokeBoost?: number
+  /** Drawn below 1040px: hairlines stay 1 screen px, nodes stay legible and upright. */
+  crisp?: boolean
 }
 
 export interface ArcAngles {
@@ -55,6 +57,9 @@ export function sigilSvg(options: SigilOptions): string {
   const W = (alpha: number): string => `rgba(255,255,255,${Math.min(1, alpha * boost).toFixed(3)})`
   const anim = options.animate !== false
   const strength = Math.max(0, Math.min(100, options.strength ?? 0))
+  const crisp = options.crisp === true
+  // The viewBox is 1040 wide, so a smaller sigil scales every 1px hairline under a pixel and it smears.
+  const hair = crisp ? ' vector-effect="non-scaling-stroke"' : ''
 
   const spinT = (duration: number, direction = 1): string =>
     anim && duration
@@ -67,7 +72,7 @@ export function sigilSvg(options: SigilOptions): string {
     const mid = angle % 10 === 0
     const length = major ? 22 : mid ? 13 : 6
     const alpha = major ? 0.38 : mid ? 0.2 : 0.11
-    ticks += `<line x1="${F(470 * Math.cos(RAD(angle)))}" y1="${F(470 * Math.sin(RAD(angle)))}" x2="${F((470 - length) * Math.cos(RAD(angle)))}" y2="${F((470 - length) * Math.sin(RAD(angle)))}" stroke="${W(alpha)}"/>`
+    ticks += `<line x1="${F(470 * Math.cos(RAD(angle)))}" y1="${F(470 * Math.sin(RAD(angle)))}" x2="${F((470 - length) * Math.cos(RAD(angle)))}" y2="${F((470 - length) * Math.sin(RAD(angle)))}" stroke="${W(alpha)}"${hair}/>`
   }
 
   let nodes = ''
@@ -75,9 +80,14 @@ export function sigilSvg(options: SigilOptions): string {
     const angle = RAD(index * 30 + 15)
     const x = 350 * Math.cos(angle)
     const y = 350 * Math.sin(angle)
-    const size = 5
+    const size = crisp ? 7 : 5
     const hot = index === 10 && !mood.fog && (options.arc !== false || options.hot === true)
-    nodes += `<path d="M${F(x)} ${F(y - size)} L${F(x + size)} ${F(y)} L${F(x)} ${F(y + size)} L${F(x - size)} ${F(y)} Z" fill="${hot ? mood.a1 : '#040506'}" stroke="${hot ? mood.a1 : W(0.34)}"/>`
+    // Counter-spin each node against its group so it still orbits but stays an upright diamond.
+    const close =
+      crisp && anim && mood.spin
+        ? `><animateTransform attributeName="transform" type="rotate" from="0 ${F(x)} ${F(y)}" to="360 ${F(x)} ${F(y)}" dur="${mood.spin * 0.66}s" repeatCount="indefinite"/></path>`
+        : '/>'
+    nodes += `<path d="M${F(x)} ${F(y - size)} L${F(x + size)} ${F(y)} L${F(x)} ${F(y + size)} L${F(x - size)} ${F(y)} Z" fill="${hot ? mood.a1 : '#040506'}" stroke="${hot ? mood.a1 : W(0.34)}"${hair}${close}`
   }
 
   const star: string[] = []
@@ -129,21 +139,26 @@ export function sigilSvg(options: SigilOptions): string {
       <circle cx="${F(tipX)}" cy="${F(tipY)}" r="3" fill="#fff"/>`
   }
 
-  const body = `<circle r="470" fill="none" stroke="${W(0.14)}"/>
+  const instrument = `<circle r="470" fill="none" stroke="${W(0.14)}"${hair}/>
       <g>${ticks}${spinT(mood.spin)}</g>
-      <circle r="440" fill="none" stroke="${W(0.07)}" stroke-dasharray="2 7"/>
-      <circle r="410" fill="none" stroke="${W(0.05)}"/>
-      <circle r="350" fill="none" stroke="${W(0.08)}"/>
+      <circle r="440" fill="none" stroke="${W(0.07)}" stroke-dasharray="2 7"${hair}/>
+      <circle r="410" fill="none" stroke="${W(0.05)}"${hair}/>
+      <circle r="350" fill="none" stroke="${W(0.08)}"${hair}/>
       <g>${nodes}${spinT(mood.spin * 0.66, -1)}</g>
-      <ellipse rx="330" ry="118" fill="none" stroke="${W(0.06)}" transform="rotate(28)"/>
-      <ellipse rx="330" ry="118" fill="none" stroke="${W(0.06)}" transform="rotate(-28)"/>
-      <circle r="290" fill="none" stroke="${W(0.05)}" stroke-dasharray="1 5"/>
-      <polyline points="${star.join(' ')}" fill="none" stroke="${W(0.075)}"/>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W(0.06)}" transform="rotate(28)"${hair}/>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W(0.06)}" transform="rotate(-28)"${hair}/>
+      <circle r="290" fill="none" stroke="${W(0.05)}" stroke-dasharray="1 5"${hair}/>
+      <polyline points="${star.join(' ')}" fill="none" stroke="${W(0.075)}"${hair}/>`
+  const body = `${instrument}
       ${art}`
 
-  const wrapped = mood.fog
-    ? `<defs><filter id="${id}f"><feGaussianBlur stdDeviation="1.1"/></filter></defs><g opacity=".72" filter="url(#${id}f)">${body}</g>`
-    : body
+  // Unclear fogs the reading; a crisp sigil keeps the instrument itself sharp under the fog.
+  const fog = `<defs><filter id="${id}f"><feGaussianBlur stdDeviation="1.1"/></filter></defs>`
+  const wrapped = !mood.fog
+    ? body
+    : crisp
+      ? `${fog}<g opacity=".72">${instrument}<g filter="url(#${id}f)">${art}</g></g>`
+      : `${fog}<g opacity=".72" filter="url(#${id}f)">${body}</g>`
 
   return `<svg viewBox="-520 -520 1040 1040" xmlns="http://www.w3.org/2000/svg">${wrapped}</svg>`
 }

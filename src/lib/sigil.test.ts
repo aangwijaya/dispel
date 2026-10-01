@@ -82,6 +82,39 @@ describe('sigilSvg', () => {
     expect(alphas.length).toBeGreaterThan(0)
     expect(Math.max(...alphas)).toBeLessThanOrEqual(1)
   })
+
+  it('keeps a crisp sigil one screen pixel wide but lets the spell scale', () => {
+    const plain = sigilSvg({ mood: 'favorable', strength: 71, idPrefix: 'cp', animate: false })
+    expect(plain).not.toContain('vector-effect')
+    const crisp = sigilSvg({ mood: 'favorable', strength: 71, idPrefix: 'cr', animate: false, crisp: true })
+    // 180 ticks, 12 nodes, 5 rings, 2 orbits and the seal
+    expect(crisp.match(/vector-effect="non-scaling-stroke"/g)).toHaveLength(200)
+    expect(crisp).not.toMatch(/stroke="url\(#[^"]+\)"[^>]*vector-effect/)
+  })
+
+  it('draws crisp nodes larger and keeps them upright while they orbit', () => {
+    const plain = sigilSvg({ mood: 'favorable', idPrefix: 'np', animate: false })
+    expect(plain).toContain('<path d="M338.1 85.6 L343.1 90.6')
+    const still = sigilSvg({ mood: 'favorable', idPrefix: 'ns', animate: false, crisp: true })
+    expect(still).toContain('<path d="M338.1 83.6 L345.1 90.6')
+    expect(still).not.toContain('from="0 338.1 90.6"')
+    const moving = sigilSvg({ mood: 'favorable', idPrefix: 'nm', crisp: true })
+    const spins = [...moving.matchAll(/from="0 [-\d.]+ [-\d.]+" to="360 [-\d.]+ [-\d.]+" dur="([^"]+)"/g)]
+    expect(spins).toHaveLength(12)
+    const group = moving.match(/to="-360" dur="([^"]+)"/)
+    expect(group).not.toBeNull()
+    for (const spin of spins) expect(spin[1]).toBe(group?.[1])
+  })
+
+  it('fogs the whole unclear sigil, or only its reading when crisp', () => {
+    const plain = sigilSvg({ mood: 'unclear', idPrefix: 'uf', animate: false })
+    expect(plain).toContain('<g opacity=".72" filter="url(#uff)"><circle r="470"')
+    const crisp = sigilSvg({ mood: 'unclear', idPrefix: 'uc', animate: false, crisp: true })
+    expect(crisp).toContain('<g opacity=".72"><circle r="470"')
+    expect(crisp).toContain('<g filter="url(#ucf)">')
+    expect(crisp.indexOf('<g filter="url(#ucf)">')).toBeGreaterThan(crisp.indexOf('<polyline points='))
+    expect(crisp).toContain('stroke-dasharray="5 7"')
+  })
 })
 
 describe('sealSvg', () => {
