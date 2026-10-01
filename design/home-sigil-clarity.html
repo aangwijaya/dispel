@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home sigil clarity</title>
+<style>
+@font-face { font-family: 'Inter Variable'; font-style: normal; font-display: swap; font-weight: 100 900; src: url('../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Geist Mono Variable'; font-style: normal; font-display: swap; font-weight: 100 900; src: url('../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2-variations'); }
+</style>
+<style>
+/* ── App CSS ──────────────────────────────────────────────────────────────────
+   The rules from src/index.css and src/styles/home.css that the Market read panel
+   actually uses, extracted from the running app with Tailwind layers kept in order.
+   Edit the source files, not this copy. */
+@layer properties;
+@layer theme, base, components, utilities;
+@layer theme {
+:root, :host { --ease-out: cubic-bezier(0, 0, 0.2, 1); --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); --default-transition-duration: 150ms; --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); --default-font-family: var(--f-ui); --default-mono-font-family: var(--f-mono); }
+}
+@layer base {
+*, ::after, ::before, ::backdrop, ::file-selector-button { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid; }
+html, :host { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: var(--default-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"); font-feature-settings: var(--default-font-feature-settings, normal); font-variation-settings: var(--default-font-variation-settings, normal); -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+b, strong { font-weight: bolder; }
+code, kbd, samp, pre { font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace); font-feature-settings: var(--default-mono-font-feature-settings, normal); font-variation-settings: var(--default-mono-font-variation-settings, normal); font-size: 1em; }
+small { font-size: 80%; }
+:-moz-focusring:where(:not(iframe)) { outline: auto; }
+img, svg, video, canvas, audio, iframe, embed, object { display: block; vertical-align: middle; }
+button, input, select, optgroup, textarea, ::file-selector-button { font: inherit; font-feature-settings: inherit; font-variation-settings: inherit; letter-spacing: inherit; color: inherit; border-radius: 0; background-color: transparent; opacity: 1; }
+::file-selector-button { margin-inline-end: 4px; }
+::placeholder { opacity: 1; }
+@supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
+::placeholder { color: currentcolor; @supports (color: color-mix(in lab, red, red)) { color: color-mix(in oklab, currentcolor 50%, transparent); } }
+}
+::-webkit-search-decoration { -webkit-appearance: none; }
+::-webkit-date-and-time-value { min-height: 1lh; text-align: inherit; }
+::-webkit-datetime-edit { display: inline-flex; }
+::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field, ::-webkit-datetime-edit-second-field, ::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-meridiem-field { padding-block: 0; }
+::-webkit-calendar-picker-indicator { line-height: 1; }
+:-moz-ui-invalid { box-shadow: none; }
+button, input:where([type="button"], [type="reset"], [type="submit"]), ::file-selector-button { appearance: button; }
+::-webkit-inner-spin-button, ::-webkit-outer-spin-button { height: auto; }
+[hidden]:where(:not([hidden="until-found"])) { display: none !important; }
+}
+.read-panel { position: relative; overflow: clip; isolation: isolate; background: rgba(7, 8, 10, 0.82); }
+.read-panel::before { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit; padding: 1px; background: conic-gradient( from var(--spin), transparent 0 58%, var(--stance) 72%, #ff6363 80%, rgba(255, 255, 255, 0.7) 82%, transparent 90% ); @supports (color: color-mix(in lab, red, red)) { background: conic-gradient( from var(--spin), transparent 0 58%, color-mix(in srgb, var(--stance) 55%, transparent) 72%, #ff6363 80%, rgba(255, 255, 255, 0.7) 82%, transparent 90% ); } -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: read-orbit 16s linear infinite; }
+.read-panel[data-stance='wait']::before { animation-duration: 11s; }
+.read-panel[data-stance='unclear']::before { animation-duration: 30s; opacity: 0.45; }
+.read-panel[data-stance='reduce-risk']::before { animation-duration: 9s; }
+@keyframes read-orbit {
+  to {
+    --spin: 360deg;
+  }
+}
+.aura { position: absolute; inset: 0; z-index: -1; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse 50% 95% at 72% 50%, #000 45%, transparent 100%); mask-image: radial-gradient(ellipse 50% 95% at 72% 50%, #000 45%, transparent 100%); }
+.aura .sigil { position: absolute; width: 760px; height: 760px; left: calc(72% - 380px); top: calc(50% - 380px); }
+.sigil.fade { animation: sigil-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes sigil-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) rotate(-4deg);
+  }
+}
+.aura::after { content: ''; position: absolute; inset: 0; background: linear-gradient( 90deg, rgba(7, 8, 10, 0.96) 0%, rgba(7, 8, 10, 0.86) 40%, rgba(7, 8, 10, 0.3) 64%, rgba(7, 8, 10, 0.12) 100% ); }
+.read-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+.read-grid > section { padding: 20px 24px; min-width: 0; }
+.read-grid > section + section { border-left: 1px solid var(--hair); }
+@container main (max-width: 1000px) {
+.read-grid { grid-template-columns: minmax(0, 1fr); }
+.read-grid > section + section { border-left: 0; border-top: 1px solid var(--hair); }
+}
+@container main (max-width: 600px) {
+.read-grid > section { padding: 16px; }
+}
+.read-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sdot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--stance); box-shadow: 0 0 0 3px var(--stance); @supports (color: color-mix(in lab, red, red)) { box-shadow: 0 0 0 3px color-mix(in srgb, var(--stance) 18%, transparent); } }
+.sdot::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--stance); animation: status-ping 2.4s ease-out infinite; }
+@keyframes status-ping {
+  from {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+.read-meta .mono { color: var(--smoke); }
+.verdict { margin: 14px 0 0; font-size: var(--t-verdict); font-weight: 400; letter-spacing: 0.2px; line-height: 1.1; background: linear-gradient(100deg, #ffffff 35%, var(--vtint) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 2px; text-wrap: balance; }
+.enter { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(6px);
+  }
+}
+.stance { margin: 8px 0 0; font-size: var(--t-lead); color: var(--ash); }
+.stance b { font-weight: 500; }
+.explain { margin: 14px 0 0; font-size: var(--t-row); line-height: 1.6; color: var(--ash); max-width: 62ch; }
+.explain strong { color: var(--mist); font-weight: 500; }
+.well { margin-top: 16px; display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--r-ctl); background: linear-gradient(90deg, rgba(232, 176, 74, 0.12), rgba(17, 18, 20, 0.9) 55%); box-shadow: inset 0 0 0 1px rgba(232, 176, 74, 0.16); font-size: var(--t-body); color: var(--mist); max-width: 66ch; }
+.well svg { width: 14px; height: 14px; flex: none; margin-top: 2px; color: var(--caution); }
+.today-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.regime-now { margin-top: 12px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.regime-now b { font-size: var(--t-sub); font-weight: 400; letter-spacing: 0.2px; color: var(--white); }
+.scale { margin-top: 12px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.scale div { min-width: 0; }
+.scale i { display: block; height: 6px; border-radius: 3px; background: var(--badge); }
+.scale div.on i { background: var(--seg); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3), 0 0 16px var(--seg); @supports (color: color-mix(in lab, red, red)) { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3), 0 0 16px color-mix(in srgb, var(--seg) 75%, transparent); } }
+.scale span { display: block; margin-top: 6px; font-size: 10px; color: var(--smoke); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scale div.on span { color: var(--white); }
+.ribbon-l { margin-top: 20px; }
+.ribbon { position: relative; margin-top: 8px; height: 26px; display: flex; gap: 2px; }
+.ribbon b { height: 100%; display: flex; align-items: center; padding-left: 8px; border-radius: 5px; font-size: var(--t-eyebrow); font-weight: 500; color: var(--mist); white-space: nowrap; overflow: hidden; background: linear-gradient( 90deg, var(--seg), var(--seg) ); @supports (color: color-mix(in lab, red, red)) { background: linear-gradient( 90deg, color-mix(in srgb, var(--seg) 10%, rgba(17, 18, 20, 0.85)), color-mix(in srgb, var(--seg) 32%, rgba(17, 18, 20, 0.85)) ); } }
+.ribbon b:last-child { position: relative; }
+.ribbon b:last-child::after { content: ''; position: absolute; right: 2px; top: 4px; bottom: 4px; width: 2px; border-radius: 2px; background: #fff; box-shadow: 0 0 10px 2px var(--seg); @supports (color: color-mix(in lab, red, red)) { box-shadow: 0 0 10px 2px color-mix(in srgb, var(--seg) 80%, transparent); } animation: blink 1.8s ease-in-out infinite; }
+@keyframes blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+.ticks { position: relative; height: 16px; margin-top: 6px; }
+.ticks span { position: absolute; transform: translateX(-50%); font-family: var(--f-mono); font-size: 10px; color: var(--smoke); }
+.ticks span:first-child { transform: none; }
+.ticks span:last-child { transform: translateX(-100%); color: var(--mist); }
+.shift { margin-top: 12px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 2px 10px; font-size: var(--t-body); }
+.shift .mono { color: var(--smoke); padding-top: 2px; }
+.shift strong { color: var(--white); font-weight: 500; }
+.shift p { grid-column: 2; margin: 0; color: var(--smoke); font-size: var(--t-meta); line-height: 1.5; }
+.read-grid > section:last-child :is(.eyebrow, .mono, .regime-now, .scale span, .ticks span, .shift strong, .shift p) { text-shadow: 0 0 2px #07080a, 0 0 6px #07080a, 0 0 10px rgba(7, 8, 10, 0.9); }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--hair); position: relative; background: rgba(7, 8, 10, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.stats > div { padding: 14px 24px 16px; min-width: 0; }
+.stats > div + div { border-left: 1px solid var(--hair); }
+.stats .k { font-size: var(--t-meta); color: var(--smoke); }
+.stats .v { margin-top: 3px; font-size: var(--t-lead); font-weight: 500; color: var(--white); }
+.stats .v small { font-size: var(--t-eyebrow); color: var(--smoke); font-weight: 400; }
+.meter { margin-top: 8px; height: 4px; border-radius: 2px; background: var(--badge); position: relative; overflow: hidden; }
+.meter i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: linear-gradient(90deg, rgba(230, 230, 230, 0.3), #fff); box-shadow: 0 0 12px rgba(255, 255, 255, 0.35); }
+.meter.mid::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--slate); }
+.steps3, .steps4 { margin-top: 8px; display: grid; gap: 3px; }
+.steps3 { grid-template-columns: repeat(3, 1fr); }
+.steps4 { grid-template-columns: repeat(4, 1fr); }
+.steps3 i, .steps4 i { height: 4px; border-radius: 2px; background: var(--badge); }
+.steps3 i.f, .steps4 i.f { background: var(--fill, var(--mist)); }
+@container main (max-width: 760px) {
+.stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.stats > div:nth-child(3) { border-left: 0; }
+.stats > div:nth-child(n + 3) { border-top: 1px solid var(--hair); }
+.stats > div { padding: 12px 16px; }
+}
+.why-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px 8px 12px; border-top: 1px solid var(--hair); position: relative; background: rgba(7, 8, 10, 0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.why-btn { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 8px; border-radius: var(--r-ctl); font-size: var(--t-meta); font-weight: 500; color: var(--ash); }
+.why-btn:hover { background: var(--recessed); color: var(--white); }
+.why-btn svg { width: 12px; height: 12px; transition: transform 0.15s; }
+.why-bar .mono { color: var(--smoke); }
+.why { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 0 12px 12px; }
+.why > div { padding: 10px 12px 12px; border-radius: var(--r-ctl); background: var(--recessed); min-width: 0; }
+.why .k { font-size: var(--t-eyebrow); color: var(--smoke); text-transform: uppercase; letter-spacing: 0.8px; }
+.why .v { margin-top: 4px; font-size: var(--t-row); font-weight: 500; }
+.why .d { margin-top: 3px; font-size: var(--t-eyebrow); color: var(--smoke); line-height: 1.45; }
+@container main (max-width: 1100px) {
+.why { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container main (max-width: 600px) {
+.why-bar .mono { display: none; }
+}
+@container main (max-width: 760px) {
+.why { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@keyframes slide {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+.read-panel::before { background: conic-gradient( from 210deg, transparent 0 58%, var(--stance) 72%, #ff6363 80%, transparent 90% ); @supports (color: color-mix(in lab, red, red)) { background: conic-gradient( from 210deg, transparent 0 58%, color-mix(in srgb, var(--stance) 55%, transparent) 72%, #ff6363 80%, transparent 90% ); } }
+}
+@keyframes tip-breathe {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(0.73);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@keyframes flash {
+  from {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  to {
+    background: transparent;
+  }
+}
+@keyframes txin {
+  from {
+    background: rgba(89, 212, 153, 0.14);
+  }
+  to {
+    background: transparent;
+  }
+}
+:root { color-scheme: dark; --void: #040506; --card: #07080a; --recessed: #111214; --badge: #1b1c1e; --slate: #2f3031; --border: #363739; --hair: rgba(255, 255, 255, 0.06); --white: #ffffff; --mist: #e6e6e6; --ash: #9c9c9d; --smoke: #6a6b6c; --iron: #454647; --coral: #ff6363; --ember: #452324; --up: #59d499; --down: #f0506e; --caution: #e8b04a; --info: #56c2ff; --rose: #ff2f6d; --amber: #ffc07a; --cobalt: #2d52d6; --deep: #02193b; --cat-cash: #9c9c9d; --cat-1: #8aa4ff; --cat-2: #ffc07a; --cat-3: #c79bff; --key: rgba(255, 255, 255, 0.05) 0 1px 0 0 inset, rgba(255, 255, 255, 0.25) 0 0 0 1px, rgba(0, 0, 0, 0.2) 0 -1px 0 0 inset; --key-soft: rgba(255, 255, 255, 0.05) 0 1px 0 0 inset, rgba(255, 255, 255, 0.08) 0 0 0 1px, rgba(0, 0, 0, 0.2) 0 -1px 0 0 inset; --lift: rgba(0, 0, 0, 0.03) 0 7px 3px 0, rgba(0, 0, 0, 0.25) 0 4px 4px 0; --f-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; --f-mono: 'Geist Mono Variable', 'Geist Mono', 'JetBrains Mono', Menlo, Monaco, Consolas, monospace; --t-eyebrow: 11px; --t-meta: 12px; --t-body: 13px; --t-row: 14px; --t-lead: 15px; --t-sub: 20px; --t-verdict: 40px; --r-badge: 6px; --r-ctl: 8px; --r-panel: 12px; --r-card: 16px; }
+@property --spin {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@layer base {
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; background: radial-gradient(1100px 520px at 88% -4%, rgba(120, 18, 40, 0.3), transparent 70%), radial-gradient(900px 520px at -4% 60%, rgba(6, 30, 80, 0.32), transparent 70%), var(--void); color: var(--ash); font-family: var(--f-ui); font-size: var(--t-body); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+* { scrollbar-width: thin; scrollbar-color: var(--slate) transparent; }
+::selection { background: var(--coral); @supports (color: color-mix(in lab, red, red)) { background: color-mix(in srgb, var(--coral) 25%, transparent); } }
+[hidden] { display: none !important; }
+}
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--f-mono); font-size: var(--t-eyebrow); letter-spacing: 0.017em; }
+.eyebrow { font-size: var(--t-eyebrow); font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; color: var(--smoke); line-height: 1.2; }
+.up { color: var(--up); }
+.down { color: var(--down); }
+.caution { color: var(--caution); }
+.ash { color: var(--ash); }
+.smoke { color: var(--smoke); }
+kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 5px; background: var(--badge); box-shadow: var(--key-soft); font-family: var(--f-mono); font-size: 10px; color: var(--ash); line-height: 1; }
+@media (prefers-reduced-motion: reduce) {
+*, *::before, *::after { animation: none !important; transition: none !important; }
+}
+.app { container: app / inline-size; position: relative; height: 100%; display: grid; grid-template-columns: 188px minmax(0, 1fr); background: transparent; isolation: isolate; overflow: hidden; }
+.mainwrap { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.main { container: main / inline-size; flex: 1; min-height: 0; min-width: 0; overflow-y: auto; padding: 8px; display: grid; gap: 8px; align-content: start; }
+.panel { background: rgba(7, 8, 10, 0.92); border-radius: var(--r-panel); box-shadow: var(--key-soft); min-width: 0; }
+@media (max-width: 720px) {
+.app { grid-template-columns: minmax(0, 1fr); }
+}
+.sigil { display: block; flex: none; }
+.sigil > svg { display: block; width: 100%; height: 100%; }
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-border-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@property --tw-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-shadow-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-inset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-inset-shadow-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-inset-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-ring-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-inset-ring-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-inset-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-ring-inset {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ring-offset-width {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --tw-ring-offset-color {
+  syntax: "*";
+  inherits: false;
+  initial-value: #fff;
+}
+@property --tw-ring-offset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@property --tw-blur {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-brightness {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-contrast {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-grayscale {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-hue-rotate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-invert {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-opacity {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-saturate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-sepia {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-drop-shadow {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-drop-shadow-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-drop-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-drop-shadow-size {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-blur {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-brightness {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-contrast {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-grayscale {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-hue-rotate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-invert {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-opacity {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-saturate {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-backdrop-sepia {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ease {
+  syntax: "*";
+  inherits: false;
+}
+@layer properties {
+@supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+*, ::before, ::after, ::backdrop { --tw-rotate-x: initial; --tw-rotate-y: initial; --tw-rotate-z: initial; --tw-skew-x: initial; --tw-skew-y: initial; --tw-border-style: solid; --tw-shadow: 0 0 #0000; --tw-shadow-color: initial; --tw-shadow-alpha: 100%; --tw-inset-shadow: 0 0 #0000; --tw-inset-shadow-color: initial; --tw-inset-shadow-alpha: 100%; --tw-ring-color: initial; --tw-ring-shadow: 0 0 #0000; --tw-inset-ring-color: initial; --tw-inset-ring-shadow: 0 0 #0000; --tw-ring-inset: initial; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-offset-shadow: 0 0 #0000; --tw-outline-style: solid; --tw-blur: initial; --tw-brightness: initial; --tw-contrast: initial; --tw-grayscale: initial; --tw-hue-rotate: initial; --tw-invert: initial; --tw-opacity: initial; --tw-saturate: initial; --tw-sepia: initial; --tw-drop-shadow: initial; --tw-drop-shadow-color: initial; --tw-drop-shadow-alpha: 100%; --tw-drop-shadow-size: initial; --tw-backdrop-blur: initial; --tw-backdrop-brightness: initial; --tw-backdrop-contrast: initial; --tw-backdrop-grayscale: initial; --tw-backdrop-hue-rotate: initial; --tw-backdrop-invert: initial; --tw-backdrop-opacity: initial; --tw-backdrop-saturate: initial; --tw-backdrop-sepia: initial; --tw-ease: initial; --spin: 0deg; }
+}
+}
+</style>
+<style>
+/* ── Mock page chrome ─────────────────────────────────────────────────────── */
+html, body { height: auto; overflow: auto; }
+body { padding: 32px 24px 64px; }
+.mk-doc { width: 1252px; margin: 0 auto; }
+.mk-spec { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; margin-bottom: 20px; }
+.mk-spec h1 { margin: 0; font-size: 28px; font-weight: 400; letter-spacing: .2px; line-height: 1.15; color: var(--white); }
+.mk-spec p { margin: 6px 0 0; font-size: var(--t-meta); color: var(--smoke); max-width: 72ch; }
+.mk-controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.mk-ctl { display: flex; align-items: center; gap: 8px; }
+.mk-seg { display: inline-flex; gap: 2px; padding: 2px; background: var(--recessed); border-radius: var(--r-ctl); box-shadow: 0 0 0 1px var(--hair); }
+.mk-seg button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: var(--t-meta); font-weight: 500; color: var(--smoke); }
+.mk-seg button:hover { color: var(--mist); }
+.mk-seg button[aria-pressed='true'] { background: var(--badge); color: var(--white); box-shadow: var(--key-soft); }
+.mk-cmp + .mk-cmp { margin-top: 24px; }
+.mk-cmp[hidden] { display: none; }
+.mk-cap { display: flex; align-items: baseline; gap: 12px; margin: 0 0 8px 2px; }
+.mk-cap b { font-size: var(--t-row); font-weight: 500; color: var(--white); }
+.mk-cap span { font-family: var(--f-mono); font-size: 11px; color: var(--smoke); }
+.mk-frame {
+  border-radius: var(--r-panel);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--hair);
+  background:
+    radial-gradient(1100px 520px at 88% -4%, rgba(120, 18, 40, 0.3), transparent 70%),
+    radial-gradient(900px 520px at -4% 60%, rgba(6, 30, 80, 0.32), transparent 70%),
+    var(--void);
+}
+.mk-frame .main { overflow: visible; }
+body.mk-hold * { animation-play-state: paused !important; }
+.mk-notes { margin-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mk-notes section { padding: 18px 20px; border-radius: var(--r-panel); background: var(--card); box-shadow: var(--key-soft); }
+.mk-notes h2 { margin: 0 0 10px; font-size: var(--t-row); font-weight: 500; color: var(--white); }
+.mk-notes ol, .mk-notes ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: var(--t-body); color: var(--ash); line-height: 1.5; }
+.mk-notes code { font-family: var(--f-mono); font-size: 12px; color: var(--mist); }
+.mk-notes .k { color: var(--white); }
+</style>
+</head>
+<body>
+<div class="mk-doc">
+  <header class="mk-spec">
+    <div>
+      <h1>Home sigil, sharper rings and nodes</h1>
+      <p>The Market read sigil is drawn at 760px from a 1040-unit viewBox, so every 1px hairline renders at 0.73px and smears into grey haze, and each node is a 7px diamond turning at odd angles. Proposed: hairlines stay one screen pixel, nodes are 10px and stay upright while they orbit, and white strokes are 1.6× brighter for this instance only. Arc, tip, colours, speeds, scrim, mask and layout are unchanged. Real app CSS and markup; all values are mock design data.</p>
+    </div>
+    <div class="mk-controls" role="group" aria-label="Mock controls">
+      <div class="mk-ctl"><span class="eyebrow">View</span>
+        <div class="mk-seg" id="ctl-view">
+          <button type="button" data-v="compare">Compare</button>
+          <button type="button" data-v="current">Current</button>
+          <button type="button" data-v="proposed">Proposed</button>
+        </div>
+      </div>
+      <div class="mk-ctl"><span class="eyebrow">Market</span>
+        <div class="mk-seg" id="ctl-stance">
+          <button type="button" data-v="favorable">Favorable</button>
+          <button type="button" data-v="wait">Wait</button>
+          <button type="button" data-v="unclear">Unclear</button>
+          <button type="button" data-v="reduce-risk">Reduce risk</button>
+        </div>
+      </div>
+      <div class="mk-ctl"><span class="eyebrow">Motion</span>
+        <div class="mk-seg" id="ctl-motion">
+          <button type="button" data-v="live">Live</button>
+          <button type="button" data-v="hold">Hold</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="mk-cmp" data-variant="current">
+    <div class="mk-cap"><b>Current</b><span>760px · hairlines render 0.73px · nodes 7px, turning · white strokes ×1</span></div>
+    <div class="mk-frame"><main class="main"></main></div>
+  </section>
+
+  <section class="mk-cmp" data-variant="proposed">
+    <div class="mk-cap"><b>Proposed</b><span id="cap-proposed"></span></div>
+    <div class="mk-frame"><main class="main"></main></div>
+  </section>
+
+  <div class="mk-notes">
+    <section>
+      <h2>What changes</h2>
+      <ol>
+        <li><span class="k">Hairlines stay 1 screen px.</span> Rings, ticks, nodes, orbits and the seal get <code>vector-effect="non-scaling-stroke"</code>, so the 0.73× scale no longer thins them below a pixel.</li>
+        <li><span class="k">Nodes 10px and upright.</span> Diamond half-size 5 → 7 viewBox units. Each node counter-spins against its group, so it still orbits but stays a crisp ◇ like the logo.</li>
+        <li><span class="k">White strokes ×1.6.</span> Uses the existing <code>strokeBoost</code>: minor ticks .11 → .18, mid .20 → .32, major .38 → .61, nodes .34 → .54.</li>
+        <li><span class="k">Home only.</span> A new <code>crisp</code> option, off by default: Sign-in, ambient, welcome, seal and dial render exactly as today.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Unchanged</h2>
+      <ul>
+        <li>The arc, tip, price line, colours, glow and breathing.</li>
+        <li>Rotation speeds (300s ticks, 198s nodes for Favorable) and the stance-change entrance.</li>
+        <li>Scrim, radial mask, the frosted stats row and why-bar (still blurred by design), and the 760px size at 72% / 50%.</li>
+        <li>Reduced motion and lite mode: still no motion.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script type="application/json" id="panels">{"favorable": "<section class=\"panel read-panel\" id=\"read\" aria-label=\"Market read\" data-stance=\"favorable\" style=\"--stance: #59d499; --vtint: #a6efc9;\"><div class=\"aura\" aria-hidden=\"true\"><span class=\"sigil fade\" aria-hidden=\"true\" style=\"width: 760px; height: 760px;\"></span></div><div class=\"read-grid\"><section><div class=\"read-meta\"><span class=\"sdot\" aria-hidden=\"true\"></span><span class=\"eyebrow\">Market read</span><span class=\"mono \">14:32 UTC \u00b7 18 markets</span></div><h2 class=\"verdict enter \">Look for setups</h2><p class=\"stance\"><b class=\"up\">Bullish</b> bias \u00b7 buyers in moderate control</p><p class=\"explain\"><strong>Buyers have held control since BTC reclaimed 116.4k this morning.</strong> 12 of 18 markets are up on the day, but several majors are now pressing into resistance, so the easy part of this move may already be done.</p><div class=\"well\"><svg viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14H1L8 1.5Zm-.75 4.5v4h1.5V6h-1.5Zm0 5.2v1.5h1.5v-1.5h-1.5Z\"></path></svg><span>Avoid chasing extended moves. Let pullbacks prove support before acting.</span></div></section><section><div class=\"today-h\"><span class=\"eyebrow\">Market regime</span></div><div class=\"regime-now\"><b>Constructive</b><span class=\"mono smoke\">step 4 of 5</span></div><div class=\"scale\"><div style=\"--seg: #f0506e;\"><i></i><span>Risk-off</span></div><div style=\"--seg: #e8b04a;\"><i></i><span>Cautious</span></div><div style=\"--seg: #9c9c9d;\"><i></i><span>Neutral</span></div><div class=\"on\" style=\"--seg: #8fd9b3;\"><i></i><span>Constructive</span></div><div style=\"--seg: #59d499;\"><i></i><span>Risk-on</span></div></div><div class=\"today-h ribbon-l\"><span class=\"eyebrow\">Today</span><span class=\"mono smoke\">UTC</span></div><div class=\"ribbon\"><b title=\"Neutral\" style=\"flex: 10.7 1 0px; --seg: #9c9c9d;\">Neutral</b><b title=\"Constructive\" style=\"flex: 3.83 1 0px; --seg: #8fd9b3;\">Constructive</b></div><div class=\"ticks\"><span style=\"left: 0%;\">00:00</span><span style=\"left: 27.5292%;\">04:00</span><span style=\"left: 55.0585%;\">08:00</span><span style=\"left: 82.5877%;\">12:00</span><span style=\"left: 100%;\">Now</span></div><div class=\"shift\"><span class=\"mono\">10:42</span><strong>Shift: Neutral \u2192 Constructive</strong><p>BTC reclaimed 116.4k while market-wide volume strengthened.</p></div></section></div><div class=\"stats\"><div><div class=\"k\">Trend strength</div><div class=\"v num\">71 <small>/ 100</small></div><div class=\"meter mid\"><i style=\"width: 71%;\"></i></div></div><div><div class=\"k\">Confidence</div><div class=\"v\">Medium</div><div class=\"steps3\"><i class=\"f\"></i><i class=\"f\"></i><i></i></div></div><div><div class=\"k\">Risk</div><div class=\"v\" style=\"color: rgb(232, 176, 74);\">Medium</div><div class=\"steps3\" style=\"--fill: #e8b04a;\"><i class=\"f\"></i><i class=\"f\"></i><i></i></div></div><div><div class=\"k\">Volatility</div><div class=\"v\" style=\"color: rgb(255, 255, 255);\">Normal</div><div class=\"steps4\" style=\"--fill: #e6e6e6;\"><i></i><i class=\"f\"></i><i></i><i></i></div></div></div><div class=\"why-bar\"><button type=\"button\" class=\"why-btn\" aria-expanded=\"false\" aria-controls=\"why\"><svg viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"m4.5 2.5 3.5 3.5-3.5 3.5\"></path></svg>Why this read <kbd>E</kbd></button><span class=\"mono\">Trend \u00b7 Momentum \u00b7 Volume \u00b7 Volatility \u00b7 Breadth \u00b7 Levels \u00b7 Positioning \u00b7 On-chain</span></div><div class=\"why\" id=\"why\" hidden=\"\"><div><div class=\"k\">Trend</div><div class=\"v up\">Up</div><div class=\"d\">Higher highs on BTC and ETH 4h</div></div><div><div class=\"k\">Momentum</div><div class=\"v up\">Firming</div><div class=\"d\">BTC 1h RSI 58, rising</div></div><div><div class=\"k\">Volume</div><div class=\"v up\">Above avg</div><div class=\"d\">+18% vs 7-day average</div></div><div><div class=\"k\">Volatility</div><div class=\"v ash\">Normal</div><div class=\"d\">ATR inside its 30-day band</div></div><div><div class=\"k\">Breadth</div><div class=\"v up\">12 / 18 up</div><div class=\"d\">Participation widening</div></div><div><div class=\"k\">Levels</div><div class=\"v caution\">At resistance</div><div class=\"d\">BTC 119.2k \u00b7 support 115.8k</div></div><div><div class=\"k\">Positioning</div><div class=\"v ash\">Balanced</div><div class=\"d\">BTC funding +0.010% 8h \u00b7 OI +2.4% 24h</div></div><div><div class=\"k\">On-chain</div><div class=\"v up\">Supports</div><div class=\"d\">BTC netflow \u22128,400 7d \u00b7 as of Sep 27</div></div></div></section>", "wait": "<section class=\"panel read-panel\" id=\"read\" aria-label=\"Market read\" data-stance=\"wait\" style=\"--stance: #e8b04a; --vtint: #f5d08a;\"><div class=\"aura\" aria-hidden=\"true\"><span class=\"sigil fade\" aria-hidden=\"true\" style=\"width: 760px; height: 760px;\"></span></div><div class=\"read-grid\"><section><div class=\"read-meta\"><span class=\"sdot\" aria-hidden=\"true\"></span><span class=\"eyebrow\">Market read</span><span class=\"mono \">14:32 UTC \u00b7 18 markets</span></div><h2 class=\"verdict enter \">Wait.</h2><p class=\"stance\"><b class=\"caution\">Mixed</b> bias \u00b7 no side in control</p><p class=\"explain\"><strong>Direction is mixed and volatility is elevated.</strong> BTC was rejected at 119.2k twice, and the rest of the market is following it in both directions within the same hour.</p><div class=\"well\"><svg viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14H1L8 1.5Zm-.75 4.5v4h1.5V6h-1.5Zm0 5.2v1.5h1.5v-1.5h-1.5Z\"></path></svg><span>No setup is strong enough to chase right now. Sitting out is a position.</span></div></section><section><div class=\"today-h\"><span class=\"eyebrow\">Market regime</span></div><div class=\"regime-now\"><b>Cautious</b><span class=\"mono smoke\">step 2 of 5</span></div><div class=\"scale\"><div style=\"--seg: #f0506e;\"><i></i><span>Risk-off</span></div><div class=\"on\" style=\"--seg: #e8b04a;\"><i></i><span>Cautious</span></div><div style=\"--seg: #9c9c9d;\"><i></i><span>Neutral</span></div><div style=\"--seg: #8fd9b3;\"><i></i><span>Constructive</span></div><div style=\"--seg: #59d499;\"><i></i><span>Risk-on</span></div></div><div class=\"today-h ribbon-l\"><span class=\"eyebrow\">Today</span><span class=\"mono smoke\">UTC</span></div><div class=\"ribbon\"><b title=\"Neutral\" style=\"flex: 10.7 1 0px; --seg: #9c9c9d;\">Neutral</b><b title=\"Constructive\" style=\"flex: 2.38 1 0px; --seg: #8fd9b3;\"></b><b title=\"Cautious\" style=\"flex: 1.45 1 0px; --seg: #e8b04a;\"></b></div><div class=\"ticks\"><span style=\"left: 0%;\">00:00</span><span style=\"left: 27.5292%;\">04:00</span><span style=\"left: 55.0585%;\">08:00</span><span style=\"left: 82.5877%;\">12:00</span><span style=\"left: 100%;\">Now</span></div><div class=\"shift\"><span class=\"mono\">13:05</span><strong>Shift: Constructive \u2192 Cautious</strong><p>BTC lost 117k on heavy volume and volatility doubled across majors.</p></div></section></div><div class=\"stats\"><div><div class=\"k\">Trend strength</div><div class=\"v num\">44 <small>/ 100</small></div><div class=\"meter mid\"><i style=\"width: 44%;\"></i></div></div><div><div class=\"k\">Confidence</div><div class=\"v\">High</div><div class=\"steps3\"><i class=\"f\"></i><i class=\"f\"></i><i class=\"f\"></i></div></div><div><div class=\"k\">Risk</div><div class=\"v\" style=\"color: rgb(240, 80, 110);\">High</div><div class=\"steps3\" style=\"--fill: #f0506e;\"><i class=\"f\"></i><i class=\"f\"></i><i class=\"f\"></i></div></div><div><div class=\"k\">Volatility</div><div class=\"v\" style=\"color: rgb(232, 176, 74);\">Elevated</div><div class=\"steps4\" style=\"--fill: #e8b04a;\"><i></i><i></i><i class=\"f\"></i><i></i></div></div></div><div class=\"why-bar\"><button type=\"button\" class=\"why-btn\" aria-expanded=\"false\" aria-controls=\"why\"><svg viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"m4.5 2.5 3.5 3.5-3.5 3.5\"></path></svg>Why this read <kbd>E</kbd></button><span class=\"mono\">Trend \u00b7 Momentum \u00b7 Volume \u00b7 Volatility \u00b7 Breadth \u00b7 Levels \u00b7 Positioning \u00b7 On-chain</span></div><div class=\"why\" id=\"why\" hidden=\"\"><div><div class=\"k\">Trend</div><div class=\"v caution\">Broken</div><div class=\"d\">BTC lost this morning\u2019s higher low</div></div><div><div class=\"k\">Momentum</div><div class=\"v caution\">Whipsaw</div><div class=\"d\">Flipped direction 4\u00d7 in 3 hours</div></div><div><div class=\"k\">Volume</div><div class=\"v ash\">Heavy</div><div class=\"d\">Spikes on both sides</div></div><div><div class=\"k\">Volatility</div><div class=\"v caution\">Elevated</div><div class=\"d\">ATR 1.9\u00d7 its 30-day median</div></div><div><div class=\"k\">Breadth</div><div class=\"v down\">7 / 18 up</div><div class=\"d\">Participation narrowing</div></div><div><div class=\"k\">Levels</div><div class=\"v ash\">Mid-range</div><div class=\"d\">BTC between 115.8k and 119.2k</div></div><div><div class=\"k\">Positioning</div><div class=\"v caution\">Leverage rising</div><div class=\"d\">BTC funding +0.014% 8h \u00b7 OI +6.1% 24h</div></div><div><div class=\"k\">On-chain</div><div class=\"v ash\">Unclear</div><div class=\"d\">Flows mixed \u00b7 as of Sep 27</div></div></div></section>", "unclear": "<section class=\"panel read-panel\" id=\"read\" aria-label=\"Market read\" data-stance=\"unclear\" style=\"--stance: #9c9c9d; --vtint: #bdbdbf;\"><div class=\"aura\" aria-hidden=\"true\"><span class=\"sigil fade\" aria-hidden=\"true\" style=\"width: 760px; height: 760px;\"></span></div><div class=\"read-grid\"><section><div class=\"read-meta\"><span class=\"sdot\" aria-hidden=\"true\"></span><span class=\"eyebrow\">Market read</span><span class=\"mono \">14:32 UTC \u00b7 18 markets</span></div><h2 class=\"verdict enter \">No clear read</h2><p class=\"stance\"><b class=\"ash\">Neutral</b> bias \u00b7 range-bound, low participation</p><p class=\"explain\"><strong>Volume is thin and prices are compressing into tight ranges.</strong> Too little is happening to lean either way, and a direction won\u2019t be invented where there isn\u2019t one.</p><div class=\"well\"><svg viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14H1L8 1.5Zm-.75 4.5v4h1.5V6h-1.5Zm0 5.2v1.5h1.5v-1.5h-1.5Z\"></path></svg><span>Compression usually ends with a sharp move. Know your levels before it arrives.</span></div></section><section><div class=\"today-h\"><span class=\"eyebrow\">Market regime</span></div><div class=\"regime-now\"><b>Neutral</b><span class=\"mono smoke\">step 3 of 5</span></div><div class=\"scale\"><div style=\"--seg: #f0506e;\"><i></i><span>Risk-off</span></div><div style=\"--seg: #e8b04a;\"><i></i><span>Cautious</span></div><div class=\"on\" style=\"--seg: #9c9c9d;\"><i></i><span>Neutral</span></div><div style=\"--seg: #8fd9b3;\"><i></i><span>Constructive</span></div><div style=\"--seg: #59d499;\"><i></i><span>Risk-on</span></div></div><div class=\"today-h ribbon-l\"><span class=\"eyebrow\">Today</span><span class=\"mono smoke\">UTC</span></div><div class=\"ribbon\"><b title=\"Neutral\" style=\"flex: 14.53 1 0px; --seg: #9c9c9d;\">Neutral</b></div><div class=\"ticks\"><span style=\"left: 0%;\">00:00</span><span style=\"left: 27.5292%;\">04:00</span><span style=\"left: 55.0585%;\">08:00</span><span style=\"left: 82.5877%;\">12:00</span><span style=\"left: 100%;\">Now</span></div><div class=\"shift\"><span class=\"mono\">26h</span><strong>No regime change today</strong><p>A shift will be marked here the moment conditions change.</p></div></section></div><div class=\"stats\"><div><div class=\"k\">Trend strength</div><div class=\"v num\">50 <small>/ 100</small></div><div class=\"meter mid\"><i style=\"width: 50%;\"></i></div></div><div><div class=\"k\">Confidence</div><div class=\"v\">Low</div><div class=\"steps3\"><i class=\"f\"></i><i></i><i></i></div></div><div><div class=\"k\">Risk</div><div class=\"v\" style=\"color: rgb(232, 176, 74);\">Medium</div><div class=\"steps3\" style=\"--fill: #e8b04a;\"><i class=\"f\"></i><i class=\"f\"></i><i></i></div></div><div><div class=\"k\">Volatility</div><div class=\"v\" style=\"color: rgb(255, 255, 255);\">Low</div><div class=\"steps4\" style=\"--fill: #e6e6e6;\"><i class=\"f\"></i><i></i><i></i><i></i></div></div></div><div class=\"why-bar\"><button type=\"button\" class=\"why-btn\" aria-expanded=\"false\" aria-controls=\"why\"><svg viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"m4.5 2.5 3.5 3.5-3.5 3.5\"></path></svg>Why this read <kbd>E</kbd></button><span class=\"mono\">Trend \u00b7 Momentum \u00b7 Volume \u00b7 Volatility \u00b7 Breadth \u00b7 Levels \u00b7 Positioning \u00b7 On-chain</span></div><div class=\"why\" id=\"why\" hidden=\"\"><div><div class=\"k\">Trend</div><div class=\"v ash\">Flat</div><div class=\"d\">No new highs or lows since Tuesday</div></div><div><div class=\"k\">Momentum</div><div class=\"v ash\">Neutral</div><div class=\"d\">RSI 48\u201352 on majors</div></div><div><div class=\"k\">Volume</div><div class=\"v caution\">Thin</div><div class=\"d\">\u221231% vs 7-day average</div></div><div><div class=\"k\">Volatility</div><div class=\"v ash\">Low</div><div class=\"d\">Tightest 4h range in 11 days</div></div><div><div class=\"k\">Breadth</div><div class=\"v ash\">9 / 18 up</div><div class=\"d\">Evenly split</div></div><div><div class=\"k\">Levels</div><div class=\"v ash\">Mid-range</div><div class=\"d\">BTC 116.9k \u2013 118.6k box</div></div><div><div class=\"k\">Positioning</div><div class=\"v ash\">Balanced</div><div class=\"d\">Funding near zero \u00b7 OI flat</div></div><div><div class=\"k\">On-chain</div><div class=\"v ash\">Unclear</div><div class=\"d\">Quiet flows \u00b7 as of Sep 27</div></div></div></section>", "reduce-risk": "<section class=\"panel read-panel\" id=\"read\" aria-label=\"Market read\" data-stance=\"reduce-risk\" style=\"--stance: #f0506e; --vtint: #ffa3b4;\"><div class=\"aura\" aria-hidden=\"true\"><span class=\"sigil fade\" aria-hidden=\"true\" style=\"width: 760px; height: 760px;\"></span></div><div class=\"read-grid\"><section><div class=\"read-meta\"><span class=\"sdot\" aria-hidden=\"true\"></span><span class=\"eyebrow\">Market read</span><span class=\"mono \">14:32 UTC \u00b7 18 markets</span></div><h2 class=\"verdict enter \">Reduce risk</h2><p class=\"stance\"><b class=\"down\">Bearish</b> bias \u00b7 sellers in firm control</p><p class=\"explain\"><strong>Sellers took control when BTC broke 115.8k support on three times its usual volume.</strong> 15 of 18 markets are down and volatility is the highest it has been this month. In a market like this, protecting what you hold matters more than finding something new.</p><div class=\"well\"><svg viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M8 1.5 15 14H1L8 1.5Zm-.75 4.5v4h1.5V6h-1.5Zm0 5.2v1.5h1.5v-1.5h-1.5Z\"></path></svg><span>If you hold positions, check them against their invalidation levels. Avoid buying the first bounce.</span></div></section><section><div class=\"today-h\"><span class=\"eyebrow\">Market regime</span></div><div class=\"regime-now\"><b>Risk-off</b><span class=\"mono smoke\">step 1 of 5</span></div><div class=\"scale\"><div class=\"on\" style=\"--seg: #f0506e;\"><i></i><span>Risk-off</span></div><div style=\"--seg: #e8b04a;\"><i></i><span>Cautious</span></div><div style=\"--seg: #9c9c9d;\"><i></i><span>Neutral</span></div><div style=\"--seg: #8fd9b3;\"><i></i><span>Constructive</span></div><div style=\"--seg: #59d499;\"><i></i><span>Risk-on</span></div></div><div class=\"today-h ribbon-l\"><span class=\"eyebrow\">Today</span><span class=\"mono smoke\">UTC</span></div><div class=\"ribbon\"><b title=\"Neutral\" style=\"flex: 9.5 1 0px; --seg: #9c9c9d;\">Neutral</b><b title=\"Cautious\" style=\"flex: 4.17 1 0px; --seg: #e8b04a;\">Cautious</b><b title=\"Risk-off\" style=\"flex: 0.86 1 0px; --seg: #f0506e;\"></b></div><div class=\"ticks\"><span style=\"left: 0%;\">00:00</span><span style=\"left: 27.5292%;\">04:00</span><span style=\"left: 55.0585%;\">08:00</span><span style=\"left: 82.5877%;\">12:00</span><span style=\"left: 100%;\">Now</span></div><div class=\"shift\"><span class=\"mono\">13:40</span><strong>Shift: Cautious \u2192 Risk-off</strong><p>BTC broke 115.8k support on 3\u00d7 volume and breadth collapsed to 3 of 18.</p></div></section></div><div class=\"stats\"><div><div class=\"k\">Trend strength</div><div class=\"v num\">78 <small>/ 100</small></div><div class=\"meter mid\"><i style=\"width: 78%;\"></i></div></div><div><div class=\"k\">Confidence</div><div class=\"v\">High</div><div class=\"steps3\"><i class=\"f\"></i><i class=\"f\"></i><i class=\"f\"></i></div></div><div><div class=\"k\">Risk</div><div class=\"v\" style=\"color: rgb(240, 80, 110);\">High</div><div class=\"steps3\" style=\"--fill: #f0506e;\"><i class=\"f\"></i><i class=\"f\"></i><i class=\"f\"></i></div></div><div><div class=\"k\">Volatility</div><div class=\"v\" style=\"color: rgb(232, 176, 74);\">Extreme</div><div class=\"steps4\" style=\"--fill: #e8b04a;\"><i></i><i></i><i></i><i class=\"f\"></i></div></div></div><div class=\"why-bar\"><button type=\"button\" class=\"why-btn\" aria-expanded=\"false\" aria-controls=\"why\"><svg viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"m4.5 2.5 3.5 3.5-3.5 3.5\"></path></svg>Why this read <kbd>E</kbd></button><span class=\"mono\">Trend \u00b7 Momentum \u00b7 Volume \u00b7 Volatility \u00b7 Breadth \u00b7 Levels \u00b7 Positioning \u00b7 On-chain</span></div><div class=\"why\" id=\"why\" hidden=\"\"><div><div class=\"k\">Trend</div><div class=\"v down\">Down</div><div class=\"d\">BTC broke 115.8k, lower lows on 4h</div></div><div><div class=\"k\">Momentum</div><div class=\"v down\">Falling</div><div class=\"d\">BTC 1h RSI 29, still falling</div></div><div><div class=\"k\">Volume</div><div class=\"v down\">Heavy selling</div><div class=\"d\">3.1\u00d7 average on down candles</div></div><div><div class=\"k\">Volatility</div><div class=\"v caution\">Extreme</div><div class=\"d\">ATR 2.6\u00d7 its 30-day median</div></div><div><div class=\"k\">Breadth</div><div class=\"v down\">3 / 18 up</div><div class=\"d\">Selling is broad, not isolated</div></div><div><div class=\"k\">Levels</div><div class=\"v down\">Below support</div><div class=\"d\">Next BTC support 112.4k</div></div><div><div class=\"k\">Positioning</div><div class=\"v caution\">Crowded long</div><div class=\"d\">BTC funding +0.021% 8h \u00b7 OI +4.9% 24h</div></div><div><div class=\"k\">On-chain</div><div class=\"v down\">Contradicts</div><div class=\"d\">Inflows into exchanges \u00b7 as of Sep 27</div></div></div></section>"}</script>
+<script type="module">
+// ── Generator: src/lib/sigil.ts with the proposed `crisp` option (types stripped) ──
+/**
+ * Astrolabe sigil generator (DESIGN.md B6).
+ * Pure string generation, ported line for line from design/home.html (`sigil()`),
+ * design/trade.html (`seal()`) and design/portfolio-activity.html (`dial()`).
+ */
+
+                                                                        
+
+export const SIGIL_TIP_ANGLE = -35
+
+                    
+            
+            
+              
+               
+                                       
+               
+ 
+
+const MOODS                              = {
+  favorable: { a0: '#ffc07a', a1: '#ff6363', spin: 300, pulse: 4, line: 'up' },
+  wait: { a0: '#ffe0a3', a1: '#e8b04a', spin: 360, pulse: 6, line: 'chop' },
+  unclear: { a0: '#6a6b6c', a1: '#9c9c9d', spin: 600, pulse: 0, line: 'flat', fog: true },
+  'reduce-risk': { a0: '#ff9aab', a1: '#f0506e', spin: 150, pulse: 2.4, line: 'down' },
+}
+
+                               
+                 
+                   
+                  
+               
+               
+                   
+                      
+                                                                                        
+                 
+ 
+
+                            
+              
+            
+ 
+
+const RAD = (degrees        )         => (degrees * Math.PI) / 180
+const F = (value        )         => value.toFixed(1)
+
+/** The arc starts at the tip (-35°) and grows clockwise with trend strength. */
+export function arcAngles(strength        )            {
+  const clamped = Math.max(0, Math.min(100, strength))
+  return { from: SIGIL_TIP_ANGLE, to: SIGIL_TIP_ANGLE + 40 + clamped * 1.2 }
+}
+
+export function sigilSvg(options              )         {
+  const mood = MOODS[options.mood]
+  const id = options.idPrefix
+  const boost = options.strokeBoost ?? 1
+  const W = (alpha        )         => `rgba(255,255,255,${Math.min(1, alpha * boost).toFixed(3)})`
+  const anim = options.animate !== false
+  const strength = Math.max(0, Math.min(100, options.strength ?? 0))
+  const crisp = options.crisp === true
+  // The viewBox is 1040 wide, so a smaller sigil scales every 1px hairline under a pixel and it smears.
+  const hair = crisp ? ' vector-effect="non-scaling-stroke"' : ''
+
+  const spinT = (duration        , direction = 1)         =>
+    anim && duration
+      ? `<animateTransform attributeName="transform" type="rotate" from="0" to="${360 * direction}" dur="${duration}s" repeatCount="indefinite"/>`
+      : ''
+
+  let ticks = ''
+  for (let angle = 0; angle < 360; angle += 2) {
+    const major = angle % 30 === 0
+    const mid = angle % 10 === 0
+    const length = major ? 22 : mid ? 13 : 6
+    const alpha = major ? 0.38 : mid ? 0.2 : 0.11
+    ticks += `<line x1="${F(470 * Math.cos(RAD(angle)))}" y1="${F(470 * Math.sin(RAD(angle)))}" x2="${F((470 - length) * Math.cos(RAD(angle)))}" y2="${F((470 - length) * Math.sin(RAD(angle)))}" stroke="${W(alpha)}"${hair}/>`
+  }
+
+  let nodes = ''
+  for (let index = 0; index < 12; index++) {
+    const angle = RAD(index * 30 + 15)
+    const x = 350 * Math.cos(angle)
+    const y = 350 * Math.sin(angle)
+    const size = crisp ? 7 : 5
+    const hot = index === 10 && !mood.fog && (options.arc !== false || options.hot === true)
+    // Counter-spin each node against its group so it still orbits but stays an upright diamond.
+    const close =
+      crisp && anim && mood.spin
+        ? `><animateTransform attributeName="transform" type="rotate" from="0 ${F(x)} ${F(y)}" to="360 ${F(x)} ${F(y)}" dur="${mood.spin * 0.66}s" repeatCount="indefinite"/></path>`
+        : '/>'
+    nodes += `<path d="M${F(x)} ${F(y - size)} L${F(x + size)} ${F(y)} L${F(x)} ${F(y + size)} L${F(x - size)} ${F(y)} Z" fill="${hot ? mood.a1 : '#040506'}" stroke="${hot ? mood.a1 : W(0.34)}"${hair}${close}`
+  }
+
+  const star           = []
+  for (let t = 0; t <= Math.PI * 8; t += 0.012) {
+    const x = 3 * Math.cos(t) + 6.2 * Math.cos(0.75 * t)
+    const y = 3 * Math.sin(t) - 6.2 * Math.sin(0.75 * t)
+    star.push(`${F(x * 36)},${F(y * 36)}`)
+  }
+
+  let art = ''
+  if (options.arc !== false) {
+    const { from, to } = arcAngles(strength)
+    const radius = 410
+    const tipX = radius * Math.cos(RAD(from))
+    const tipY = radius * Math.sin(RAD(from))
+    const path = `M${F(radius * Math.cos(RAD(from)))} ${F(radius * Math.sin(RAD(from)))} A${radius} ${radius} 0 ${to - from > 180 ? 1 : 0} 1 ${F(radius * Math.cos(RAD(to)))} ${F(radius * Math.sin(RAD(to)))}`
+
+    const points           = []
+    for (let x = -500; x <= tipX; x += 3) {
+      const t = (x + 500) / (tipX + 500)
+      const ease = t * t * (3 - 2 * t)
+      let y        
+      if (mood.line === 'up') {
+        y = 150 + (tipY - 150) * ease + (1 - t) * (18 * Math.sin(t * 13.7) + 7 * Math.sin(t * 31 + 0.6))
+      } else if (mood.line === 'down') {
+        y = -470 + (tipY + 470) * ease + (1 - t) * (14 * Math.sin(t * 12) + 6 * Math.sin(t * 29))
+      } else if (mood.line === 'chop') {
+        y = tipY + 30 * (1 - ease) + (1 - t * 0.7) * 34 * Math.sin(t * 23) * Math.cos(t * 6)
+      } else {
+        y = tipY + 55 * (1 - ease) + 5 * Math.sin(t * 17)
+      }
+      points.push(`${F(x)},${F(y)}`)
+    }
+
+    const pulse =
+      anim && mood.pulse
+        ? `<animate attributeName="opacity" values=".2;.55;.2" dur="${mood.pulse}s" repeatCount="indefinite"/>`
+        : ''
+
+    art = `<defs>
+        <linearGradient id="${id}a" gradientUnits="userSpaceOnUse" x1="${F(radius * Math.cos(RAD(to)))}" y1="${F(radius * Math.sin(RAD(to)))}" x2="${F(tipX)}" y2="${F(tipY)}"><stop offset="0" stop-color="${mood.a0}" stop-opacity="0"/><stop offset=".4" stop-color="${mood.a0}" stop-opacity=".7"/><stop offset="1" stop-color="${mood.a1}"/></linearGradient>
+        <linearGradient id="${id}l" gradientUnits="userSpaceOnUse" x1="-500" y1="0" x2="${F(tipX)}" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="${mood.a0}" stop-opacity=".5"/><stop offset="1" stop-color="${mood.a1}" stop-opacity=".9"/></linearGradient>
+        <filter id="${id}g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+      <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="5" opacity=".4" filter="url(#${id}g)"/>
+      <path d="${path}" fill="none" stroke="url(#${id}a)" stroke-width="1.6" stroke-linecap="round"${mood.fog ? ' stroke-dasharray="5 7"' : ''}/>
+      <polyline points="${points.join(' ')}" fill="none" stroke="url(#${id}l)" stroke-width="1.3" stroke-linejoin="round"/>
+      <circle cx="${F(tipX)}" cy="${F(tipY)}" r="9" fill="${mood.a1}" opacity=".4" filter="url(#${id}g)">${pulse}</circle>
+      <circle cx="${F(tipX)}" cy="${F(tipY)}" r="3" fill="#fff"/>`
+  }
+
+  const instrument = `<circle r="470" fill="none" stroke="${W(0.14)}"${hair}/>
+      <g>${ticks}${spinT(mood.spin)}</g>
+      <circle r="440" fill="none" stroke="${W(0.07)}" stroke-dasharray="2 7"${hair}/>
+      <circle r="410" fill="none" stroke="${W(0.05)}"${hair}/>
+      <circle r="350" fill="none" stroke="${W(0.08)}"${hair}/>
+      <g>${nodes}${spinT(mood.spin * 0.66, -1)}</g>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W(0.06)}" transform="rotate(28)"${hair}/>
+      <ellipse rx="330" ry="118" fill="none" stroke="${W(0.06)}" transform="rotate(-28)"${hair}/>
+      <circle r="290" fill="none" stroke="${W(0.05)}" stroke-dasharray="1 5"${hair}/>
+      <polyline points="${star.join(' ')}" fill="none" stroke="${W(0.075)}"${hair}/>`
+  const body = `${instrument}
+      ${art}`
+
+  // Unclear fogs the reading; a crisp sigil keeps the instrument itself sharp under the fog.
+  const fog = `<defs><filter id="${id}f"><feGaussianBlur stdDeviation="1.1"/></filter></defs>`
+  const wrapped = !mood.fog
+    ? body
+    : crisp
+      ? `${fog}<g opacity=".72">${instrument}<g filter="url(#${id}f)">${art}</g></g>`
+      : `${fog}<g opacity=".72" filter="url(#${id}f)">${body}</g>`
+
+  return `<svg viewBox="-520 -520 1040 1040" xmlns="http://www.w3.org/2000/svg">${wrapped}</svg>`
+}
+
+/** A 22px seal of the sigil: ring, 12 ticks, an arc as long as the setup's odds, the tip. */
+export function sealSvg(color        , odds        , idPrefix = 'seal')         {
+  const fix = (value        )         => value.toFixed(2)
+  const clamped = Math.max(0, Math.min(100, odds))
+
+  let ticks = ''
+  for (let angle = 0; angle < 360; angle += 30) {
+    ticks += `<line x1="${fix(10.5 * Math.cos(RAD(angle)))}" y1="${fix(10.5 * Math.sin(RAD(angle)))}" x2="${fix(9 * Math.cos(RAD(angle)))}" y2="${fix(9 * Math.sin(RAD(angle)))}" stroke="rgba(255,255,255,.35)" stroke-width=".8"/>`
+  }
+
+  const radius = 6.6
+  const length = 40 + clamped * 1.6
+  const tipX = radius * Math.cos(RAD(SIGIL_TIP_ANGLE))
+  const tipY = radius * Math.sin(RAD(SIGIL_TIP_ANGLE))
+  const endX = radius * Math.cos(RAD(SIGIL_TIP_ANGLE + length))
+  const endY = radius * Math.sin(RAD(SIGIL_TIP_ANGLE + length))
+
+  return `<svg viewBox="-12 -12 24 24" data-sigil="${idPrefix}" aria-hidden="true"><circle r="10.5" fill="none" stroke="rgba(255,255,255,.22)" stroke-width=".8"/>${ticks}<circle r="${radius}" fill="none" stroke="rgba(255,255,255,.1)" stroke-width=".8"/><path d="M${fix(tipX)} ${fix(tipY)} A${radius} ${radius} 0 ${length > 180 ? 1 : 0} 1 ${fix(endX)} ${fix(endY)}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linecap="round"/><circle cx="${fix(tipX)}" cy="${fix(tipY)}" r="1.6" fill="#fff"/></svg>`
+}
+
+                           
+               
+               
+                
+ 
+
+/** The allocation dial: a 0-100% tick ring with one arc per holding. */
+export function dialSvg(parts            , idPrefix        )         {
+  const total = parts.reduce((sum, part) => sum + Math.max(0, part.value), 0) || 1
+  const fix = (value        )         => value.toFixed(2)
+  const radius = 70
+
+  let ticks = ''
+  for (let index = 0; index < 100; index++) {
+    const angle = RAD(index * 3.6 - 90)
+    const long = index % 10 === 0
+    const outer = 88
+    const inner = long ? 80 : 84.5
+    ticks += `<line x1="${fix(outer * Math.cos(angle))}" y1="${fix(outer * Math.sin(angle))}" x2="${fix(inner * Math.cos(angle))}" y2="${fix(inner * Math.sin(angle))}" stroke="rgba(255,255,255,${long ? 0.38 : 0.14})"/>`
+  }
+
+  let start = -90
+  let arcs = ''
+  for (const part of parts) {
+    const sweep = (Math.max(0, part.value) / total) * 360
+    const from = start + 1.2
+    const to = start + sweep - 1.2
+    if (to > from) {
+      const path = `M${fix(radius * Math.cos(RAD(from)))} ${fix(radius * Math.sin(RAD(from)))} A${radius} ${radius} 0 ${to - from > 180 ? 1 : 0} 1 ${fix(radius * Math.cos(RAD(to)))} ${fix(radius * Math.sin(RAD(to)))}`
+      arcs += `<path d="${path}" fill="none" stroke="${part.cash ? `url(#${idPrefix}hatch)` : part.color}" stroke-width="9"/>`
+    }
+    start += sweep
+  }
+
+  const cashShare = ((parts.find((part) => part.cash)?.value ?? 0) / total) * 100
+
+  return `<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs><pattern id="${idPrefix}hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="rgba(156,156,157,.28)"/><rect width="1.6" height="4" fill="rgba(156,156,157,.7)"/></pattern></defs>
+      <circle r="94" fill="none" stroke="rgba(255,255,255,.1)"/>
+      ${ticks}
+      <circle r="${radius}" fill="none" stroke="#1b1c1e" stroke-width="9"/>
+      ${arcs}
+      <circle r="56" fill="none" stroke="rgba(255,255,255,.06)" stroke-dasharray="1 4"/>
+      <text y="4" text-anchor="middle" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400">${cashShare.toFixed(0)}%</text>
+      <text y="22" text-anchor="middle" fill="#6a6b6c" font-family="Geist Mono, monospace" font-size="9" letter-spacing=".6">IN CASH</text>
+    </svg>`
+}
+
+// ── Mock wiring ──
+const PANELS = JSON.parse(document.getElementById('panels').textContent)
+const STRENGTH = { favorable: 71, wait: 44, unclear: 50, 'reduce-risk': 78 }
+const params = new URLSearchParams(location.search)
+const BOOST = Number(params.get('boost') ?? 1.6)
+const state = {
+  view: params.get('view') ?? 'compare',
+  stance: params.get('stance') ?? 'favorable',
+  motion: params.get('motion') ?? 'live',
+}
+document.getElementById('cap-proposed').textContent = `760px · hairlines 1px · nodes 10px, upright · white strokes ×${BOOST}`
+
+function render() {
+  for (const cmp of document.querySelectorAll('.mk-cmp')) {
+    const proposed = cmp.dataset.variant === 'proposed'
+    cmp.hidden = state.view !== 'compare' && state.view !== cmp.dataset.variant
+    const main = cmp.querySelector('.main')
+    main.innerHTML = PANELS[state.stance]
+    main.querySelector('.aura .sigil').innerHTML = sigilSvg({
+      mood: state.stance,
+      strength: STRENGTH[state.stance],
+      idPrefix: `${proposed ? 'pro' : 'cur'}-${state.stance}`,
+      ...(proposed ? { crisp: true, strokeBoost: BOOST } : {}),
+    })
+  }
+  applyMotion()
+  for (const [id, key] of [['ctl-view', 'view'], ['ctl-stance', 'stance'], ['ctl-motion', 'motion']]) {
+    for (const button of document.getElementById(id).querySelectorAll('button')) {
+      button.setAttribute('aria-pressed', String(button.dataset.v === state[key]))
+    }
+  }
+}
+
+function applyMotion() {
+  const hold = state.motion === 'hold'
+  document.body.classList.toggle('mk-hold', hold)
+  for (const svg of document.querySelectorAll('.aura svg')) hold ? svg.pauseAnimations() : svg.unpauseAnimations()
+}
+
+for (const [id, key] of [['ctl-view', 'view'], ['ctl-stance', 'stance'], ['ctl-motion', 'motion']]) {
+  document.getElementById(id).addEventListener('click', (event) => {
+    const button = event.target.closest('button')
+    if (!button) return
+    state[key] = button.dataset.v
+    if (key === 'motion') {
+      applyMotion()
+      for (const b of document.getElementById(id).querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === button))
+    } else render()
+  })
+}
+
+render()
+</script>
+</body>
+</html>

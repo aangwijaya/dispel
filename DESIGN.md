@@ -20,6 +20,8 @@ Reference mocks (all values are mock design data):
 - [`design/signin.html`](design/signin.html): Sign in
 - [`design/trade.html`](design/trade.html): Trade
 - [`design/portfolio-activity.html`](design/portfolio-activity.html): Portfolio + Activity
+- [`design/home-sigil-clarity.html`](design/home-sigil-clarity.html): Home sigil before and after `crisp` (real app
+  CSS and markup)
 - The Astrolabe sigil is generated in code from data (see B6). There are no image files for it.
 - [`design/assets/`](design/assets/): the **retired** Candle Light artwork (`dispel-hero.svg`, `aura-*.svg`,
   `generate-hero.mjs`). Kept as reference only; the app draws the sigil in code and ships no image files.
@@ -302,7 +304,7 @@ sign-in form or a terminal, and it carries the brand without cartoons, candles o
 |---|---|---|---|---|---|
 | Favorable | `#ffc07a` → `#ff6363` | rises from the lower left | 300s | 4s | — |
 | Wait | `#ffe0a3` → `#e8b04a` | chops sideways | 360s | 6s | — |
-| Unclear | `#6a6b6c` → `#9c9c9d`, dashed `5 7` | lies flat | 600s | none | whole sigil at 72% with a σ1.1 fog blur; no hot node |
+| Unclear | `#6a6b6c` → `#9c9c9d`, dashed `5 7` | lies flat | 600s | none | whole sigil at 72% with a σ1.1 fog blur (a crisp sigil fogs only the arc, line and tip); no hot node |
 | Reduce risk | `#ff9aab` → `#f0506e` | falls from above | 150s | 2.4s | — |
 
 **Arc length = 40° + 1.2° × trend strength.** The nodes counter-rotate at ⅔ of the tick ring's period. The
@@ -313,7 +315,7 @@ sigil never shows anything the read doesn't say.
 | Where | Form | Spec |
 |---|---|---|
 | **Sign-in** | Full sigil, favorable reading | 1040px, centred on the sign-in box, radial mask `#000 42% → 55% at 72% → transparent`. Arc on the right side, clear of all text. Tick ring 300s, nodes 200s |
-| **Home › Market read** | Full sigil, live reading | 760px, centred at 72% / 50% of the panel, under the left-to-right scrim. Regime-column labels carry the dark halo. On stance change it re-renders with a .9s ease-in (from 97% scale, −4°) |
+| **Home › Market read** | Full sigil, live reading | 760px, centred at 72% / 50% of the panel, under the left-to-right scrim. Regime-column labels carry the dark halo. On stance change it re-renders with a .9s ease-in (from 97% scale, −4°). Drawn **crisp**: at 760px the viewBox would thin every hairline to 0.73px, so hairlines stay 1 screen px (`vector-effect: non-scaling-stroke`), nodes are 10px and stay upright while they orbit, and stroke alphas are ×1.6 |
 | **Ambient** (Home, Trade, Portfolio, Activity) | Rings, ticks, nodes and one coral hot node; no arc, no line | 1120px, centred on the window's bottom-left corner (`left −560px`, `top` = window height − 560px), so it rises behind the **transparent sidebar**. Stroke alphas ×1.9, mask `#000 62% → 55% at 84% → transparent`. Panels are 92% opaque, so it never shows behind data |
 | **Welcome banner** | Favorable fragment | 460px, right edge, arc and tip inside the banner |
 | **Trade › setup seal** | 22px seal | Ring, 12 ticks, a coral arc of 40° + 1.6° × odds, a white tip. Opens the setup strip |
