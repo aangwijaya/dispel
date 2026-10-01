@@ -13,6 +13,7 @@ if (typeof publicKey !== 'string' || publicKey.trim().length < 20) {
 
 export const supabase = createClient(url, publicKey, {
   auth: {
+    flowType: 'pkce',
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: false,
