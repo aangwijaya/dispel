@@ -952,6 +952,11 @@ kbd {
   background: #1b1c1e;
 }
 
+.google[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 .google svg {
   width: 18px;
   height: 18px;

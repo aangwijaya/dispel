@@ -6,7 +6,7 @@ keys, no custody.
 
 ## Features
 
-- Email/password auth with session restore
+- Email/password and Google auth with session restore
 - **Home** — market read, market regime, setups and changes. The read itself is demo design data
   (marked by the `Demo data` badge in the top bar); prices and account figures are real
 - **Dark-only design system** (`DESIGN.md`): sidebar + top bar shell, coral brand mark, Inter +
@@ -119,6 +119,26 @@ it stays missing. Use WSL for development and the Windows build for daily use.
   (equity, cash, positions, P/L, fees, net deposited) are real.
 - Realized P/L is tracked per market in Postgres (`paper_positions.realized_pnl`). The closed-trades
   table lists real filled sells and shows a market's total realized P/L once its position is flat.
+
+## Google sign-in
+
+The Google button uses Supabase `signInWithOAuth` (PKCE). The desktop app opens the system browser
+and catches the redirect on a loopback server (`http://localhost:52423`, falling back to 52424 and
+52425), so Google never needs a custom scheme. Setup (once per project):
+
+1. **Google Cloud Console** → APIs & Services → OAuth consent screen (External; add test users while
+   unverified), then Credentials → Create credentials → OAuth client ID → Web application with the
+   authorized redirect URI `https://<project-ref>.supabase.co/auth/v1/callback`.
+2. **Supabase dashboard** → Authentication → Providers → Google: enable and paste the Client ID and
+   Client Secret. The secret stays in Supabase; the app only ever sees the publishable key.
+3. **Supabase dashboard** → Authentication → URL Configuration: set the Site URL to a real URL
+   (`http://localhost:3000`) and add the loopback redirects `http://localhost:52423`,
+   `http://localhost:52424`, `http://localhost:52425` (plus their `http://127.0.0.1:...` twins if you
+   want them). Wildcards are not valid in the port, so list each port explicitly.
+
+Email/password keeps working without any of this. In a plain browser (`npm run dev`) the Google
+button reports that it needs the desktop app. The auth URL opens in the default browser; the flow
+times out after 3 minutes.
 
 ## Jev market read
 

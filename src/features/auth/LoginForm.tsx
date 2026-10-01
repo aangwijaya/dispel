@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useSyncExternalStore } from 'react'
 import { supabase } from '../../lib/supabase'
 import { friendlyAuthError } from '../../lib/errors'
+import { signInWithGoogle } from '../../lib/google'
 import { parseEmail, parsePassword } from '../../lib/validation'
 import { MARKETS } from '../../lib/markets'
 import { formatPercent, formatPrice } from '../../lib/market/format'
@@ -54,7 +55,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [googleNote, setGoogleNote] = useState(false)
+  const [googleBusy, setGoogleBusy] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   const status = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus)
@@ -107,11 +108,22 @@ export function LoginForm() {
     }
   }
 
+  async function handleGoogle() {
+    setError(null)
+    setNotice(null)
+    setGoogleBusy(true)
+    try {
+      const result = await signInWithGoogle()
+      if (!result.ok) setError(result.error)
+    } finally {
+      setGoogleBusy(false)
+    }
+  }
+
   function switchMode(next: Mode) {
     setMode(next)
     setError(null)
     setNotice(null)
-    setGoogleNote(false)
   }
 
   return (
@@ -149,16 +161,15 @@ export function LoginForm() {
                   : 'Start with 10,000 USDT in paper funds.'}
               </p>
 
-              <button type="button" className="google" onClick={() => setGoogleNote(true)}>
+              <button
+                type="button"
+                className="google"
+                onClick={() => void handleGoogle()}
+                disabled={googleBusy || submitting}
+              >
                 <GoogleG />
-                Continue with Google
+                {googleBusy ? 'Connecting…' : 'Continue with Google'}
               </button>
-              {googleNote ? (
-                <div className="msg msg-info" role="status">
-                  <i />
-                  <span>Google sign-in is coming soon. Use email for now.</span>
-                </div>
-              ) : null}
 
               <div className="or" aria-hidden="true">
                 or

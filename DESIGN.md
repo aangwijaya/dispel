@@ -360,9 +360,10 @@ sigil never shows anything the read doesn't say.
 - **Box**: 400px, solid `rgba(7,8,10,.94)`, 16px radius, 10% ring, a 10px Void halo ring and a deep drop shadow.
   **No glass.** Padding 32px.
 - **Google**: first, above email. Google's dark button: `#131314` fill, `#8e918f` inset outline, `#e3e3e3` 14px/500
-  text, the four-colour G at 18px, label "Continue with Google", 44px. Until OAuth exists, clicking shows an
-  inline note: "Google sign-in is coming soon. Use email for now." Later: Supabase `signInWithOAuth` with a
-  Tauri deep-link redirect.
+  text, the four-colour G at 18px, label "Continue with Google", 44px. Wired through Supabase
+  `signInWithOAuth` (PKCE): the system browser runs the flow while a loopback server on
+  `localhost:52423`–`52425` catches the redirect and the code is exchanged back in the webview. In a plain
+  browser the button says it needs the desktop app.
 - **Fields**: 44px, `rgba(255,255,255,.04)` fill, hairline inset. Focus = 40% white inset ring. Invalid = rose
   inset ring and a dot-led message that says how to fix it.
 - **Mode switch**: a text link under the button ("New to Dispel? Create an account" / "Already have an account?
