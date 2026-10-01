@@ -60,6 +60,34 @@ Prerequisites: Node 20+, the Rust MSVC toolchain (`rustup default stable-x86_64-
 and the WebView2 runtime (preinstalled on Windows 11). Install dependencies from a native Windows
 path, not from `\\wsl.localhost\...` — `npm install` fetches OS-specific binaries.
 
+### Build an installer for another PC
+
+`.env` values are baked into the frontend at build time, so the installer carries everything it needs:
+the target PC gets no repo, `.env`, or keys. Build on Windows:
+
+```powershell
+npm run tauri build
+```
+
+Artifacts:
+
+| File | Use |
+| --- | --- |
+| `src-tauri/target/release/bundle/nsis/Dispel_<version>_x64-setup.exe` | Recommended — per-user install, carries the offline WebView2 installer |
+| `src-tauri/target/release/bundle/msi/Dispel_<version>_x64_en-US.msi` | MSI alternative |
+| `src-tauri/target/release/dispel.exe` | Portable — runs without installing, needs WebView2 already present |
+
+Give the target PC the `.exe` (or `.msi`). It needs Windows 10/11 x64 and internet at run time
+(Supabase auth/data and Binance prices; Binance falls back to `data-api.binance.vision` /
+`data-stream.binance.vision` when blocked). WebView2 is covered by
+`bundle.windows.webviewInstallMode: offlineInstaller` in `tauri.conf.json`, which adds ~127 MB to the
+installer; switch it to `downloadBootstrapper` for a ~5 MB installer when the target is online.
+Unsigned builds trigger SmartScreen (“Windows protected your PC” → *More info* → *Run anyway*); a
+code-signing certificate via `bundle.windows.signCommand` removes it.
+
+There is no auto-updater: bump `version` in `package.json`, `src-tauri/Cargo.toml` and
+`src-tauri/tauri.conf.json`, rebuild, and send the new installer.
+
 ### Linux / WSLg
 
 ```bash
