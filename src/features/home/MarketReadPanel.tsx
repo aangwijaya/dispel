@@ -48,7 +48,15 @@ export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpe
   return (
     <section className="panel read-panel" id="read" aria-label="Market read" data-stance={read.stance} style={style}>
       <div className="aura" aria-hidden="true">
-        <Sigil key={read.stance} mood={read.stance} strength={read.stats.strength} size={760} className="fade" />
+        <Sigil
+          key={read.stance}
+          mood={read.stance}
+          strength={read.stats.strength}
+          size={760}
+          strokeBoost={1.6}
+          crisp
+          className="fade"
+        />
       </div>
 
       <div className="read-grid">

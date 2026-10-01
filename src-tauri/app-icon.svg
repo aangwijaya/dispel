@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#191b1f"/><stop offset="1" stop-color="#060708"/></linearGradient>
+    <radialGradient id="warm" cx=".72" cy=".3" r=".62"><stop offset="0" stop-color="#ff6363" stop-opacity=".18"/><stop offset="1" stop-color="#ff6363" stop-opacity="0"/></radialGradient>
+    <linearGradient id="arcG" gradientUnits="userSpaceOnUse" x1="389.0" y1="743.3" x2="726.6" y2="361.7"><stop offset="0" stop-color="#ffc07a" stop-opacity="0.2"/><stop offset=".45" stop-color="#ffc07a"/><stop offset="1" stop-color="#ff6363"/></linearGradient>
+    <linearGradient id="gem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a7a"/><stop offset="1" stop-color="#ff4d5e"/></linearGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="216" fill="url(#bg)"/>
+  <rect x="32" y="32" width="960" height="960" rx="216" fill="url(#warm)"/>
+  <rect x="34" y="34" width="956" height="956" rx="214" fill="none" stroke="#ffffff" stroke-opacity=".1" stroke-width="4"/>
+  <circle cx="512" cy="512" r="352" fill="none" stroke="#ffffff" stroke-opacity=".22" stroke-width="14"/><line x1="864.0" y1="512.0" x2="804.0" y2="512.0" stroke="#ffffff" stroke-opacity="0.5" stroke-width="16" stroke-linecap="round"/><line x1="816.8" y1="688.0" x2="787.4" y2="671.0" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/><line x1="688.0" y1="816.8" x2="671.0" y2="787.4" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/><line x1="512.0" y1="864.0" x2="512.0" y2="804.0" stroke="#ffffff" stroke-opacity="0.5" stroke-width="16" stroke-linecap="round"/><line x1="336.0" y1="816.8" x2="353.0" y2="787.4" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/><line x1="207.2" y1="688.0" x2="236.6" y2="671.0" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/><line x1="160.0" y1="512.0" x2="220.0" y2="512.0" stroke="#ffffff" stroke-opacity="0.5" stroke-width="16" stroke-linecap="round"/><line x1="207.2" y1="336.0" x2="236.6" y2="353.0" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/><line x1="336.0" y1="207.2" x2="353.0" y2="236.6" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/><line x1="512.0" y1="160.0" x2="512.0" y2="220.0" stroke="#ffffff" stroke-opacity="0.5" stroke-width="16" stroke-linecap="round"/><line x1="688.0" y1="207.2" x2="671.0" y2="236.6" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/><line x1="816.8" y1="336.0" x2="787.4" y2="353.0" stroke="#ffffff" stroke-opacity="0.26" stroke-width="12" stroke-linecap="round"/>
+  <path d="M726.6 361.7 A262 262 0 0 1 389.0 743.3" fill="none" stroke="#ff6363" stroke-opacity=".5" stroke-width="92" filter="url(#blur)"/>
+  <path d="M726.6 361.7 A262 262 0 0 1 389.0 743.3" fill="none" stroke="url(#arcG)" stroke-width="46" stroke-linecap="round"/>
+  <path d="M512 366.08000000000004 L640 512 L512 657.92 L384 512 Z" fill="url(#gem)"/>
+  <path d="M512 366.08000000000004 L640 512 L512 512 Z" fill="#ffffff" fill-opacity=".16"/>
+  <circle cx="726.6" cy="361.7" r="74" fill="#ff6363" opacity=".55" filter="url(#blur)"/>
+  <circle cx="726.6" cy="361.7" r="34" fill="#ffffff"/>
+</svg>
