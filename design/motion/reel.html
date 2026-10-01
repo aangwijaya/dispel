@@ -10,7 +10,7 @@
 :root {
   --void: #040506; --card: #07080a; --recessed: #111214; --badge: #1b1c1e; --slate: #2f3031;
   --white: #fff; --mist: #e6e6e6; --ash: #9c9c9d; --smoke: #6a6b6c; --iron: #454647;
-  --coral: #ff6363; --up: #59d499; --down: #f0506e; --caution: #e8b04a;
+  --coral: #ff6363; --up: #59d499; --down: #f0506e; --caution: #e8b04a; --hair: rgba(255,255,255,.06);
   --key: rgba(255,255,255,.05) 0 1px 0 0 inset, rgba(255,255,255,.25) 0 0 0 1px, rgba(0,0,0,.2) 0 -1px 0 0 inset;
   --key-soft: rgba(255,255,255,.05) 0 1px 0 0 inset, rgba(255,255,255,.08) 0 0 0 1px, rgba(0,0,0,.2) 0 -1px 0 0 inset;
   --lift: rgba(0,0,0,.03) 0 7px 3px 0, rgba(0,0,0,.25) 0 4px 4px 0;
@@ -22,105 +22,180 @@ html, body { margin: 0; background: #000; overflow: hidden; }
   font-family: var(--sans); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; transform-origin: 0 0; }
 .layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
 svg.layer { overflow: visible; }
+.glows { background:
+  radial-gradient(1100px 700px at 92% -6%, rgba(88,34,38,.5), transparent 70%),
+  radial-gradient(1000px 800px at -8% 64%, rgba(18,34,66,.45), transparent 70%), var(--void); }
 .mono { font-family: var(--mono); }
 
-#bg { background:
-  radial-gradient(1100px 700px at 92% -6%, rgba(88,34,38,.55), transparent 70%),
-  radial-gradient(1000px 800px at -8% 64%, rgba(18,34,66,.5), transparent 70%); }
+/* ── captions: always on the left, the story in five lines ── */
+#scrimL { background: linear-gradient(90deg, rgba(4,5,6,.95) 0, rgba(4,5,6,.86) 560px, rgba(4,5,6,.4) 800px, transparent 1000px); }
+.cap { position: absolute; left: 120px; width: 640px; }
+.cap .eb { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 16px; letter-spacing: 3px; color: var(--smoke); margin-bottom: 22px; height: 20px; }
+.cap .eb svg { width: 12px; height: 12px; }
+.cap h2 { margin: 0; font-size: 76px; font-weight: 400; letter-spacing: .2px; line-height: 1.06; }
+.cap h2 .w { display: inline-block; white-space: nowrap; }
+.cap h2 .ch { display: inline-block; position: relative; }
+.cap h2 .ghost { position: absolute; left: 0; top: 0; }
+.cap h2 .gem { display: inline-block; width: .5em; height: .5em; margin-right: .22em; vertical-align: .06em; }
+.cap .sub { margin-top: 26px; font-size: 26px; color: var(--ash); letter-spacing: .1px; }
 
-/* scene 1 */
-#h1 { display: flex; align-items: center; justify-content: center; }
-.h1line { font-size: 104px; font-weight: 400; letter-spacing: .2px; white-space: nowrap; line-height: 1; }
-.word { display: inline-block; white-space: nowrap; }
-.ch { display: inline-block; position: relative; }
-.ghost { position: absolute; left: 0; top: 0; color: #fff; }
+/* ── chaos: the market as it looks without Dispel ── */
+.bub { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 11px; padding: 9px 18px 9px 9px; border-radius: 999px;
+  background: rgba(24,26,30,.9); box-shadow: 0 0 0 1px rgba(255,255,255,.11), 0 14px 34px rgba(0,0,0,.55); font-size: 22px; color: var(--mist);
+  white-space: nowrap; }
+.bub i { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 14px; font-weight: 700; color: #06120c; }
+.bub.up i { background: #59d499; } .bub.down i { background: #f0506e; color: #2a0610; } .bub.caution i { background: #e8b04a; color: #2a1a04; }
+.bub.up b { color: #8fe3bb; } .bub.down b { color: #ff9aab; } .bub.caution b { color: #f5d08a; }
+.bub b { font-weight: 500; }
 
-/* scene 4 */
-#scrim { background: linear-gradient(90deg, rgba(4,5,6,.96) 0, rgba(4,5,6,.88) 800px, rgba(4,5,6,.3) 1000px, transparent 1140px); }
-#read { left: 150px; }
-.eyebrow { position: absolute; top: 318px; display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 17px; letter-spacing: 1.8px; color: var(--ash); }
-.eyebrow .dim { color: var(--smoke); letter-spacing: 1px; }
-.dot { position: relative; width: 10px; height: 10px; border-radius: 50%; }
-.dot i { position: absolute; inset: 0; border-radius: 50%; }
-.verdict { position: absolute; top: 360px; font-size: 100px; font-weight: 400; letter-spacing: .2px; line-height: 1.15; white-space: nowrap;
-  -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 20px; }
-.sub { position: absolute; top: 488px; font-size: 28px; color: var(--ash); white-space: nowrap; }
-.sub b { font-weight: 500; }
-.meter { position: absolute; top: 566px; width: 560px; }
-.meter .row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 15px; letter-spacing: 1.4px; color: var(--smoke); }
-.meter .row b { color: var(--white); font-weight: 400; }
-.meter .track { margin-top: 12px; height: 5px; border-radius: 3px; background: var(--badge); position: relative; overflow: visible; }
-.meter .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
-.formula { position: absolute; top: 626px; font-family: var(--mono); font-size: 17px; letter-spacing: 1px; color: var(--smoke); white-space: nowrap; }
-.formula b { color: var(--mist); font-weight: 400; }
-.seg { position: absolute; top: 690px; display: flex; padding: 5px; gap: 2px; background: var(--recessed); border-radius: 12px; box-shadow: var(--key-soft); }
-.seg span { position: relative; z-index: 1; padding: 11px 20px; font-size: 18px; color: var(--smoke); border-radius: 8px; }
-.seg .pill { position: absolute; z-index: 0; top: 5px; bottom: 5px; border-radius: 8px; background: var(--slate); box-shadow: var(--key-soft); }
+/* ── the app window ── */
+#world { perspective: 2400px; perspective-origin: 960px 540px; }
+#win { position: absolute; left: 0; top: 0; width: 1400px; height: 860px; transform-origin: 700px 430px; transform-style: flat; }
+.w-frame { position: absolute; inset: 0; border-radius: 18px;
+  background: radial-gradient(900px 500px at 96% -12%, rgba(120,18,40,.26), transparent 70%), radial-gradient(800px 600px at -12% 72%, rgba(6,30,80,.3), transparent 70%), #040506;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 60px 140px rgba(0,0,0,.7); }
+.w-side { position: absolute; left: 0; top: 0; width: 168px; height: 860px; border-right: 1px solid var(--hair); box-sizing: border-box; padding: 16px 10px; }
+.w-logo { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 8px; font-size: 16px; font-weight: 500; }
+.w-logo svg { width: 14px; height: 14px; }
+.w-nav { position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 10px; margin-top: 4px; font-size: 15.5px; color: var(--ash); border-radius: 9px; }
+.w-nav svg { width: 17px; height: 17px; }
+.w-nav .cnt { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ash); background: var(--badge); border-radius: 6px; padding: 1px 7px; }
+.w-pill { position: absolute; left: 10px; width: 148px; height: 40px; border-radius: 9px; background: var(--recessed); box-shadow: var(--key-soft); }
+.w-top { position: absolute; left: 168px; top: 0; width: 1232px; height: 52px; display: flex; align-items: center; gap: 14px; padding: 0 20px; box-sizing: border-box; border-bottom: 1px solid var(--hair); }
+.w-title { position: absolute; left: 20px; font-size: 17px; font-weight: 500; }
+.w-live { margin-left: 120px; display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 10px; border-radius: 7px; background: var(--badge); box-shadow: var(--key-soft); font-size: 13.5px; color: var(--mist); }
+.w-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--up); }
+.w-paper { margin-left: auto; height: 26px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 7px; box-shadow: inset 0 0 0 1px rgba(232,176,74,.5); color: var(--caution); font-size: 13px; }
+.w-main { position: absolute; left: 168px; top: 52px; width: 1232px; height: 808px; }
+#home, #trade { position: absolute; inset: 0; }
+.panel { position: absolute; border-radius: 14px; }
+.p-bg { position: absolute; inset: 0; border-radius: 14px; background: rgba(7,8,10,.86); box-shadow: var(--key-soft); }
 
-/* scene 5: the terminal */
-#uiWrap { perspective: none; }
-#ui { position: absolute; left: 0; top: 0; width: 1640px; height: 860px; transform-style: preserve-3d; }
-.panel { position: absolute; background: var(--card); border-radius: 16px; box-shadow: var(--key-soft), 0 30px 70px rgba(0,0,0,.4); overflow: hidden; }
-.mono-row { font-family: var(--mono); letter-spacing: .6px; }
-.mg { width: 52px; height: 52px; border-radius: 50%; background: var(--badge); box-shadow: var(--key-soft); display: grid; place-items: center; font-family: var(--mono); font-size: 14px; color: var(--mist); }
-.badge { padding: 3px 9px; border-radius: 7px; background: var(--badge); box-shadow: var(--key-soft); font-size: 14px; color: var(--ash); }
-.tf { display: flex; gap: 4px; padding: 4px; background: var(--recessed); border-radius: 10px; }
-.tf span { padding: 6px 13px; border-radius: 7px; font-family: var(--mono); font-size: 15px; color: var(--smoke); }
+/* Home › Market read */
+.w-read { left: 10px; top: 10px; width: 1212px; height: 430px; }
+.aura { position: absolute; inset: 0; border-radius: 14px; }
+#sigil { position: absolute; left: 500.5px; top: -157.5px; width: 745px; height: 745px; overflow: visible; }
+.scrim { position: absolute; inset: 0; border-radius: 14px; background: linear-gradient(90deg, rgba(7,8,10,.96) 0%, rgba(7,8,10,.86) 40%, rgba(7,8,10,.3) 64%, rgba(7,8,10,.12) 100%); }
+.r-eyebrow { position: absolute; left: 30px; top: 28px; display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 13.5px; letter-spacing: 1.4px; color: var(--ash); }
+.r-eyebrow .dim { color: var(--smoke); letter-spacing: .6px; }
+.r-eyebrow i { width: 9px; height: 9px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 4px rgba(89,212,153,.14); }
+.r-verdict { position: absolute; left: 30px; top: 52px; margin: 0; font-size: 60px; font-weight: 400; letter-spacing: .2px; line-height: 1.12; white-space: nowrap;
+  background: linear-gradient(100deg, #fff 35%, #a6efc9 100%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 8px; }
+.r-bias { position: absolute; left: 30px; top: 134px; margin: 0; font-size: 21px; color: var(--ash); white-space: nowrap; }
+.r-bias b { color: var(--up); font-weight: 500; }
+.r-explain { position: absolute; left: 30px; top: 176px; width: 640px; margin: 0; font-size: 16px; line-height: 1.55; color: var(--ash); }
+.r-explain strong { color: var(--white); font-weight: 500; }
+.r-evidence { position: absolute; left: 30px; top: 252px; margin: 0; font-family: var(--mono); font-size: 13px; letter-spacing: .6px; color: var(--smoke); white-space: pre; }
+.r-stats { position: absolute; left: 0; right: 0; bottom: 0; height: 104px; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--hair); background: rgba(7,8,10,.72); border-radius: 0 0 14px 14px; }
+.r-stats > div { padding: 18px 26px; border-left: 1px solid var(--hair); }
+.r-stats > div:first-child { border-left: 0; }
+.r-stats .k { font-size: 14px; color: var(--smoke); }
+.r-stats .v { margin-top: 6px; font-size: 22px; color: var(--white); }
+.r-stats .v small { font-size: 13px; color: var(--smoke); }
+.r-stats .meter { margin-top: 12px; height: 4px; border-radius: 2px; background: var(--badge); position: relative; overflow: hidden; }
+.r-stats .meter i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: linear-gradient(90deg, rgba(255,255,255,.5), #fff); }
+.r-stats .steps { margin-top: 12px; display: flex; gap: 4px; }
+.r-stats .steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--badge); }
+.r-stats .steps i.f { background: var(--mist); }
+.r-stats .steps.amber i.f { background: var(--caution); }
+
+/* Home › Setups */
+.w-setups { left: 10px; top: 450px; width: 1212px; height: 348px; }
+.s-head { position: absolute; left: 26px; top: 20px; display: flex; align-items: baseline; gap: 10px; }
+.s-head b { font-size: 18px; font-weight: 500; }
+.s-head span { font-family: var(--mono); font-size: 13px; color: var(--smoke); }
+.s-head p { margin: 0 0 0 10px; font-size: 14px; color: var(--smoke); }
+.s-row { position: absolute; left: 14px; right: 14px; height: 80px; border-radius: 11px; display: flex; align-items: center; gap: 18px; padding: 0 16px; box-sizing: border-box; }
+.s-row.on { background: linear-gradient(90deg, rgba(89,212,153,.12), #111214 60%); box-shadow: var(--key-soft); }
+.mg { flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--badge); box-shadow: var(--key-soft); display: grid; place-items: center; font-family: var(--mono); font-size: 12.5px; color: var(--mist); }
+.s-name { flex: 1; min-width: 0; }
+.s-name b { font-size: 18px; font-weight: 500; }
+.s-name em { margin-left: 10px; font-style: normal; font-size: 14px; color: var(--up); }
+.s-name em.new { color: var(--ash); margin-left: 8px; font-family: var(--mono); font-size: 12px; padding: 1px 7px; border-radius: 6px; background: var(--badge); }
+.s-name p { margin: 5px 0 0; font-size: 14px; color: var(--ash); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-odds { width: 230px; text-align: right; }
+.s-odds b { font-size: 22px; font-weight: 400; }
+.s-odds b small { font-size: 13px; color: var(--smoke); }
+.s-odds i { display: block; margin: 7px 0 0 auto; width: 120px; height: 4px; border-radius: 2px; background: var(--badge); position: relative; overflow: hidden; }
+.s-odds i u { position: absolute; left: 0; top: 0; bottom: 0; background: var(--up); border-radius: 2px; }
+.s-meta { font-family: var(--mono); font-size: 12px; color: var(--smoke); margin-top: 7px; white-space: nowrap; }
+.s-open { flex: none; height: 40px; padding: 0 14px; border-radius: 9px; background: var(--slate); box-shadow: var(--key-soft); color: var(--mist); font-size: 15px; font-weight: 500; display: inline-flex; align-items: center; gap: 10px; }
+.kbd { min-width: 20px; height: 20px; padding: 0 4px; border-radius: 5px; background: var(--badge); box-shadow: var(--key-soft); display: inline-grid; place-items: center; font-family: var(--mono); font-size: 11px; color: var(--ash); box-sizing: border-box; }
+
+/* Trade */
+.t-head { left: 10px; top: 10px; width: 830px; height: 84px; }
+.t-head .in { position: absolute; inset: 0; display: flex; align-items: center; gap: 18px; padding: 0 22px; }
+.t-head .pair b { font-size: 21px; font-weight: 500; }
+.t-head .pair p { margin: 3px 0 0; font-size: 13.5px; color: var(--smoke); }
+.t-head .px { margin-left: 18px; font-size: 40px; font-weight: 400; }
+.t-head .chg { font-size: 18px; color: var(--up); margin-top: 10px; }
+.t-head .st { margin-left: auto; display: flex; gap: 28px; }
+.t-head .st span { display: block; font-size: 12.5px; color: var(--smoke); }
+.t-head .st b { display: block; margin-top: 4px; font-size: 16px; font-weight: 400; color: var(--mist); }
+.t-setup { left: 10px; top: 102px; width: 830px; height: 52px; }
+.t-setup .in { position: absolute; inset: 0; display: flex; align-items: center; gap: 14px; padding: 0 18px; border-radius: 14px; background: linear-gradient(90deg, rgba(255,99,99,.1), rgba(7,8,10,0) 42%); }
+.t-setup .lbl { font-family: var(--mono); font-size: 13.5px; letter-spacing: 1.8px; color: var(--coral); }
+.t-setup .txt { font-size: 15.5px; color: var(--ash); white-space: nowrap; }
+.t-setup .txt b { color: var(--white); font-weight: 500; }
+.t-setup .lv { margin-left: auto; font-size: 14.5px; color: var(--ash); white-space: nowrap; }
+.t-setup .lv b { color: var(--white); font-weight: 500; }
+.t-chart { left: 10px; top: 162px; width: 830px; height: 636px; }
+.tf { position: absolute; left: 18px; top: 16px; display: flex; gap: 4px; padding: 4px; background: var(--recessed); border-radius: 10px; }
+.tf span { padding: 5px 12px; border-radius: 7px; font-family: var(--mono); font-size: 13px; color: var(--smoke); }
 .tf .on { background: var(--slate); color: var(--white); box-shadow: var(--key-soft); }
+.ohlc { position: absolute; left: 20px; top: 62px; font-family: var(--mono); font-size: 13px; color: var(--smoke); white-space: pre; }
+.ohlc b { color: var(--white); font-weight: 400; }
+#plot { position: absolute; left: 0; top: 0; overflow: visible; }
+.t-ticket { left: 850px; top: 10px; width: 372px; height: 788px; }
+.tk { position: absolute; inset: 0; padding: 18px; box-sizing: border-box; }
+.tk-side { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--recessed); }
+.tk-side span { height: 46px; display: grid; place-items: center; font-size: 17px; font-weight: 600; color: var(--ash); border-radius: 9px; }
+.tk-side .on { background: #59d499; color: #062417; box-shadow: rgba(255,255,255,.25) 0 1px 0 0 inset; }
+.tk-tabs { display: flex; gap: 26px; margin: 20px 4px 0; font-size: 16px; color: var(--smoke); }
+.tk-tabs .on { color: var(--white); box-shadow: 0 2px 0 var(--white); padding-bottom: 7px; }
+.tk-lbl { display: flex; justify-content: space-between; margin: 18px 2px 8px; font-size: 14px; color: var(--smoke); }
+.tk-lbl b { color: var(--ash); font-weight: 400; }
+.tk-field { height: 52px; border-radius: 10px; background: rgba(255,255,255,.04); box-shadow: rgba(255,255,255,.07) 0 0 0 1px inset; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 19px; color: var(--mist); }
+.tk-field .ph { color: var(--smoke); font-size: 16px; }
+.tk-field .unit { color: var(--smoke); font-size: 15px; }
+.tk-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 12px; }
+.tk-chips span { text-align: center; padding: 9px 0; border-radius: 9px; background: var(--recessed); box-shadow: var(--key-soft); font-size: 14.5px; color: var(--ash); }
+.tk-sum { margin-top: 16px; padding: 14px 16px; border-radius: 10px; background: var(--recessed); display: grid; gap: 9px; font-size: 14.5px; color: var(--smoke); }
+.tk-sum div { display: flex; justify-content: space-between; }
+.tk-sum b { color: var(--mist); font-weight: 400; }
+.tk-notice { overflow: hidden; height: 0; margin-top: 0; border-radius: 9px; background: rgba(89,212,153,.08); color: #8fe3bb; box-shadow: inset 0 0 0 1px rgba(89,212,153,.22); font-size: 15px; display: flex; align-items: center; gap: 9px; padding: 0 12px; box-sizing: border-box; }
+.tk-buy { position: relative; overflow: hidden; width: 100%; margin-top: 14px; height: 56px; border: 0; border-radius: 11px; background: #59d499; color: #062417; font: 600 19px var(--sans); box-shadow: rgba(255,255,255,.25) 0 1px 0 0 inset, var(--lift); }
+.tk-buy i { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px; border-radius: 50%; background: #fff; opacity: 0; }
+.tk-fine { margin: 12px 0 0; text-align: center; font-size: 13.5px; color: var(--smoke); }
+.tk-acct { position: absolute; left: 18px; right: 18px; bottom: 20px; border-top: 1px solid var(--hair); padding-top: 16px; display: grid; gap: 9px; font-size: 14px; color: var(--smoke); }
+.tk-acct div { display: flex; justify-content: space-between; }
+.tk-acct b { font-family: var(--mono); font-weight: 400; font-size: 13px; }
 .odo { display: inline-flex; line-height: 1; }
 .odo-slot { display: inline-block; height: 1em; overflow: hidden; }
 .odo-strip { display: block; }
 .odo-strip span { display: block; height: 1em; }
-.field { height: 60px; border-radius: 10px; background: rgba(255,255,255,.04); box-shadow: rgba(255,255,255,.06) 0 0 0 1px inset; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-size: 22px; color: var(--mist); }
-.field .unit { color: var(--smoke); font-size: 17px; }
-.lbl { display: flex; justify-content: space-between; font-size: 15px; color: var(--smoke); margin: 20px 2px 9px; }
-.lbl b { color: var(--ash); font-weight: 400; }
-.chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
-.chips span { text-align: center; padding: 10px 0; border-radius: 9px; background: var(--recessed); box-shadow: var(--key-soft); font-size: 15px; color: var(--ash); }
-.est { margin-top: 18px; padding: 16px 18px; border-radius: 10px; background: var(--recessed); font-size: 16px; color: var(--smoke); display: grid; gap: 10px; }
-.est div { display: flex; justify-content: space-between; }
-.est b { color: var(--mist); font-weight: 400; }
-.buy { position: relative; margin-top: 20px; height: 64px; border-radius: 11px; background: #59d499; color: #062417; font-size: 22px; font-weight: 600;
-  display: flex; align-items: center; justify-content: center; gap: 14px; box-shadow: rgba(255,255,255,.25) 0 1px 0 0 inset, var(--lift); overflow: hidden; }
-.kbd { min-width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-size: 14px; }
-.buy .kbd { background: rgba(6,36,23,.18); box-shadow: rgba(6,36,23,.35) 0 0 0 1px inset; color: #062417; }
-.toast { position: absolute; display: flex; gap: 16px; align-items: center; padding: 18px 22px; border-radius: 14px; background: #111214; box-shadow: var(--key-soft), 0 24px 60px rgba(0,0,0,.6); }
-.toast .ok { width: 34px; height: 34px; border-radius: 50%; background: rgba(89,212,153,.14); box-shadow: rgba(89,212,153,.4) 0 0 0 1px inset; display: grid; place-items: center; color: var(--up); font-size: 18px; }
 
-/* scene 5b: portfolio dial */
-#dialScene .eq { position: absolute; left: 1080px; }
-.legend-row { position: absolute; left: 1080px; width: 640px; height: 58px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid rgba(255,255,255,.06); }
-.legend-row .sw { width: 16px; height: 16px; border-radius: 5px; }
-.legend-row .nm { font-size: 22px; color: var(--white); }
-.legend-row .pr { font-size: 16px; color: var(--smoke); font-family: var(--mono); }
-.legend-row .v { margin-left: auto; font-size: 21px; color: var(--mist); }
-.legend-row .pc { width: 88px; text-align: right; font-family: var(--mono); font-size: 17px; color: var(--ash); }
-
-/* scene 6 */
+/* end card */
 .lockup { position: absolute; top: 404px; left: 0; width: 1920px; display: flex; justify-content: center; align-items: center; gap: 34px; }
 .wordmark { font-size: 142px; font-weight: 500; letter-spacing: .2px; line-height: 1; display: flex; }
 .wordmark span { display: inline-block; }
-.tagline { position: absolute; top: 600px; left: 0; width: 1920px; text-align: center; font-size: 35px; letter-spacing: .2px; white-space: nowrap; }
+.tagline { position: absolute; top: 596px; left: 0; width: 1920px; text-align: center; font-size: 42px; letter-spacing: .2px; white-space: nowrap; }
 .tagline span { display: inline-block; }
 .meta { position: absolute; top: 986px; left: 0; width: 1920px; text-align: center; font-family: var(--mono); font-size: 17px; letter-spacing: 3.2px; color: var(--smoke); white-space: pre; }
 
 #flash { background: #fff; opacity: 0; }
 #fade { background: #000; }
-#vignette { background: radial-gradient(ellipse 78% 74% at 50% 50%, transparent 58%, rgba(0,0,0,.55) 100%); }
+#vignette { background: radial-gradient(ellipse 80% 76% at 50% 50%, transparent 58%, rgba(0,0,0,.5) 100%); }
 #grain { opacity: .05; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="bg" class="layer"></div>
-  <div id="noise" class="layer"><svg id="noiseSvg" class="layer" width="1920" height="1080"></svg></div>
-  <div id="h1" class="layer"></div>
-  <svg id="world" class="layer" width="1920" height="1080"><defs id="defs"></defs><g id="cam"></g></svg>
-  <div id="scrim" class="layer"></div>
-  <svg id="hud" class="layer" width="1920" height="1080"></svg>
-  <div id="read" class="layer"></div>
-  <div id="uiWrap" class="layer"><div id="ui"></div></div>
-  <div id="dialScene" class="layer"></div>
+  <div id="bg" class="layer glows"></div>
+  <div id="world" class="layer"><div id="win"></div></div>
+  <div id="chaos" class="layer glows"></div>
+  <div id="scrimL" class="layer"></div>
+  <div id="caps" class="layer"></div>
   <div id="end" class="layer"></div>
   <svg id="fx" class="layer" width="1920" height="1080"></svg>
   <div id="flash" class="layer"></div>
@@ -155,13 +230,12 @@ const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const lerp = (a, b, t) => a + (b - a) * t
 const seg = (t, a, b) => clamp((t - a) / (b - a))
 const RAD = (d) => (d * Math.PI) / 180
+const TAU = Math.PI * 2
 const E = {
   inCubic: (x) => x ** 3,
   outCubic: (x) => 1 - (1 - x) ** 3,
   inOutCubic: (x) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2),
   outQuart: (x) => 1 - (1 - x) ** 4,
-  inQuart: (x) => x ** 4,
-  inOutQuart: (x) => (x < 0.5 ? 8 * x ** 4 : 1 - (-2 * x + 2) ** 4 / 2),
   outQuint: (x) => 1 - (1 - x) ** 5,
   outExpo: (x) => (x >= 1 ? 1 : 1 - 2 ** (-10 * x)),
   inExpo: (x) => (x <= 0 ? 0 : 2 ** (10 * x - 10)),
@@ -187,6 +261,7 @@ const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
 const mixHex = (a, b, t) => '#' + rgb(a).map((v, i) => Math.round(lerp(v, rgb(b)[i], clamp(t))).toString(16).padStart(2, '0')).join('')
 const f1 = (v) => v.toFixed(1)
 const f2 = (v) => v.toFixed(2)
+const fmt = (v, d = 2) => v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d })
 function arcD(r, a0, a1) {
   if (a1 - a0 < 0.02 || r < 0.5) return 'M0 0'
   const m = (a0 + a1) / 2
@@ -195,10 +270,9 @@ function arcD(r, a0, a1) {
 }
 const GLYPHS = '0123456789ABCDEF<>/\\|+=#%'
 function decode(text, p, seed, step) {
-  const n = text.length
-  const shown = Math.floor(p * n)
+  const shown = Math.floor(p * text.length)
   let out = ''
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < text.length; i++) {
     const ch = text[i]
     if (i < shown || ch === ' ') out += ch
     else if (i < shown + 5 && p > 0) out += GLYPHS[Math.floor(hash(i, step, seed) * GLYPHS.length)]
@@ -206,23 +280,18 @@ function decode(text, p, seed, step) {
   }
   return out
 }
-const fmt = (v, d = 2) => v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d })
-
-// odometer: rolling digit columns, exact carry behaviour
 function makeOdo(parent, template) {
   const root = D('span', 'odo', parent)
   const cols = []
   for (const ch of template) {
     if (/\d/.test(ch)) {
-      const slot = D('span', 'odo-slot', root)
-      const strip = D('span', 'odo-strip', slot)
+      const strip = D('span', 'odo-strip', D('span', 'odo-slot', root))
       for (let d = 0; d <= 10; d++) D('span', '', strip, String(d % 10))
       cols.push(strip)
     } else D('span', '', root, ch)
   }
   const decimals = template.includes('.') ? template.split('.')[1].length : 0
   return {
-    root,
     set(value) {
       const v = value * 10 ** decimals
       cols.forEach((strip, k) => {
@@ -236,118 +305,85 @@ function makeOdo(parent, template) {
     },
   }
 }
+const breath = (t, period = 2.2) => 0.22 + 0.36 * (0.5 - 0.5 * Math.cos((TAU * t) / period))
 
-// ---------- moods (DESIGN.md B6 readings) ----------
-const MOODS = {
-  favorable: { a0: '#ffc07a', a1: '#ff6363', strength: 71, w: [1, 0, 0, 0], fog: 0, dash: 0, hot: 1, tint: '#a6efc9', dot: '#59d499' },
-  unclear: { a0: '#6a6b6c', a1: '#9c9c9d', strength: 12, w: [0, 0, 0, 1], fog: 1, dash: 1, hot: 0, tint: '#bdbdbf', dot: '#9c9c9d' },
-  reduce: { a0: '#ff9aab', a1: '#f0506e', strength: 48, w: [0, 1, 0, 0], fog: 0, dash: 0, hot: 1, tint: '#ffa3b4', dot: '#f0506e' },
-  wait: { a0: '#ffe0a3', a1: '#e8b04a', strength: 28, w: [0, 0, 1, 0], fog: 0, dash: 0, hot: 1, tint: '#f5d08a', dot: '#e8b04a' },
-}
-const SEQ = ['favorable', 'unclear', 'reduce', 'wait', 'favorable']
-const moodPos = (t) => TL.moods.reduce((pos, m) => pos + E.inOutCubic(seg(t, m, m + 0.34)), 0)
-function moodAt(t) {
-  const pos = moodPos(t)
-  const i = Math.min(3, Math.floor(pos))
-  const f = pos - i
-  const A = MOODS[SEQ[i]]
-  const B = MOODS[SEQ[i + 1]]
-  return {
-    pos, a0: mixHex(A.a0, B.a0, f), a1: mixHex(A.a1, B.a1, f), strength: lerp(A.strength, B.strength, f),
-    w: A.w.map((v, k) => lerp(v, B.w[k], f)), fog: lerp(A.fog, B.fog, f), dash: lerp(A.dash, B.dash, f),
-    hot: lerp(A.hot, B.hot, f), dot: mixHex(A.dot, B.dot, f),
-  }
-}
-
-// ---------- the Astrolabe sigil, animatable ----------
+// ---------- the Astrolabe sigil, crisp like the app (hairlines stay one screen pixel, nodes upright) ----------
 const TIP = { x: 410 * Math.cos(RAD(-35)), y: 410 * Math.sin(RAD(-35)) }
-function lineY(w, x) {
+function lineY(x) {
   const t = (x + 500) / (TIP.x + 500)
   const ease = t * t * (3 - 2 * t)
-  const tipY = TIP.y
-  const up = 150 + (tipY - 150) * ease + (1 - t) * (18 * Math.sin(t * 13.7) + 7 * Math.sin(t * 31 + 0.6))
-  const down = -470 + (tipY + 470) * ease + (1 - t) * (14 * Math.sin(t * 12) + 6 * Math.sin(t * 29))
-  const chop = tipY + 30 * (1 - ease) + (1 - t * 0.7) * 34 * Math.sin(t * 23) * Math.cos(t * 6)
-  const flat = tipY + 55 * (1 - ease) + 5 * Math.sin(t * 17)
-  return w[0] * up + w[1] * down + w[2] * chop + w[3] * flat
+  return 150 + (TIP.y - 150) * ease + (1 - t) * (18 * Math.sin(t * 13.7) + 7 * Math.sin(t * 31 + 0.6))
 }
 const STAR = []
-for (let t = 0; t <= Math.PI * 8; t += 0.012) {
-  STAR.push([36 * (3 * Math.cos(t) + 6.2 * Math.cos(0.75 * t)), 36 * (3 * Math.sin(t) - 6.2 * Math.sin(0.75 * t))])
-}
+for (let t = 0; t <= Math.PI * 8; t += 0.012) STAR.push(`${f1(36 * (3 * Math.cos(t) + 6.2 * Math.cos(0.75 * t)))},${f1(36 * (3 * Math.sin(t) - 6.2 * Math.sin(0.75 * t)))}`)
 
-function makeSigil(parent, id, boost) {
-  const defs = $('defs')
-  const root = S('g', {}, parent)
-  const fog = S('filter', { id: id + 'fog', x: '-10%', y: '-10%', width: '120%', height: '120%' }, defs)
-  const fogBlur = S('feGaussianBlur', { stdDeviation: 0 }, fog)
-  const halo = S('radialGradient', { id: id + 'halo' }, defs)
-  const haloStops = [S('stop', { offset: 0, 'stop-opacity': 0.26 }, halo), S('stop', { offset: 1, 'stop-opacity': 0 }, halo)]
+function makeSigil(svg, id, boost) {
+  const defs = S('defs', {}, svg)
+  S('feGaussianBlur', { stdDeviation: 6 }, S('filter', { id: id + 'g', x: '-300%', y: '-300%', width: '700%', height: '700%' }, defs))
+  const halo = S('radialGradient', { id: id + 'h' }, defs)
+  S('stop', { offset: 0, 'stop-color': '#ff6363', 'stop-opacity': 0.26 }, halo)
+  S('stop', { offset: 1, 'stop-color': '#ff6363', 'stop-opacity': 0 }, halo)
   const arcGrad = S('linearGradient', { id: id + 'a', gradientUnits: 'userSpaceOnUse' }, defs)
-  const aStops = [S('stop', { offset: 0, 'stop-opacity': 0 }, arcGrad), S('stop', { offset: 0.4, 'stop-opacity': 0.7 }, arcGrad), S('stop', { offset: 1 }, arcGrad)]
+  S('stop', { offset: 0, 'stop-color': '#ffc07a', 'stop-opacity': 0 }, arcGrad)
+  S('stop', { offset: 0.4, 'stop-color': '#ffc07a', 'stop-opacity': 0.7 }, arcGrad)
+  S('stop', { offset: 1, 'stop-color': '#ff6363' }, arcGrad)
   const lineGrad = S('linearGradient', { id: id + 'l', gradientUnits: 'userSpaceOnUse', x1: -500, y1: 0, x2: f1(TIP.x), y2: 0 }, defs)
-  const lStops = [
-    S('stop', { offset: 0, 'stop-color': '#fff', 'stop-opacity': 0 }, lineGrad),
-    S('stop', { offset: 0.3, 'stop-color': '#fff', 'stop-opacity': 0.22 }, lineGrad),
-    S('stop', { offset: 0.85, 'stop-opacity': 0.55 }, lineGrad),
-    S('stop', { offset: 1, 'stop-opacity': 0.95 }, lineGrad),
-  ]
+  S('stop', { offset: 0, 'stop-color': '#fff', 'stop-opacity': 0 }, lineGrad)
+  S('stop', { offset: 0.3, 'stop-color': '#fff', 'stop-opacity': 0.24 }, lineGrad)
+  S('stop', { offset: 0.85, 'stop-color': '#ffc07a', 'stop-opacity': 0.6 }, lineGrad)
+  S('stop', { offset: 1, 'stop-color': '#ff6363', 'stop-opacity': 0.95 }, lineGrad)
   const W = (a) => `rgba(255,255,255,${Math.min(1, a * boost).toFixed(3)})`
-  const body = S('g', {}, root)
+  const hair = { 'vector-effect': 'non-scaling-stroke' }
+  const body = S('g', {}, svg)
   const rings = []
-  const ring = (r, a, dash) => rings.push({ r, dash, el: S('path', { fill: 'none', stroke: W(a), 'stroke-dasharray': dash ?? 'none' }, body) })
+  const ring = (r, a, dash) => rings.push({ r, el: S('path', { fill: 'none', stroke: W(a), 'stroke-dasharray': dash ?? 'none', ...hair }, body) })
   ring(470, 0.14)
   const tickG = S('g', {}, body)
   const ticks = []
   for (let a = 0; a < 360; a += 2) {
     const major = a % 30 === 0
     const mid = a % 10 === 0
-    ticks.push({ a, len: major ? 22 : mid ? 13 : 6, alpha: major ? 0.38 : mid ? 0.2 : 0.11, el: S('line', {}, tickG) })
+    ticks.push({ a, len: major ? 22 : mid ? 13 : 6, alpha: major ? 0.38 : mid ? 0.2 : 0.11, el: S('line', hair, tickG) })
   }
   ring(440, 0.07, '2 7')
   ring(410, 0.05)
   ring(350, 0.08)
   const nodeG = S('g', {}, body)
   const nodes = []
-  for (let i = 0; i < 12; i++) nodes.push({ a: i * 30 + 15, el: S('path', { d: 'M0 -5 L5 0 L0 5 L-5 0 Z', fill: '#040506', stroke: W(0.34) }, nodeG) })
+  for (let i = 0; i < 12; i++) nodes.push({ a: i * 30 + 15, el: S('path', { d: 'M0 -7 L7 0 L0 7 L-7 0 Z', fill: '#040506', stroke: W(0.34), ...hair }, nodeG) })
   const orbs = [1, -1].map((dir) => {
     const g = S('g', {}, body)
-    return { dir, g, el: S('ellipse', { rx: 330, ry: 118, fill: 'none', stroke: W(0.06), pathLength: 1 }, g) }
+    return { dir, g, el: S('polyline', { fill: 'none', stroke: W(0.06), ...hair }, g) }
   })
   ring(290, 0.05, '1 5')
-  const star = S('polyline', { points: STAR.map((p) => `${f1(p[0])},${f1(p[1])}`).join(' '), fill: 'none', stroke: W(0.075), pathLength: 1 }, body)
-  const starHead = S('circle', { r: 2.4, fill: '#fff' }, body)
-  const haloC = S('circle', { cx: f1(TIP.x), cy: f1(TIP.y), r: 260, fill: `url(#${id}halo)` }, body)
-  const arcGlow = S('path', { fill: 'none', stroke: `url(#${id}a)`, 'stroke-width': 5, filter: 'url(#glow6)' }, body)
+  const star = S('polyline', { fill: 'none', stroke: W(0.075), ...hair }, body)
+  const haloC = S('circle', { cx: f1(TIP.x), cy: f1(TIP.y), r: 260, fill: `url(#${id}h)` }, body)
+  const arcGlow = S('path', { fill: 'none', stroke: `url(#${id}a)`, 'stroke-width': 5, filter: `url(#${id}g)` }, body)
   const arcSolid = S('path', { fill: 'none', stroke: `url(#${id}a)`, 'stroke-width': 1.6, 'stroke-linecap': 'round' }, body)
-  const arcDash = S('path', { fill: 'none', stroke: `url(#${id}a)`, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-dasharray': '5 7' }, body)
-  const line = S('polyline', { fill: 'none', stroke: `url(#${id}l)`, 'stroke-width': 1.3, 'stroke-linejoin': 'round' }, body)
-  const lineGlow = S('circle', { r: 12, fill: '#fff', filter: 'url(#glow6)' }, body)
-  const lineHead = S('circle', { r: 2.4, fill: '#fff' }, body)
-  const tipRing = S('circle', { cx: f1(TIP.x), cy: f1(TIP.y), fill: 'none' }, body)
-  const tipGlow = S('circle', { cx: f1(TIP.x), cy: f1(TIP.y), filter: 'url(#glow6)' }, body)
+  const line = S('polyline', { fill: 'none', stroke: `url(#${id}l)`, 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, body)
+  const lineGlow = S('circle', { r: 12, fill: '#fff', filter: `url(#${id}g)` }, body)
+  const lineHead = S('circle', { r: 2.6, fill: '#fff' }, body)
+  const tipRing = S('circle', { cx: f1(TIP.x), cy: f1(TIP.y), fill: 'none', stroke: '#ff6363' }, body)
+  const tipGlow = S('circle', { cx: f1(TIP.x), cy: f1(TIP.y), fill: '#ff6363', filter: `url(#${id}g)` }, body)
   const tipCore = S('circle', { cx: f1(TIP.x), cy: f1(TIP.y), fill: '#fff' }, body)
-
+  const orbitPoints = (p) => {
+    const n = Math.max(2, Math.round(180 * p))
+    let out = ''
+    for (let k = 0; k <= n; k++) {
+      const a = (k / n) * p * TAU
+      out += `${f1(330 * Math.cos(a))},${f1(118 * Math.sin(a))} `
+    }
+    return out
+  }
   return {
-    root,
     update(st) {
-      root.setAttribute('opacity', f2(st.opacity ?? 1))
-      if (st.fog > 0.01) {
-        body.setAttribute('filter', `url(#${id}fog)`)
-        fogBlur.setAttribute('stdDeviation', f2(st.fog * 1.6))
-      } else body.removeAttribute('filter')
-      body.setAttribute('opacity', f2(lerp(1, 0.66, st.fog)))
-
+      body.setAttribute('opacity', f2(st.opacity ?? 1))
       for (const R of rings) {
         const spec = st.ring(R.r)
         const r = R.r * (spec.rs ?? 1)
-        const a0 = st.anchor - 180 * spec.p
-        const a1 = st.anchor + 180 * spec.p
-        R.el.setAttribute('d', spec.p > 0.001 ? arcD(r, a0, a1) : 'M0 0')
+        R.el.setAttribute('d', spec.p > 0.001 ? arcD(r, -35 - 180 * spec.p, -35 + 180 * spec.p) : 'M0 0')
         R.el.setAttribute('stroke-opacity', f2(spec.op ?? 1))
-        if (R.dash) R.el.setAttribute('stroke-dashoffset', f2(r * RAD(a0 - (st.anchor - 180))))
       }
-
       tickG.setAttribute('transform', `rotate(${f2(st.tickSpin)})`)
       const tr = 470 * (st.tickRs ?? 1)
       for (const k of ticks) {
@@ -359,157 +395,173 @@ function makeSigil(parent, id, boost) {
         const c = Math.cos(RAD(k.a))
         const s = Math.sin(RAD(k.a))
         const inner = tr - k.len * len
-        set(k.el, { x1: f1(tr * c), y1: f1(tr * s), x2: f1(inner * c), y2: f1(inner * s), stroke: W(k.alpha * (1 + flash * 1.9)) })
+        set(k.el, { x1: f1(tr * c), y1: f1(tr * s), x2: f1(inner * c), y2: f1(inner * s), stroke: W(k.alpha * (1 + flash * 1.6)) })
       }
-
       nodeG.setAttribute('transform', `rotate(${f2(st.nodeSpin)})`)
       const nr = 350 * (st.nodeRs ?? 1)
       nodes.forEach((n, i) => {
         const { s, rot } = st.node(i, n.a)
         const x = nr * Math.cos(RAD(n.a))
         const y = nr * Math.sin(RAD(n.a))
-        n.el.setAttribute('transform', `translate(${f1(x)} ${f1(y)}) rotate(${f1(rot)}) scale(${f2(Math.max(0.0001, s))})`)
+        // upright: cancel the group's spin, keep only the entrance turn
+        n.el.setAttribute('transform', `translate(${f1(x)} ${f1(y)}) rotate(${f1(rot - st.nodeSpin)}) scale(${f2(Math.max(0.0001, s))})`)
         const hot = i === 10 ? st.hot : 0
-        n.el.setAttribute('fill', hot > 0.01 ? mixHex('#040506', st.a1, hot) : '#040506')
-        n.el.setAttribute('stroke', hot > 0.01 ? st.a1 : W(0.34))
+        n.el.setAttribute('fill', hot > 0.01 ? mixHex('#040506', '#ff6363', hot) : '#040506')
+        n.el.setAttribute('stroke', hot > 0.01 ? '#ff6363' : W(0.34))
       })
-
       orbs.forEach((o, i) => {
         const p = st.orbit[i]
         o.g.setAttribute('transform', `rotate(${f2(28 * o.dir + st.orbitSpin * o.dir)}) scale(1 ${o.dir})`)
-        o.el.setAttribute('stroke-dasharray', `${p.toFixed(4)} 1`)
-        o.el.setAttribute('stroke-opacity', p > 0.001 ? 1 : 0)
+        o.el.setAttribute('points', p > 0.002 ? orbitPoints(p) : '')
       })
-
-      star.setAttribute('stroke-dasharray', `${st.star.toFixed(4)} 1`)
-      star.setAttribute('stroke-opacity', st.star > 0.001 ? f2(st.starOp ?? 1) : 0)
-      const hi = STAR[Math.min(STAR.length - 1, Math.floor(st.star * (STAR.length - 1)))]
-      set(starHead, { cx: f1(hi[0]), cy: f1(hi[1]), opacity: f2(st.star > 0 && st.star < 1 ? 0.9 : 0) })
-
-      // the spell
+      star.setAttribute('points', st.star > 0.002 ? STAR.slice(0, Math.max(2, Math.floor(st.star * STAR.length))).join(' ') : '')
       const len = (40 + 1.2 * st.strength) * st.arcP
       const far = { x: 410 * Math.cos(RAD(-35 + len)), y: 410 * Math.sin(RAD(-35 + len)) }
       set(arcGrad, { x1: f1(far.x), y1: f1(far.y), x2: f1(TIP.x), y2: f1(TIP.y) })
-      aStops[0].setAttribute('stop-color', st.a0)
-      aStops[1].setAttribute('stop-color', st.a0)
-      aStops[2].setAttribute('stop-color', st.a1)
-      lStops[2].setAttribute('stop-color', st.a0)
-      lStops[3].setAttribute('stop-color', st.a1)
       const d = len > 0.3 ? arcD(410, -35, -35 + len) : 'M0 0'
       arcSolid.setAttribute('d', d)
-      arcDash.setAttribute('d', d)
       arcGlow.setAttribute('d', d)
-      arcSolid.setAttribute('opacity', f2(1 - st.dash))
-      arcDash.setAttribute('opacity', f2(st.dash))
-      arcGlow.setAttribute('opacity', f2(0.45 * (1 - 0.7 * st.fog)))
-
+      arcGlow.setAttribute('opacity', 0.45)
       if (st.lineP > 0.001) {
         const xMax = -500 + (TIP.x + 500) * st.lineP
         const pts = []
         let last = [0, 0]
         for (let x = -500; x <= xMax + 0.01; x += 3) {
-          last = [x, lineY(st.w, x)]
+          last = [x, lineY(x)]
           pts.push(`${f1(last[0])},${f1(last[1])}`)
         }
         if (xMax > last[0] + 0.5) {
-          last = [xMax, lineY(st.w, xMax)]
+          last = [xMax, lineY(xMax)]
           pts.push(`${f1(last[0])},${f1(last[1])}`)
         }
         line.setAttribute('points', pts.join(' '))
         const headOn = st.lineP < 1 ? 1 : 0
         set(lineHead, { cx: f1(last[0]), cy: f1(last[1]), opacity: headOn })
-        set(lineGlow, { cx: f1(last[0]), cy: f1(last[1]), opacity: headOn * 0.35 })
+        set(lineGlow, { cx: f1(last[0]), cy: f1(last[1]), opacity: headOn * 0.4 })
       } else {
         line.setAttribute('points', '')
         lineHead.setAttribute('opacity', 0)
         lineGlow.setAttribute('opacity', 0)
       }
-
       set(tipCore, { r: f2(st.tipR), opacity: f2(st.tipOn) })
-      set(tipGlow, { r: f2(st.glowR), fill: st.a1, opacity: f2(st.glowOp * st.tipOn) })
-      set(tipRing, { r: f2(st.ringR), stroke: st.a1, 'stroke-opacity': f2(st.ringOp), 'stroke-width': 1.2 })
-      haloStops.forEach((s) => s.setAttribute('stop-color', st.a1))
+      set(tipGlow, { r: f2(st.glowR), opacity: f2(st.glowOp * st.tipOn) })
+      set(tipRing, { r: f2(st.ringR), 'stroke-opacity': f2(st.ringOp), 'stroke-width': 1.2 })
       haloC.setAttribute('opacity', f2(st.halo))
     },
   }
 }
 
-// ---------- scene 1: illusion ----------
-const noise = { traces: [], nums: [], bars: [] }
-const intensity = (t) => lerp(0.3, 1, E.inCubic(seg(t, 0, 2.38)))
-function buildNoise() {
-  const svg = $('noiseSvg')
-  const r = rng(11)
+// ---------- 01 · Illusion: the market as it looks without Dispel ----------
+const CHAOS = { traces: [], candles: [], indicators: [], nums: [], bubbles: [] }
+const BUBBLES = TL.bubbles
+const intensity = (t) => (t < TL.spark ? lerp(0.35, 1, E.inCubic(seg(t, 0, TL.spark - 0.1))) : lerp(1, 0.25, E.outCubic(seg(t, TL.spark, TL.spark + 0.45))))
+function buildChaos() {
+  const layer = $('chaos')
+  const svg = S('svg', { class: 'layer', width: 1920, height: 1080 }, layer)
   const defs = S('defs', {}, svg)
-  const blurs = [0, 1.3, 3.2].map((sd, i) => {
-    if (!sd) return S('g', {}, svg)
-    const f = S('filter', { id: 'nb' + i, x: '-5%', y: '-20%', width: '110%', height: '140%' }, defs)
-    S('feGaussianBlur', { stdDeviation: sd }, f)
-    return S('g', { filter: `url(#nb${i})` }, svg)
-  })
-  for (let j = 0; j < 20; j++) {
+  const blur = (id, sd) => S('feGaussianBlur', { stdDeviation: sd }, S('filter', { id, x: '-10%', y: '-30%', width: '120%', height: '160%' }, defs))
+  blur('cb1', 1.4)
+  blur('cb2', 3)
+  const fade = S('linearGradient', { id: 'cfade', x1: 0, x2: 1, y1: 0, y2: 0 }, defs)
+  S('stop', { offset: 0, 'stop-color': '#fff', 'stop-opacity': 0 }, fade)
+  S('stop', { offset: 0.32, 'stop-color': '#fff', 'stop-opacity': 1 }, fade)
+  const mask = S('mask', { id: 'cmask' }, defs)
+  S('rect', { width: 1920, height: 1080, fill: 'url(#cfade)' }, mask)
+  const root = S('g', { mask: 'url(#cmask)' }, svg)
+  const groups = [S('g', {}, root), S('g', { filter: 'url(#cb1)' }, root), S('g', { filter: 'url(#cb2)' }, root)]
+  const r = rng(11)
+  // jittering price traces
+  for (let j = 0; j < 13; j++) {
     const roll = r()
-    const color = roll < 0.14 ? '#59d499' : roll < 0.28 ? '#f0506e' : '#ffffff'
-    const alpha = color === '#ffffff' ? lerp(0.07, 0.26, r()) : lerp(0.2, 0.36, r())
-    const g = blurs[Math.floor(r() * 3)]
-    const width = lerp(1, 1.7, r())
-    noise.traces.push({
+    const color = roll < 0.16 ? '#59d499' : roll < 0.32 ? '#f0506e' : '#ffffff'
+    const alpha = color === '#ffffff' ? lerp(0.08, 0.24, r()) : lerp(0.2, 0.34, r())
+    const g = groups[Math.floor(r() * 3)]
+    const width = lerp(1, 1.6, r())
+    CHAOS.traces.push({
       main: S('polyline', { fill: 'none', stroke: color, 'stroke-opacity': f2(alpha), 'stroke-width': f2(width), 'stroke-linejoin': 'round' }, g),
       ghost: S('polyline', { fill: 'none', stroke: color, 'stroke-opacity': f2(alpha * 0.45), 'stroke-width': f2(width) }, g),
-      y0: lerp(90, 990, r()), amp: lerp(24, 120, r()), f1: lerp(0.0018, 0.005, r()), f2: lerp(0.011, 0.028, r()),
-      s1: lerp(-1.6, 1.6, r()), s2: lerp(0.8, 3, r()), p1: r() * 6.28, p2: r() * 6.28, trend: lerp(-0.2, 0.2, r()), j,
+      y0: lerp(150, 950, r()), amp: lerp(24, 110, r()), f1: lerp(0.0018, 0.005, r()), f2: lerp(0.011, 0.028, r()),
+      s1: lerp(-1.6, 1.6, r()), s2: lerp(0.8, 3, r()), p1: r() * TAU, p2: r() * TAU, trend: lerp(-0.2, 0.2, r()), j,
     })
   }
-  const tickers = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT', 'BNB/USDT', 'ARB/USDT', 'DOGE/USDT', 'AVAX/USDT', 'LINK/USDT', 'SUI/USDT']
-  for (let i = 0; i < 40; i++) {
-    const kind = r() < 0.45 ? 'price' : r() < 0.6 ? 'pct' : 'tick'
-    const size = lerp(14, 34, r() ** 1.6)
-    const pct = kind === 'pct'
+  // double-vision candles: the same market drawn twice and never agreeing
+  let price = 0
+  for (let i = 0; i < 46; i++) {
+    const open = price
+    price += (r() - 0.5) * 2.2 + Math.sin(i / 5) * 0.5
+    const close = price
+    const hi = Math.max(open, close) + r() * 1.2
+    const lo = Math.min(open, close) - r() * 1.2
+    const x = 790 + i * 23
+    const mk = (flip, cls) => {
+      const up = (close >= open) !== flip
+      const col = up ? '#59d499' : '#f0506e'
+      const g = S('g', {}, groups[cls])
+      const wick = S('line', { stroke: col, 'stroke-width': 1.3 }, g)
+      const body = S('rect', { fill: col, rx: 1 }, g)
+      return { g, wick, body }
+    }
+    CHAOS.candles.push({ i, x, open, close, hi, lo, a: mk(false, 0), b: mk(true, 1) })
+  }
+  // indicator spaghetti
+  ;['#8aa4ff', '#c79bff', '#ffc07a', '#59d499', '#f0506e'].forEach((color, k) => {
+    CHAOS.indicators.push({ el: S('polyline', { fill: 'none', stroke: color, 'stroke-opacity': 0.26, 'stroke-width': 1.5 }, groups[k % 2]), k, ph: r() * TAU })
+  })
+  // a breakout that isn't
+  CHAOS.fake = S('g', {}, root)
+  S('line', { x1: 1795, x2: 1795, y1: 250, y2: 520, stroke: '#59d499', 'stroke-width': 1.6 }, CHAOS.fake)
+  S('rect', { x: 1786, y: 280, width: 18, height: 210, rx: 1, fill: '#59d499' }, CHAOS.fake)
+  // flickering numbers
+  for (let i = 0; i < 18; i++) {
+    const kind = r() < 0.55 ? 'price' : 'pct'
     const up = r() < 0.5
-    const g = blurs[r() < 0.45 ? 0 : r() < 0.6 ? 1 : 2]
-    const node = S('text', { 'font-family': 'Geist Mono', 'font-size': f1(size), fill: pct ? (up ? '#59d499' : '#f0506e') : r() < 0.3 ? '#ffffff' : '#9c9c9d' }, g)
-    noise.nums.push({
-      node, kind, up, x: lerp(-60, 1860, r()), y: lerp(40, 1060, r()), vx: lerp(-40, 40, r()), vy: lerp(-30, -8, r()),
-      alpha: lerp(0.12, 0.5, r()), digits: 3 + Math.floor(r() * 3), label: tickers[Math.floor(r() * tickers.length)], i,
-    })
+    const node = S('text', { 'font-family': 'Geist Mono', 'font-size': f1(lerp(14, 30, r() ** 1.5)), fill: kind === 'pct' ? (up ? '#59d499' : '#f0506e') : '#9c9c9d' }, groups[r() < 0.5 ? 0 : 2])
+    CHAOS.nums.push({ node, kind, up, x: lerp(700, 1860, r()), y: lerp(120, 1040, r()), vy: lerp(-28, -8, r()), alpha: lerp(0.14, 0.42, r()), digits: 3 + Math.floor(r() * 3), i })
   }
-  for (let k = 0; k < 6; k++) noise.bars.push(S('rect', { x: 0, width: 1920, fill: '#fff' }, svg))
+  // hype
+  BUBBLES.forEach((b, i) => {
+    const el = D('div', `bub ${b.tone}`, layer)
+    el.innerHTML = `<i>${b.who}</i><b>${b.text}</b>`
+    CHAOS.bubbles.push({ ...b, i, el, tilt: (hash(i, 7) - 0.5) * 9, depth: i === 4 || i === 8 ? 1.4 : 0 })
+  })
 }
-function updateNoise(t) {
-  const on = t < 3.12
-  show($('noise'), on)
+function measureBubbles() {
+  for (const b of CHAOS.bubbles) {
+    b.w = b.el.offsetWidth
+    b.h = b.el.offsetHeight
+  }
+}
+function updateChaos(t) {
+  const on = t < TL.expand[1] + 0.05
+  show($('chaos'), on)
   if (!on) return
   const I = intensity(t)
-  const step = Math.floor(t * lerp(8, 26, I))
-  const shakeStep = Math.floor(t * 30)
-  const shake = I ** 3 * 6 * (t < TL.slash ? 1 : 0)
-  const sx = (hash(shakeStep, 1) - 0.5) * 2 * shake
-  const sy = (hash(shakeStep, 2) - 0.5) * 2 * shake
-  const box = $('noise')
-  box.style.transform = `translate(${f2(sx)}px, ${f2(sy)}px) scale(${f2(lerp(1, 1.07, E.outCubic(seg(t, 0, 2.4))))})`
-  box.style.opacity = f2(seg(t, 0, 0.35))
-  // the spell wipes clockwise from the tip angle
-  const p = cometWipe(t)
-  if (p > 0) {
-    const start = COMET.endAngle + 90 // css conic 0deg = up
-    const done = 360 * p
-    const edge = Math.max(0, done - 26)
-    const mask = `conic-gradient(from ${f2(start)}deg at 50% 50%, transparent 0deg, transparent ${f2(edge)}deg, #000 ${f2(done + 0.01)}deg, #000 360deg)`
-    box.style.webkitMaskImage = mask
-    box.style.maskImage = mask
+  const step = Math.floor(t * lerp(8, 24, I))
+  const layer = $('chaos')
+  layer.style.opacity = f2(seg(t, 0, 0.3))
+  // the lens of clarity: a hole in the illusion
+  const R = lensR(t)
+  if (R > 0.5) {
+    const c = lensCenter(t)
+    const m = `radial-gradient(circle at ${f1(c.x)}px ${f1(c.y)}px, transparent ${f1(Math.max(0, R - 1.5))}px, #000 ${f1(R + 1.5)}px)`
+    layer.style.webkitMaskImage = m
+    layer.style.maskImage = m
   } else {
-    box.style.webkitMaskImage = 'none'
-    box.style.maskImage = 'none'
+    layer.style.webkitMaskImage = 'none'
+    layer.style.maskImage = 'none'
   }
-  for (const tr of noise.traces) {
+  // after the spark the illusions lose their grip
+  const calm = seg(t, TL.spark, TL.spark + 0.5)
+  const dim = lerp(1, 0.55, E.outCubic(calm))
+  for (const tr of CHAOS.traces) {
     const pts = []
-    for (let x = -40; x <= 1960; x += 16) {
+    for (let x = 560; x <= 1960; x += 16) {
       const bucket = x / 48
       const b0 = Math.floor(bucket)
       const fr = bucket - b0
       const sm = fr * fr * (3 - 2 * fr)
       const jit = lerp(hash(b0, step, tr.j) - 0.5, hash(b0 + 1, step, tr.j) - 0.5, sm)
-      const y = tr.y0 + tr.amp * (0.65 * Math.sin(x * tr.f1 + t * tr.s1 * (0.6 + I) + tr.p1) + 0.35 * Math.sin(x * tr.f2 - t * tr.s2 * (0.5 + I) + tr.p2)) + tr.trend * (x - 960) + jit * I * 46
+      const y = tr.y0 + tr.amp * (0.65 * Math.sin(x * tr.f1 + t * tr.s1 * (0.6 + I) + tr.p1) + 0.35 * Math.sin(x * tr.f2 - t * tr.s2 * (0.5 + I) + tr.p2)) + tr.trend * (x - 1200) + jit * I * 44
       pts.push(`${f1(x)},${f1(y)}`)
     }
     const s = pts.join(' ')
@@ -517,413 +569,318 @@ function updateNoise(t) {
     tr.ghost.setAttribute('points', s)
     const g = 5 + 16 * I
     tr.ghost.setAttribute('transform', `translate(${f1(g * Math.sin(t * 3 + tr.j))} ${f1(-g * 0.4)})`)
+    tr.main.parentNode.setAttribute('opacity', f2(dim))
   }
-  for (const n of noise.nums) {
-    let text
+  const py = (v) => 560 - v * 16
+  for (const c of CHAOS.candles) {
+    const wob = (k) => (hash(c.i, step, k) - 0.5) * I * 10 + Math.sin(t * 2.2 + c.i * 0.7) * 4 * I
+    const draw = (part, dx, dy, k) => {
+      const yo = wob(k)
+      const top = py(Math.max(c.open, c.close)) + yo + dy
+      const bot = py(Math.min(c.open, c.close)) + yo + dy
+      set(part.wick, { x1: f1(c.x + dx), x2: f1(c.x + dx), y1: f1(py(c.hi) + yo + dy), y2: f1(py(c.lo) + yo + dy) })
+      set(part.body, { x: f1(c.x + dx - 6), y: f1(top), width: 12, height: f1(Math.max(1.5, bot - top)) })
+    }
+    draw(c.a, 0, 0, 1)
+    const gx = (8 + 10 * I) * Math.sin(t * 2.6 + c.i * 0.11)
+    draw(c.b, gx, -6 - 6 * I, 2)
+    c.a.g.setAttribute('opacity', f2(0.5 * dim))
+    c.b.g.setAttribute('opacity', f2((0.2 + 0.18 * I) * dim))
+  }
+  for (const ind of CHAOS.indicators) {
+    const pts = []
+    for (let x = 700; x <= 1900; x += 20) {
+      const y = 560 + 150 * Math.sin(x * 0.006 + ind.ph + t * (0.7 + ind.k * 0.25)) + 70 * Math.sin(x * 0.017 - t * 1.3 + ind.k) + (hash(Math.floor(x / 60), step, ind.k + 40) - 0.5) * 30 * I
+      pts.push(`${f1(x)},${f1(y)}`)
+    }
+    ind.el.setAttribute('points', pts.join(' '))
+    ind.el.setAttribute('stroke-opacity', f2(0.26 * dim))
+  }
+  const fk = seg(t, 1.15, 1.3) * (1 - seg(t, 1.5, 1.7))
+  CHAOS.fake.setAttribute('opacity', f2(fk * 0.8 * dim))
+  CHAOS.fake.setAttribute('transform', `translate(0 520) scale(1 ${f2(Math.max(0.001, fk))}) translate(0 -520)`)
+  for (const n of CHAOS.nums) {
     const h = (k) => Math.floor(hash(n.i, step, k) * 10)
+    let text
     if (n.kind === 'price') {
       let digits = ''
       for (let k = 0; k < n.digits; k++) digits += h(k)
       text = `${digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${h(8)}${h(9)}`
-    } else if (n.kind === 'pct') text = `${n.up ? '+' : '−'}${h(1)}.${h(2)}${h(3)}%`
-    else text = n.label
+    } else text = `${n.up ? '+' : '−'}${h(1)}.${h(2)}${h(3)}%`
     n.node.textContent = text
     const flick = hash(n.i, step, 77) < 0.12 + 0.25 * I ? 0.25 : 1
-    set(n.node, { x: f1(n.x + n.vx * t), y: f1(n.y + n.vy * t), opacity: f2(n.alpha * flick * lerp(0.7, 1, I)) })
+    set(n.node, { x: f1(n.x), y: f1(n.y + n.vy * t), opacity: f2(n.alpha * flick * dim) })
   }
-  noise.bars.forEach((bar, k) => {
-    const on = hash(k, Math.floor(t * 14), 5) < I * 0.35 && t < TL.slash
-    set(bar, { y: f1(hash(k, Math.floor(t * 14), 6) * 1080), height: f1(2 + hash(k, 9, Math.floor(t * 14)) * 7), opacity: on ? f2(0.03 + 0.06 * I) : 0 })
-  })
-}
-
-const head = { letters: [] }
-function buildHeadline() {
-  const line = D('div', 'h1line', $('h1'))
-  const words = ['Markets', 'are', 'full', 'of', 'illusions.']
-  words.forEach((word, wi) => {
-    const ws = D('span', 'word', line)
-    for (const ch of word) {
-      const box = D('span', 'ch', ws)
-      const ghosts = wi === 4 ? [D('span', 'ghost', box, ch), D('span', 'ghost', box, ch)] : []
-      const core = D('span', '', box, ch)
-      head.letters.push({ box, core, ghosts, wi, li: head.letters.length })
-    }
-    if (wi < words.length - 1) line.appendChild(document.createTextNode(' '))
-  })
-}
-function measureHeadline() {
-  for (const l of head.letters) {
-    const r = l.box.getBoundingClientRect()
-    l.cx = r.left + r.width / 2
-    l.cy = r.top + r.height / 2
-    const ang = (Math.atan2(l.cy - CY, l.cx - CX) * 180) / Math.PI
-    l.lp = ((((ang - COMET.endAngle) % 360) + 360) % 360) / 360
-  }
-}
-function updateHeadline(t) {
-  const on = t < 3.25
-  show($('h1'), on)
-  if (!on) return
-  const I = intensity(t)
-  const step = Math.floor(t * 20)
-  const p = cometWipe(t)
-  const snap = 1 - seg(t, TL.slash, TL.slash + 0.14)
-  const pre = E.inOutCubic(seg(t, 2.05, TL.slash))
-  $('h1').style.transform = `translateY(${f1(-10 * E.outCubic(seg(t, 0, 2.4)))}px) scale(${f2(1 - 0.02 * pre)})`
-  for (const l of head.letters) {
-    const st = 0.18 + l.wi * 0.13
-    const k = E.outExpo(seg(t, st, st + 0.8))
-    let op = seg(t, st, st + 0.3)
-    let blur = (1 - k) * 16
-    let ty = (1 - k) * 34
-    let tx = 0
-    let sc = 1
-    if (l.wi === 4) {
-      ty += (hash(l.li, step) - 0.5) * I * 9 * snap
-      if (hash(l.li, step, 3) < I * 0.12 * snap) op *= 0.45
-      l.ghosts.forEach((g, gi) => {
-        const dx = (gi ? -1 : 1) * (4 + 18 * I) * (0.6 + 0.4 * Math.sin(t * 7 + l.li + gi * 2)) * snap
-        g.style.transform = `translate(${f1(dx)}px, ${f1((gi ? 3 : -3) * I * snap)}px)`
-        g.style.opacity = f2(op * (0.18 + 0.22 * I) * snap)
-        g.style.filter = `blur(${f1(1 + 2 * I)}px)`
-      })
-    }
-    const d = Math.max(clamp((p - l.lp) / 0.13), seg(t, 2.94, 3.14))
-    if (d > 0) {
-      const e = E.outCubic(d)
-      const dx = l.cx - CX
-      const dy = l.cy - CY
-      const m = Math.hypot(dx, dy) || 1
-      tx += (dx / m) * 60 * e
-      ty += (dy / m) * 60 * e - 26 * e
-      blur += 18 * e
-      op *= 1 - e
-      sc = 1 + 0.35 * e
-    }
-    l.core.style.opacity = f2(op)
-    l.box.style.transform = `translate(${f1(tx)}px, ${f1(ty)}px) scale(${f2(sc)})`
-    l.box.style.filter = blur > 0.05 ? `blur(${f1(blur)}px)` : 'none'
+  const pstep = Math.floor(t * 20)
+  for (const b of CHAOS.bubbles) {
+    const pop = seg(t, b.at, b.at + 0.34)
+    const k = E.outBack(pop, 2.2)
+    const d = b.gone ? seg(t, b.gone, b.gone + 0.26) : 0
+    const flick = t < TL.spark && hash(b.i, pstep, 3) < 0.05 * I ? 0.55 : 1
+    const fy = Math.sin(t * 1.3 + b.i) * 4
+    const sc = Math.max(0.001, k) * (1 + 0.16 * E.outCubic(d))
+    b.el.style.transform = `translate(${f1(b.x - b.w / 2)}px, ${f1(b.y - b.h / 2 + fy - 10 * E.outCubic(d))}px) scale(${f2(sc)}) rotate(${f1(b.tilt * (1 - 0.6 * pop))}deg)`
+    b.el.style.opacity = f2(clamp(pop * 3) * (1 - d) * flick)
+    const bl = b.depth + 12 * d
+    b.el.style.filter = bl > 0.05 ? `blur(${f1(bl)}px)` : 'none'
+    b.el.style.display = pop <= 0 || d >= 1 ? 'none' : ''
   }
 }
 
-// ---------- the comet (the spell) ----------
-const COMET = { segs: [], glow: [] }
-const cometP = (t) => E.inOutCubic(seg(t, TL.slash, TL.land))
-function cometPos(q) {
-  const theta = COMET.endAngle - 360 * (1 - q)
-  const qc = clamp(q)
-  const r = q < 0 ? 1050 - q * 500 : lerp(1050, COMET.endR, E.outCubic(qc))
-  const ax = lerp(1.4, 1, qc * qc)
-  const ay = lerp(0.82, 1, qc * qc)
-  return { x: CX + r * ax * Math.cos(RAD(theta)), y: CY + r * ay * Math.sin(RAD(theta)) }
+// ---------- 02 · Dispel: a lens of clarity, then the whole frame ----------
+function lensR(t) {
+  if (t < TL.lens[0]) return 0
+  if (t < TL.lens[1]) return 320 * E.outExpo(seg(t, TL.lens[0], TL.lens[1]))
+  if (t < TL.expand[0]) return lerp(320, 412, E.inOutSine(seg(t, TL.lens[1], TL.expand[0])))
+  return lerp(412, 2500, E.inOutCubic(seg(t, TL.expand[0], TL.expand[1])))
 }
-// how far round the frame the spell has swept, measured from the centre (drives the wipe)
-function cometWipe(t) {
-  const p = cometP(t)
-  if (p <= 0) return 0
-  const pos = cometPos(p)
-  const theta = COMET.endAngle - 360 * (1 - p)
-  const polar = (Math.atan2(pos.y - CY, pos.x - CX) * 180) / Math.PI
-  const delta = ((((polar - theta) % 360) + 540) % 360) - 180
-  return clamp((theta + delta - (COMET.endAngle - 360)) / 360)
+function lensCenter(t) {
+  const c = project(SIG, camAt(t))
+  if (t >= TL.lens[1] + 0.1) return c
+  const tip = project(SIG_TIP, camAt(t))
+  const k = E.outCubic(seg(t, TL.lens[0], TL.lens[1] + 0.1))
+  return { x: lerp(tip.x, c.x, k), y: lerp(tip.y, c.y, k) }
 }
-function buildFx() {
+const PARTS = []
+function buildDispel() {
   const fx = $('fx')
   const defs = S('defs', {}, fx)
   const blur = (id, sd) => S('feGaussianBlur', { stdDeviation: sd }, S('filter', { id, x: '-600%', y: '-600%', width: '1300%', height: '1300%' }, defs))
-  blur('fxg8', 8)
-  blur('fxg16', 16)
+  blur('fxg6', 6)
+  blur('fxg14', 14)
   const flare = S('radialGradient', { id: 'flare' }, defs)
   S('stop', { offset: 0, 'stop-color': '#ffffff', 'stop-opacity': 0.95 }, flare)
   S('stop', { offset: 0.18, 'stop-color': '#ff8f7a', 'stop-opacity': 0.55 }, flare)
   S('stop', { offset: 1, 'stop-color': '#ff6363', 'stop-opacity': 0 }, flare)
-  const gGlow = S('g', { filter: 'url(#fxg8)' }, fx)
-  const gTrail = S('g', {}, fx)
-  for (let k = 0; k < 72; k++) {
-    COMET.glow.push(S('line', { 'stroke-linecap': 'round' }, gGlow))
-    COMET.segs.push(S('line', { 'stroke-linecap': 'round' }, gTrail))
+  FX.rimGlow = S('path', { fill: 'none', stroke: '#ffb3a8', 'stroke-width': 8, filter: 'url(#fxg6)', 'stroke-linecap': 'round' }, fx)
+  FX.rim = S('circle', { fill: 'none', stroke: '#ffffff' }, fx)
+  FX.rim2 = S('circle', { fill: 'none', stroke: '#ffffff' }, fx)
+  FX.rimArc = S('path', { fill: 'none', stroke: '#ffffff', 'stroke-width': 2, 'stroke-linecap': 'round' }, fx)
+  FX.partG = S('g', {}, fx)
+  FX.flareWide = S('ellipse', { fill: 'url(#flare)' }, fx)
+  FX.flareSoft = S('ellipse', { fill: 'url(#flare)' }, fx)
+  FX.sparkGlow = S('circle', { fill: '#ff6363', filter: 'url(#fxg14)' }, fx)
+  FX.sparkCore = S('circle', { fill: '#fff' }, fx)
+  FX.shock = S('circle', { fill: 'none', stroke: '#ff6363' }, fx)
+  const r = rng(5)
+  for (const b of CHAOS.bubbles) {
+    for (let k = 0; k < 24; k++) {
+      PARTS.push({
+        b, ox: (r() - 0.5) * 0.9, oy: (r() - 0.5) * 0.7, sp: lerp(50, 190, r()), spread: (r() - 0.5) * 1.1, size: lerp(1.6, 3.4, r()), life: lerp(0.55, 1.05, r()),
+        col: r() < 0.55 ? '#ffffff' : { up: '#59d499', down: '#f0506e', caution: '#e8b04a' }[b.tone],
+        el: S('rect', {}, FX.partG),
+      })
+    }
   }
-  COMET.headGlow = S('circle', { r: 26, fill: '#ff6363', filter: 'url(#fxg16)' }, fx)
-  COMET.head = S('circle', { r: 4.5, fill: '#fff' }, fx)
-  COMET.shock = S('circle', { fill: 'none', stroke: '#ff6363' }, fx)
-  // screen-aligned lens flare for ignitions
-  COMET.flareWide = S('ellipse', { fill: 'url(#flare)' }, fx)
-  COMET.flareSoft = S('ellipse', { fill: 'url(#flare)' }, fx)
-  // hero tip that carries the eye across the cut into the chart
-  COMET.heroGlow = S('circle', { fill: '#ff6363', filter: 'url(#fxg16)' }, fx)
-  COMET.heroRing = S('circle', { fill: 'none', stroke: '#fff' }, fx)
-  COMET.heroCore = S('circle', { fill: '#fff' }, fx)
-  COMET.logoShock = S('circle', { fill: 'none', stroke: '#ff6363' }, fx)
-  COMET.logoShock2 = S('circle', { fill: 'none', stroke: '#ffffff' }, fx)
 }
-function updateComet(t) {
-  const on = t >= TL.slash - 0.05 && t < TL.land + 0.2
-  const p = cometP(t)
-  const tail = 0.3 * (1 - E.inCubic(seg(t, TL.land - 0.24, TL.land + 0.02)))
-  const N = COMET.segs.length
-  for (let k = 0; k < N; k++) {
-    if (!on || tail < 0.002) {
-      COMET.segs[k].setAttribute('stroke-opacity', 0)
-      COMET.glow[k].setAttribute('stroke-opacity', 0)
+function solveDissolves() {
+  // a bubble breaks the moment the lens reaches it
+  for (const b of CHAOS.bubbles) {
+    b.gone = null
+    for (let t = TL.lens[0]; t <= TL.expand[1]; t += 1 / 240) {
+      const c = lensCenter(t)
+      if (lensR(t) >= Math.hypot(b.x - c.x, b.y - c.y) - Math.min(b.w, 120) * 0.45) {
+        b.gone = t
+        b.dir = Math.atan2(b.y - c.y, b.x - c.x)
+        break
+      }
+    }
+  }
+}
+function updateDispel(t) {
+  const R = lensR(t)
+  const c = R > 0 ? lensCenter(t) : { x: 0, y: 0 }
+  const rimOn = R > 0.5 ? 1 - seg(R, 900, 1500) : 0
+  set(FX.rim, { cx: f1(c.x), cy: f1(c.y), r: f1(R), 'stroke-width': 1.4, 'stroke-opacity': f2(0.55 * rimOn) })
+  set(FX.rim2, { cx: f1(c.x), cy: f1(c.y), r: f1(R + 9), 'stroke-width': 1, 'stroke-opacity': f2(0.12 * rimOn) })
+  const a0 = -90 + (t - TL.spark) * 150
+  const arc = R > 4 ? `M${f1(c.x + R * Math.cos(RAD(a0)))} ${f1(c.y + R * Math.sin(RAD(a0)))} A${f1(R)} ${f1(R)} 0 0 1 ${f1(c.x + R * Math.cos(RAD(a0 + 76)))} ${f1(c.y + R * Math.sin(RAD(a0 + 76)))}` : 'M0 0'
+  FX.rimArc.setAttribute('d', arc)
+  FX.rimGlow.setAttribute('d', arc)
+  FX.rimArc.setAttribute('opacity', f2(0.9 * rimOn))
+  FX.rimGlow.setAttribute('opacity', f2(0.35 * rimOn))
+  // the spark: the spell lands on the sigil's tip
+  const tip = project(SIG_TIP, camAt(t))
+  const sp = seg(t, TL.spark - 0.04, TL.spark + 0.75)
+  const spOn = sp > 0 && sp < 1
+  const e = 1 - E.outCubic(sp)
+  set(FX.flareWide, { cx: f1(tip.x), cy: f1(tip.y), rx: f1(lerp(140, 640, E.outCubic(sp))), ry: 2.2, opacity: f2(spOn ? e * 0.9 : 0) })
+  set(FX.flareSoft, { cx: f1(tip.x), cy: f1(tip.y), rx: 250, ry: 24, opacity: f2(spOn ? e * 0.3 : 0) })
+  set(FX.sparkGlow, { cx: f1(tip.x), cy: f1(tip.y), r: f1(10 + 50 * e), opacity: f2(spOn ? 0.85 * e : 0) })
+  set(FX.sparkCore, { cx: f1(tip.x), cy: f1(tip.y), r: f1(3 + 5 * e), opacity: f2(spOn ? clamp(e * 3) * (t < TL.spark + 0.4 ? 1 : 0) : 0) })
+  const sk = seg(t, TL.spark, TL.spark + 0.6)
+  set(FX.shock, { cx: f1(tip.x), cy: f1(tip.y), r: f1(lerp(6, 190, E.outCubic(sk))), 'stroke-width': f2(lerp(2.5, 0.5, sk)), opacity: f2(sk > 0 && sk < 1 ? 0.6 * (1 - sk) : 0) })
+  for (const p of PARTS) {
+    const b = p.b
+    const age = b.gone ? t - b.gone : -1
+    if (age < 0 || age > p.life) {
+      p.el.setAttribute('opacity', 0)
       continue
     }
-    const s0 = k / N
-    const s1 = (k + 1) / N
-    const a = cometPos(p - tail * (1 - s0))
-    const b = cometPos(p - tail * (1 - s1))
-    const color = mixHex('#ffc07a', '#ff6363', s1 ** 0.7)
-    const alpha = s1 ** 1.3
-    set(COMET.segs[k], { x1: f1(a.x), y1: f1(a.y), x2: f1(b.x), y2: f1(b.y), stroke: s1 > 0.94 ? '#ffe3dc' : color, 'stroke-width': f2(lerp(0.5, 5, s1 ** 1.6)), 'stroke-opacity': f2(alpha) })
-    set(COMET.glow[k], { x1: f1(a.x), y1: f1(a.y), x2: f1(b.x), y2: f1(b.y), stroke: color, 'stroke-width': f2(lerp(2, 16, s1 ** 1.4)), 'stroke-opacity': f2(alpha * 0.5) })
+    const k = age / p.life
+    const dir = b.dir + p.spread
+    const x = b.x + p.ox * b.w + Math.cos(dir) * p.sp * age
+    const y = b.y + p.oy * b.h + Math.sin(dir) * p.sp * age - 26 * age * age
+    set(p.el, { x: f1(x), y: f1(y), width: f2(p.size), height: f2(p.size), fill: p.col, opacity: f2((1 - k) ** 1.6 * 0.9) })
   }
-  const hp = cometPos(p)
-  const headOp = on ? 1 - seg(t, TL.land, TL.land + 0.12) : 0
-  set(COMET.head, { cx: f1(hp.x), cy: f1(hp.y), opacity: f2(headOp) })
-  set(COMET.headGlow, { cx: f1(hp.x), cy: f1(hp.y), opacity: f2(headOp * 0.85) })
-  const sk = seg(t, TL.land, TL.land + 0.55)
-  set(COMET.shock, { cx: f1(COMET.tip.x), cy: f1(COMET.tip.y), r: f1(lerp(6, 170, E.outCubic(sk))), 'stroke-opacity': f2(sk > 0 && sk < 1 ? 0.6 * (1 - sk) : 0), 'stroke-width': f2(lerp(2.5, 0.6, sk)) })
 }
 
-// ---------- camera for the main sigil ----------
-function screenOf(cam, p) {
-  const c = Math.cos(RAD(cam.r))
-  const s = Math.sin(RAD(cam.r))
-  return { x: CX + cam.x + cam.s * (p.x * c - p.y * s), y: CY + cam.y + cam.s * (p.x * s + p.y * c) }
-}
-function camMain(t) {
-  const a = E.outCubic(seg(t, 2.9, 6.5))
-  let s = lerp(0.84, 1, a)
-  let r = lerp(-14, 0, a)
-  let x = 0
-  let y = 0
-  const k = E.inOutCubic(seg(t, 6.3, 7.0))
-  x += 390 * k
-  s *= lerp(1, 0.95, k)
-  for (const m of TL.moods) {
-    const q = seg(t, m, m + 0.6)
-    if (q > 0 && q < 1) {
-      const e = E.outCubic(q)
-      s *= lerp(0.97, 1, e)
-      r += lerp(-4, 0, e)
-    }
-  }
-  const z = seg(t, TL.zoom, TL.cut)
-  if (z > 0) {
-    const before = screenOf({ x, y, s, r }, TIP)
-    const zs = s * lerp(1, 6, E.inExpo(z))
-    const k2 = E.inOutCubic(z)
-    const tx = lerp(before.x, CX, k2)
-    const ty = lerp(before.y, CY, k2)
-    const c = Math.cos(RAD(r))
-    const sn = Math.sin(RAD(r))
-    x = tx - CX - zs * (TIP.x * c - TIP.y * sn)
-    y = ty - CY - zs * (TIP.x * sn + TIP.y * c)
-    s = zs
-  }
-  return { x, y, s, r }
-}
-
-let MAIN
-const RING_T = { 470: [3.0, 0.56], 410: [3.04, 0.5], 440: [3.1, 0.62], 350: [3.14, 0.6], 290: [3.22, 0.66] }
-const breath = (t, period = 2.2) => 0.22 + 0.36 * (0.5 - 0.5 * Math.cos((2 * Math.PI * t) / period))
-function mainState(t) {
-  const m = moodAt(t)
-  const ig = TL.ignite
-  const lit = t >= ig
-  const pop = E.outBack(seg(t, ig, ig + 0.4), 3.2)
-  const bloom = 1 - E.outCubic(seg(t, ig, ig + 0.8))
-  const hero = t >= TL.zoom
+// ---------- the world: Dispel's window, one camera ----------
+const WIN = { w: 1400, h: 860, C: { x: 700, y: 430 } }
+const SIG = { x: 178 + 873, y: 62 + 215 }
+const SIG_SCALE = 745 / 1040
+const SIG_TIP = { x: SIG.x + TIP.x * SIG_SCALE, y: SIG.y + TIP.y * SIG_SCALE }
+const TICKET = { x: 1018 + 186, y: 62 + 394 }
+const PERSPECTIVE = 2400
+function cam(F, x, y, s, ry, rx) { return { F, sF: { x, y }, s, ry, rx } }
+function mixCam(a, b, k) {
   return {
-    opacity: 1 - seg(t, TL.cut - 0.16, TL.cut),
-    fog: m.fog, a0: m.a0, a1: m.a1, strength: m.strength, dash: m.dash, w: m.w,
-    anchor: -35,
-    ring: (r) => ({ p: E.inOutCubic(seg(t, RING_T[r][0], RING_T[r][0] + RING_T[r][1])) }),
-    tickSpin: (t - 3) * 5,
-    tick: (a) => {
-      const ta = TL.ticks[0] + ((((a + 35) % 360) + 360) % 360) / 360 * (TL.ticks[1] - TL.ticks[0])
-      return { len: E.outCubic(seg(t, ta, ta + 0.16)), flash: 1 - seg(t, ta + 0.04, ta + 0.5) }
-    },
-    nodeSpin: -(t - 3) * 3.3,
-    node: (i, a) => {
-      const ta = TL.nodes + ((((a + 35) % 360) + 360) % 360) / 30 * 0.045
-      const q = seg(t, ta, ta + 0.42)
-      return { s: E.outBack(q, 2.6), rot: lerp(135, 0, E.outCubic(q)) }
-    },
-    hot: seg(t, ig, ig + 0.16) * m.hot,
-    orbit: [E.inOutCubic(seg(t, 3.7, 4.45)), E.inOutCubic(seg(t, 3.82, 4.6))],
-    orbitSpin: (t - 3.7) * 2.2,
-    star: E.inOutSine(seg(t, 3.95, 5.15)),
-    lineP: E.inOutCubic(seg(t, TL.line[0], TL.line[1])),
-    arcP: E.outExpo(seg(t, ig + 0.02, ig + 0.75)),
-    tipOn: hero ? 0 : seg(t, TL.land - 0.02, TL.land + 0.06),
-    tipR: lit ? lerp(2.2, 3, pop) : 2.2,
-    glowR: lit ? 9 + 40 * bloom : 7,
-    glowOp: lit ? lerp(1, breath(t) * (1 - 0.6 * m.fog), 1 - bloom) : 0.3,
-    ringR: lerp(4, 120, E.outCubic(seg(t, ig, ig + 0.75))),
-    ringOp: lit ? 0.7 * (1 - seg(t, ig, ig + 0.75)) : 0,
-    halo: lit ? E.outCubic(seg(t, ig, ig + 0.9)) * (1 - 0.85 * m.fog) * (1 - seg(t, TL.zoom, TL.zoom + 0.3)) : 0,
+    F: { x: lerp(a.F.x, b.F.x, k), y: lerp(a.F.y, b.F.y, k) },
+    sF: { x: lerp(a.sF.x, b.sF.x, k), y: lerp(a.sF.y, b.sF.y, k) },
+    s: Math.exp(lerp(Math.log(a.s), Math.log(b.s), k)),
+    ry: lerp(a.ry, b.ry, k),
+    rx: lerp(a.rx, b.rx, k),
   }
+}
+const K = {
+  lensA: cam(SIG, 1230, 540, 1.16, 0, 0),
+  lensB: cam(SIG, 1230, 540, 1.2, 0, 0),
+  clarityA: cam(SIG, 1592, 413, 0.83, -7, 3),
+  clarityB: cam(SIG, 1574, 410, 0.865, -6, 3),
+  tradeA: cam(TICKET, 1480, 560, 1.06, -4, 2),
+  tradeB: cam(TICKET, 1490, 556, 1.0, -4, 2),
+}
+function camAt(t) {
+  if (t < TL.expand[0]) return mixCam(K.lensA, K.lensB, E.inOutSine(seg(t, 2.9, TL.expand[0])))
+  if (t < TL.clarity) return mixCam(K.lensB, K.clarityA, E.inOutCubic(seg(t, TL.expand[0], TL.clarity)))
+  if (t < TL.push[0]) return mixCam(K.clarityA, K.clarityB, E.inOutSine(seg(t, TL.clarity, TL.push[0])))
+  if (t < 11.4) return mixCam(K.clarityB, K.tradeA, E.inOutCubic(seg(t, TL.push[0], TL.push[1])))
+  const c = mixCam(K.tradeA, K.tradeB, E.inOutSine(seg(t, 11.4, TL.brand)))
+  const r = E.inCubic(seg(t, TL.brand, TL.logo))
+  c.s *= lerp(1, 0.82, r)
+  c.ry -= 10 * r
+  return c
+}
+function winCenter(c) {
+  return { x: c.sF.x - c.s * (c.F.x - WIN.C.x), y: c.sF.y - c.s * (c.F.y - WIN.C.y) }
+}
+// the same maths the browser does: rotateX, then rotateY, scale, translate, then the parent's perspective
+function project(p, c) {
+  const C = winCenter(c)
+  let x = p.x - WIN.C.x
+  let y = p.y - WIN.C.y
+  let z = 0
+  const ax = RAD(c.rx)
+  const y1 = y * Math.cos(ax) - z * Math.sin(ax)
+  const z1 = y * Math.sin(ax) + z * Math.cos(ax)
+  y = y1
+  z = z1
+  const ay = RAD(c.ry)
+  const x2 = x * Math.cos(ay) + z * Math.sin(ay)
+  const z2 = -x * Math.sin(ay) + z * Math.cos(ay)
+  x = x2 * c.s
+  y = y * c.s
+  z = z2 * c.s
+  const X = C.x + x
+  const Y = C.y + y
+  const k = PERSPECTIVE / (PERSPECTIVE - z)
+  return { x: CX + (X - CX) * k, y: CY + (Y - CY) * k }
 }
 
-// ---------- callouts ----------
-const CALLOUTS = [
-  { at: () => TIP, dx: 64, dy: -64, len: 70, side: 1, a: 'TIP · −35°', b: 'THE LIVE PRICE' },
-  { at: () => ({ x: 410 * Math.cos(RAD(34)), y: 410 * Math.sin(RAD(34)) }), dx: 76, dy: 58, len: 70, side: 1, a: 'THE SPELL', b: '40° + 1.2° × TREND' },
-  { at: () => ({ x: 470 * Math.cos(RAD(200)), y: 470 * Math.sin(RAD(200)) }), dx: -64, dy: -64, len: 70, side: -1, a: 'TICK RING', b: 'EVERY 2° · MAJOR 30°' },
-  { at: () => ({ x: -400, y: lineY([1, 0, 0, 0], -400) }), dx: -64, dy: 64, len: 70, side: -1, a: 'PRICE LINE', b: 'RISES INTO THE TIP' },
-]
-function buildHud() {
-  const hud = $('hud')
-  for (const c of CALLOUTS) {
-    c.g = S('g', {}, hud)
-    c.ring = S('circle', { r: 6, fill: 'none', stroke: 'rgba(255,255,255,.7)', 'stroke-width': 1 }, c.g)
-    c.dot = S('circle', { r: 2, fill: '#fff' }, c.g)
-    c.leader = S('polyline', { fill: 'none', stroke: 'rgba(255,255,255,.4)', 'stroke-width': 1 }, c.g)
-    c.ta = S('text', { 'font-family': 'Geist Mono', 'font-size': 17, 'letter-spacing': 2, fill: '#e6e6e6', 'text-anchor': c.side > 0 ? 'start' : 'end' }, c.g)
-    c.tb = S('text', { 'font-family': 'Geist Mono', 'font-size': 13.5, 'letter-spacing': 1.6, fill: '#6a6b6c', 'text-anchor': c.side > 0 ? 'start' : 'end' }, c.g)
-  }
-}
-function updateHud(t, cam) {
-  const on = t > TL.callouts && t < 6.56
-  show($('hud'), on)
-  if (!on) return
-  const out = 1 - E.inCubic(seg(t, 6.36, 6.54))
-  const step = Math.floor(t * 30)
-  CALLOUTS.forEach((c, i) => {
-    const st = TL.callouts + i * 0.07
-    const p = screenOf(cam, c.at())
-    const pop = E.outBack(seg(t, st, st + 0.2), 2.4)
-    const draw = E.outCubic(seg(t, st + 0.05, st + 0.32))
-    const elbow = { x: p.x + c.dx, y: p.y + c.dy }
-    const endX = elbow.x + c.side * c.len
-    const pts = []
-    const d1 = clamp(draw * 1.9)
-    pts.push(`${f1(p.x + (c.dx / Math.hypot(c.dx, c.dy)) * 7)},${f1(p.y + (c.dy / Math.hypot(c.dx, c.dy)) * 7)}`)
-    pts.push(`${f1(lerp(p.x, elbow.x, d1))},${f1(lerp(p.y, elbow.y, d1))}`)
-    if (draw > 0.53) pts.push(`${f1(lerp(elbow.x, endX, clamp((draw - 0.53) / 0.47)))},${f1(elbow.y)}`)
-    c.leader.setAttribute('points', draw > 0 ? pts.join(' ') : '')
-    set(c.ring, { cx: f1(p.x), cy: f1(p.y), r: f2(6 * pop), opacity: f2(pop > 0 ? 1 : 0) })
-    set(c.dot, { cx: f1(p.x), cy: f1(p.y), opacity: f2(seg(t, st, st + 0.1)) })
-    const tx = endX + c.side * 14
-    set(c.ta, { x: f1(tx), y: f1(elbow.y + 6) })
-    set(c.tb, { x: f1(tx), y: f1(elbow.y + 28) })
-    c.ta.textContent = decode(c.a, seg(t, st + 0.2, st + 0.45), i, step)
-    c.tb.textContent = decode(c.b, seg(t, st + 0.26, st + 0.52), i + 9, step)
-    c.g.setAttribute('opacity', f2(out))
-  })
-}
-
-// ---------- scene 4: the read ----------
-const READ = { verdicts: [], subs: [] }
-const READ_COPY = {
-  unclear: { v: 'Unclear', s: 'Mixed signals · no side in control' },
-  reduce: { v: 'Reduce risk', s: '<b style="color:#f0506e">Bearish</b> bias · sellers pressing lower' },
-  wait: { v: 'Wait', s: 'Neutral bias · chop inside the range' },
-  favorable: { v: 'Look for setups', s: '<b style="color:#59d499">Bullish</b> bias · buyers in moderate control' },
-}
-function buildRead() {
-  const root = $('read')
-  const eb = D('div', 'eyebrow', root)
-  READ.dot = D('span', 'dot', eb)
-  READ.dotCore = D('i', '', READ.dot)
-  READ.dotRing = D('i', '', READ.dot)
-  D('span', '', eb, 'MARKET READ')
-  D('span', 'dim', eb, '14:32 UTC · 18 markets')
-  READ.eyebrow = eb
-  for (const key of ['unclear', 'reduce', 'wait', 'favorable']) {
-    const v = D('div', 'verdict', root, READ_COPY[key].v)
-    v.style.backgroundImage = `linear-gradient(90deg, #fff 35%, ${MOODS[key].tint})`
-    READ.verdicts.push(v)
-    const s = D('div', 'sub', root)
-    s.innerHTML = READ_COPY[key].s
-    READ.subs.push(s)
-  }
-  const meter = D('div', 'meter', root)
-  const row = D('div', 'row', meter)
-  D('span', '', row, 'TREND STRENGTH')
-  READ.strength = D('b', '', row)
-  const track = D('div', 'track', meter)
-  READ.fill = D('div', 'fill', track)
-  READ.meter = meter
-  READ.formula = D('div', 'formula', root)
-  const segc = D('div', 'seg', root)
-  READ.pill = D('div', 'pill', segc)
-  READ.chips = ['Unclear', 'Reduce risk', 'Wait', 'Favorable'].map((label) => D('span', '', segc, label))
-  READ.seg = segc
-}
-function measureRead() {
-  const base = READ.seg.getBoundingClientRect().left
-  READ.chipBox = READ.chips.map((c) => {
-    const r = c.getBoundingClientRect()
-    return { x: r.left - base, w: r.width }
-  })
-}
-function updateRead(t) {
-  const on = t > 6.4 && t < 9.2
-  show($('read'), on)
-  $('scrim').style.display = on ? '' : 'none'
-  if (!on) return
-  const m = moodAt(t)
-  const inK = (d) => E.outExpo(seg(t, 6.52 + d, 7.2 + d))
-  const outK = E.inCubic(seg(t, TL.zoom - 0.05, TL.zoom + 0.25))
-  $('scrim').style.opacity = f2(seg(t, 6.35, 6.9) * (1 - outK))
-  const place = (el, d) => {
-    const k = inK(d)
-    el.style.opacity = f2(clamp(k * 1.4) * (1 - outK))
-    el.style.transform = `translateX(${f1((1 - k) * -40 - outK * 80)}px)`
-    el.style.filter = k < 0.99 || outK > 0 ? `blur(${f1((1 - k) * 10 + outK * 10)}px)` : 'none'
-  }
-  place(READ.eyebrow, 0)
-  place(READ.meter, 0.12)
-  place(READ.formula, 0.16)
-  place(READ.seg, 0.2)
-  // stance swap: out with blur + rise, in with 8px rise + 6px blur (B8)
-  READ.verdicts.forEach((v, i) => {
-    const s = READ.subs[i]
-    const enter = TL.moods[i]
-    const leave = i < 3 ? TL.moods[i + 1] : 99
-    const kout = E.inCubic(seg(t, leave - 0.02, leave + 0.16))
-    const ent = inK(0.05)
-    for (const [el, delay] of [[v, 0], [s, 0.05]]) {
-      const ki = E.outCubic(seg(t, enter + 0.02 + delay, enter + 0.42 + delay))
-      const op = (i === 0 ? ent : ki) * (1 - kout) * (1 - outK)
-      el.style.opacity = f2(op)
-      el.style.display = op > 0.001 ? '' : 'none'
-      el.style.transform = `translate(${f1(-outK * 80)}px, ${f1((1 - ki) * 12 - kout * 14)}px)`
-      el.style.filter = `blur(${f1((1 - ki) * 7 + kout * 9 + outK * 10)}px)`
-    }
-  })
-  const col = m.dot
-  READ.dotCore.style.background = col
-  const pulse = (t * 1.25) % 1
-  READ.dotRing.style.background = col
-  READ.dotRing.style.opacity = f2(0.5 * (1 - pulse))
-  READ.dotRing.style.transform = `scale(${f2(1 + 2 * pulse)})`
-  const strength = m.strength
-  READ.strength.textContent = `${Math.round(strength)} / 100`
-  READ.fill.style.width = `${f1(strength)}%`
-  READ.fill.style.background = `linear-gradient(90deg, rgba(255,255,255,.35), ${m.a1})`
-  READ.fill.style.boxShadow = `0 0 14px ${m.a1}`
-  READ.formula.innerHTML = `ARC = 40° + 1.2° × <b>${Math.round(strength)}</b> = <b>${(40 + 1.2 * strength).toFixed(1)}°</b>`
-  const pos = clamp(m.pos - 0.0001, 0, 4)
-  const pill = TL.moods.reduce((acc, mt, i) => {
-    const q = E.outBack(seg(t, mt, mt + 0.45), 1.5)
-    return i === 0 ? READ.chipBox[0] : { x: lerp(acc.x, READ.chipBox[i].x, q), w: lerp(acc.w, READ.chipBox[i].w, q) }
-  }, READ.chipBox[0])
-  READ.pill.style.left = `${f1(pill.x)}px`
-  READ.pill.style.width = `${f1(pill.w)}px`
-  READ.chips.forEach((c, i) => {
-    const active = Math.max(0, 1 - Math.abs(pos - (i + 1)))
-    c.style.color = mixHex('#6a6b6c', '#ffffff', active)
-  })
-}
-
-// ---------- scene 5: the terminal ----------
 const UI = {}
-const PLOT = { x0: 24, w: 1030, top: 100, h: 440, hi: 221, lo: 203 }
-const py = (p) => PLOT.top + ((PLOT.hi - p) / (PLOT.hi - PLOT.lo)) * PLOT.h
-function buildCandles() {
+const PLOT = { x0: 18, w: 700, top: 96, h: 420, hi: 221, lo: 203 }
+const ply = (p) => PLOT.top + ((PLOT.hi - p) / (PLOT.hi - PLOT.lo)) * PLOT.h
+const ICON = {
+  home: '<path d="M2.5 7.2 8 2.5l5.5 4.7V13a.5.5 0 0 1-.5.5H10V10H6v3.5H3a.5.5 0 0 1-.5-.5Z"/>',
+  trade: '<path d="M4 2v3.2M4 8.8V14M12 2v6.2M12 11.8V14"/><rect x="2.4" y="5.2" width="3.2" height="3.6" rx=".8"/><rect x="10.4" y="8.2" width="3.2" height="3.6" rx=".8"/>',
+  portfolio: '<path d="M8 2v6h6"/><circle cx="8" cy="8" r="6"/>',
+  activity: '<path d="M8 2v12M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/>',
+}
+const icon = (k) => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">${ICON[k]}</svg>`
+const DIAMOND = '<svg viewBox="0 0 14 14"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>'
+function buildWorld() {
+  const win = $('win')
+  win.innerHTML = `
+  <div class="w-frame" id="wFrame"></div>
+  <aside class="w-side" id="wSide">
+    <div class="w-logo">${DIAMOND}Dispel</div>
+    <div class="w-pill" id="navPill"></div>
+    <div class="w-nav" id="navHome">${icon('home')}Home<span class="cnt">3</span></div>
+    <div class="w-nav" id="navTrade">${icon('trade')}Trade</div>
+    <div class="w-nav">${icon('portfolio')}Portfolio</div>
+    <div class="w-nav">${icon('activity')}Activity</div>
+  </aside>
+  <header class="w-top" id="wTop"><span class="w-title" id="tHome">Home</span><span class="w-title" id="tTrade">SOL/USDT</span><span class="w-live"><i></i>Live</span><span class="w-paper">Paper account</span></header>
+  <div class="w-main">
+    <section id="home">
+      <div class="panel w-read" id="read">
+        <div class="p-bg" id="readBg"></div>
+        <div class="aura" id="aura"><svg id="sigil" viewBox="-520 -520 1040 1040"></svg><div class="scrim" id="scrim"></div></div>
+        <div class="r-eyebrow" id="rEyebrow"><i></i><span id="rEbText">MARKET READ</span><span class="dim">14:32 UTC · 18 markets</span></div>
+        <h3 class="r-verdict" id="rVerdict">Look for setups</h3>
+        <p class="r-bias" id="rBias"><b>Bullish</b> bias · buyers in moderate control</p>
+        <p class="r-explain" id="rExplain"><strong>Buyers have held control since BTC reclaimed 116.4k this morning.</strong> 12 of 18 markets are up on the day.</p>
+        <p class="r-evidence" id="rEvidence"></p>
+        <div class="r-stats" id="rStats">
+          <div><div class="k">Trend strength</div><div class="v"><span id="sTrend">0</span> <small>/ 100</small></div><div class="meter"><i id="sMeter"></i></div></div>
+          <div><div class="k">Confidence</div><div class="v">Medium</div><div class="steps"><i class="f"></i><i class="f"></i><i></i></div></div>
+          <div><div class="k">Risk</div><div class="v" style="color:#e8b04a">Medium</div><div class="steps amber"><i class="f"></i><i class="f"></i><i></i></div></div>
+          <div><div class="k">Volatility</div><div class="v">Normal</div><div class="steps"><i></i><i class="f"></i><i></i><i></i></div></div>
+        </div>
+      </div>
+      <div class="panel w-setups" id="setups">
+        <div class="p-bg"></div>
+        <div class="s-head"><b>Setups</b><span>4</span><p>Worth investigating, not instructions to buy.</p></div>
+        <div class="s-row on" id="rowSol" style="top:66px"><span class="mg">SOL</span><div class="s-name"><b>SOL/USDT</b><em>Bullish</em><p>Pullback is holding above the 208 breakout. Buyers defended it twice in the last hour.</p></div><div class="s-odds"><b>68<small>%</small></b><i><u style="width:68%"></u></i><div class="s-meta">High confidence · Medium risk</div></div><span class="s-open" id="openBtn">Open chart <span class="kbd">↵</span></span></div>
+        <div class="s-row" id="rowLink" style="top:154px"><span class="mg">LNK</span><div class="s-name"><b>LINK/USDT</b><em>Bullish</em><em class="new">new</em><p>Broke out of a 9-day range on twice its usual volume. Already extended from the base.</p></div><div class="s-odds"><b>64<small>%</small></b><i><u style="width:64%"></u></i><div class="s-meta">Medium confidence · High risk</div></div></div>
+        <div class="s-row" id="rowEth" style="top:242px"><span class="mg">ETH</span><div class="s-name"><b>ETH/USDT</b><em>Bullish</em><p>Momentum is turning up after two days of basing just under 4,640.</p></div><div class="s-odds"><b>61<small>%</small></b><i><u style="width:61%"></u></i><div class="s-meta">High confidence · Medium risk</div></div></div>
+      </div>
+    </section>
+    <section id="trade">
+      <div class="panel t-head" id="tHead"><div class="p-bg"></div><div class="in"><span class="mg">SOL</span><div class="pair"><b>SOL/USDT</b><p>SOL · Tether</p></div><span class="px" id="tPx"></span><span class="chg">+3.42%</span><div class="st"><div><span>24h high</span><b>213.02</b></div><div><span>24h low</span><b>204.27</b></div><div><span>24h volume</span><b>3.92M</b></div></div></div></div>
+      <div class="panel t-setup" id="tSetup"><div class="p-bg"></div><div class="in"><svg viewBox="-12 -12 24 24" width="30" height="30" id="seal"></svg><span class="lbl">SETUP</span><span class="txt"><b>Bullish</b> · pullback holding above the 208 breakout</span><span class="lv">Invalid below <b>206.50</b> · Target <b>219.00</b></span></div></div>
+      <div class="panel t-chart" id="tChart"><div class="p-bg"></div><div class="tf"><span>1m</span><span>5m</span><span class="on">15m</span><span>1h</span><span>4h</span><span>1D</span></div><div class="ohlc">SOL/USDT · 15m   O <b>212.95</b>  H <b>213.02</b>  L <b>212.69</b>  C <b>212.84</b></div><svg id="plot" width="830" height="636"></svg></div>
+      <div class="panel t-ticket" id="tTicket"><div class="p-bg"></div>
+        <div class="tk">
+          <div class="tk-side"><span class="on">Buy</span><span>Sell</span></div>
+          <div class="tk-tabs"><span class="on">Market</span><span>Limit</span></div>
+          <div class="tk-lbl"><span>Price</span><span>Last <b>212.84</b></span></div>
+          <div class="tk-field"><span class="ph">Market price</span><span class="unit">USDT</span></div>
+          <div class="tk-lbl"><span>Amount</span><span>Available <b id="avail"></b> USDT</span></div>
+          <div class="tk-field"><span id="amt"></span><span class="unit">SOL</span></div>
+          <div class="tk-chips"><span>25%</span><span id="chip50">50%</span><span>75%</span><span>Max</span></div>
+          <div class="tk-sum"><div><span>Est. total</span><b id="estT">—</b></div><div><span>Est. fee (0.10%)</span><b id="estF">—</b></div></div>
+          <div class="tk-notice" id="notice"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3.5 8.5 3 3 6-7"/></svg>Buy SOL filled at market.</div>
+          <button class="tk-buy" id="buyBtn"><span id="buyTxt">Buy SOL</span><i id="ripple"></i></button>
+          <p class="tk-fine">Paper order. Settles against simulated balances.</p>
+        </div>
+        <div class="tk-acct"><div><span>Paper account</span><b>10,482.16 USDT</b></div><div><span>Mode</span><b style="color:#e8b04a">PAPER · NO REAL FUNDS</b></div></div>
+      </div>
+    </section>
+  </div>`
+  UI.sigil = makeSigil($('sigil'), 'sg', 1.6)
+  UI.px = makeOdo($('tPx'), '212.84')
+  UI.avail = makeOdo($('avail'), '6,210.00')
+  const seal = $('seal')
+  S('circle', { r: 10.5, fill: 'none', stroke: 'rgba(255,255,255,.22)', 'stroke-width': 0.8 }, seal)
+  for (let a = 0; a < 360; a += 30) S('line', { x1: f2(10.5 * Math.cos(RAD(a))), y1: f2(10.5 * Math.sin(RAD(a))), x2: f2(9 * Math.cos(RAD(a))), y2: f2(9 * Math.sin(RAD(a))), stroke: 'rgba(255,255,255,.35)', 'stroke-width': 0.8 }, seal)
+  S('circle', { r: 6.6, fill: 'none', stroke: 'rgba(255,255,255,.1)', 'stroke-width': 0.8 }, seal)
+  UI.sealArc = S('path', { fill: 'none', stroke: '#ff6363', 'stroke-width': 1.4, 'stroke-linecap': 'round' }, seal)
+  S('circle', { cx: f2(6.6 * Math.cos(RAD(-35))), cy: f2(6.6 * Math.sin(RAD(-35))), r: 1.6, fill: '#fff' }, seal)
+  buildPlot()
+}
+function buildPlot() {
+  const plot = $('plot')
+  const defs = S('defs', {}, plot)
+  S('feGaussianBlur', { stdDeviation: 5 }, S('filter', { id: 'pg', x: '-300%', y: '-300%', width: '700%', height: '700%' }, defs))
+  UI.grid = S('g', {}, plot)
+  for (const p of [220, 216, 212, 208, 204]) {
+    S('line', { x1: PLOT.x0, x2: PLOT.x0 + PLOT.w + 6, y1: f1(ply(p)), y2: f1(ply(p)), stroke: 'rgba(255,255,255,.045)' }, UI.grid)
+    if (p !== 220 && p !== 212) S('text', { x: 738, y: f1(ply(p) + 5), 'font-family': 'Geist Mono', 'font-size': 13, fill: '#6a6b6c' }, UI.grid).textContent = p.toFixed(2)
+  }
+  ;['20:45', '00:45', '04:45', '08:45', '12:45'].forEach((label, i) => {
+    S('text', { x: f1(PLOT.x0 + 70 + i * 150), y: 618, 'font-family': 'Geist Mono', 'font-size': 13, fill: '#6a6b6c', 'text-anchor': 'middle' }, UI.grid).textContent = label
+  })
   const r = rng(42)
   const keys = [[0, 205.4], [7, 204.1], [14, 206.3], [24, 211.1], [31, 210.2], [40, 208.4], [47, 210.6], [55, 212.84]]
   const mid = (i) => {
@@ -932,412 +889,437 @@ function buildCandles() {
       const [b, vb] = keys[k + 1]
       if (i >= a && i <= b) return lerp(va, vb, (i - a) / (b - a))
     }
-    return keys[keys.length - 1][1]
+    return 212.84
   }
-  const out = []
+  const step = PLOT.w / 56
   let prev = 205.1
+  const candles = []
   for (let i = 0; i < 56; i++) {
     const c = i === 55 ? 212.84 : mid(i) + (r() - 0.5) * 1.1
     const o = prev + (r() - 0.5) * 0.12
-    const h = Math.max(o, c) + 0.06 + r() * 0.6
-    const l = Math.min(o, c) - 0.06 - r() * 0.6
-    out.push({ o, c, h, l, v: 0.25 + r() * 0.45 + Math.abs(c - o) * 0.9 })
+    candles.push({ o, c, h: Math.max(o, c) + 0.06 + r() * 0.6, l: Math.min(o, c) - 0.06 - r() * 0.6, v: 0.25 + r() * 0.45 + Math.abs(c - o) * 0.9 })
     prev = c
   }
-  return out
-}
-function sealPath(odds, p) {
-  const len = (40 + 1.6 * odds) * p
-  return arcD(6.6, -35, -35 + len)
-}
-function buildUI() {
-  const ui = $('ui')
-  ui.innerHTML = `
-  <div class="panel" id="uHead" style="left:0;top:0;width:1170px;height:96px;display:flex;align-items:center;gap:22px;padding:0 26px;box-sizing:border-box">
-    <div class="mg">SOL</div>
-    <div><div style="font-size:26px;font-weight:500">SOL/USDT <span class="badge" style="vertical-align:4px;margin-left:6px">Spot</span></div><div style="font-size:15px;color:var(--smoke);margin-top:4px">SOL · Tether</div></div>
-    <div id="uPrice" style="font-size:50px;font-weight:400;margin-left:26px;letter-spacing:.2px"></div>
-    <div id="uChg" style="font-size:21px;color:var(--up);margin-top:12px">+3.42%</div>
-    <div style="margin-left:auto;display:flex;gap:34px">
-      <div><div style="font-size:14px;color:var(--smoke)">24h high</div><div style="font-size:19px;margin-top:5px;color:var(--mist)">213.02</div></div>
-      <div><div style="font-size:14px;color:var(--smoke)">24h low</div><div style="font-size:19px;margin-top:5px;color:var(--mist)">204.27</div></div>
-      <div><div style="font-size:14px;color:var(--smoke)">24h volume</div><div style="font-size:19px;margin-top:5px;color:var(--mist)">3.92M USDT</div></div>
-    </div>
-  </div>
-  <div class="panel" id="uSetup" style="left:0;top:108px;width:1170px;height:58px;display:flex;align-items:center;gap:16px;padding:0 22px;box-sizing:border-box;background:linear-gradient(90deg,rgba(255,99,99,.09),#07080a 40%)">
-    <svg viewBox="-12 -12 24 24" width="32" height="32" id="uSeal"></svg>
-    <span class="mono" style="color:var(--coral);font-size:15px;letter-spacing:1.8px">SETUP</span>
-    <span id="uSetupTxt" style="font-size:18px;color:var(--ash);white-space:nowrap"><b style="color:#fff;font-weight:500">Bullish</b> · pullback holding above the 208 breakout</span>
-    <span id="uSetupLv" style="margin-left:auto;display:flex;gap:26px;font-size:17px;color:var(--ash);white-space:nowrap">
-      <span>Invalid below <b style="color:#fff;font-weight:500">206.50</b></span><span>Target <b style="color:#fff;font-weight:500">219.00</b></span><span class="mono" style="color:var(--smoke)">15m – 1h</span>
-    </span>
-  </div>
-  <div class="panel" id="uChart" style="left:0;top:176px;width:1170px;height:684px">
-    <div style="position:absolute;left:22px;top:18px" class="tf"><span>1m</span><span>5m</span><span class="on">15m</span><span>1h</span><span>4h</span><span>1D</span></div>
-    <div class="mono" style="position:absolute;left:24px;top:72px;font-size:15px;color:var(--smoke);letter-spacing:.4px">SOL/USDT · 15m &nbsp; O <b style="color:#fff;font-weight:400">212.95</b> &nbsp;H <b style="color:#fff;font-weight:400">213.02</b> &nbsp;L <b style="color:#fff;font-weight:400">212.69</b> &nbsp;C <b style="color:#fff;font-weight:400">212.84</b></div>
-    <svg id="uPlot" width="1170" height="684" style="position:absolute;left:0;top:0;overflow:visible"></svg>
-  </div>
-  <div class="panel" id="uTicket" style="left:1182px;top:0;width:458px;height:860px;padding:22px;box-sizing:border-box">
-    <div style="display:grid;grid-template-columns:1fr 1fr;padding:5px;background:var(--recessed);border-radius:12px;gap:4px">
-      <div style="height:52px;border-radius:9px;background:#59d499;color:#062417;display:grid;place-items:center;font-size:20px;font-weight:600;box-shadow:rgba(255,255,255,.25) 0 1px 0 0 inset">Buy</div>
-      <div style="height:52px;display:grid;place-items:center;font-size:20px;color:var(--ash)">Sell</div>
-    </div>
-    <div style="display:flex;gap:28px;margin:22px 4px 0;font-size:18px"><span style="color:var(--smoke)">Market</span><span style="color:#fff;box-shadow:0 2px 0 #fff;padding-bottom:8px">Limit</span></div>
-    <div class="lbl"><span>Price</span><span>Last <b>212.84</b></span></div>
-    <div class="field"><span>212.84</span><span class="unit">USDT</span></div>
-    <div class="lbl"><span>Amount</span><span>Available <b>6,210.00 USDT</b></span></div>
-    <div class="field"><span><span id="uAmt"></span><span id="uCaret" style="display:inline-block;width:2px;height:26px;background:#fff;vertical-align:-4px;margin-left:2px"></span></span><span class="unit">SOL</span></div>
-    <div class="chips"><span>25%</span><span>50%</span><span>75%</span><span>Max</span></div>
-    <div class="est"><div><span>Est. total</span><b id="uTotal">—</b></div><div><span>Est. fee (0.10%)</span><b id="uFee">—</b></div></div>
-    <div class="buy" id="uBuy"><span>Buy SOL</span><span class="kbd" id="uKbd">B</span><i id="uRipple" style="position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:#fff;opacity:0"></i></div>
-    <div style="margin-top:16px;text-align:center;font-size:15px;color:var(--smoke)">Paper order. Settles against simulated balances.</div>
-    <div style="position:absolute;left:22px;right:22px;bottom:22px;border-top:1px solid rgba(255,255,255,.06);padding-top:18px">
-      <div style="display:flex;justify-content:space-between;font-size:15px;color:var(--smoke)"><span>Paper account</span><span class="mono">10,482.16 USDT</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:15px;color:var(--smoke);margin-top:10px"><span>Mode</span><span class="mono" style="color:var(--caution)">PAPER · NO REAL FUNDS</span></div>
-    </div>
-  </div>
-  <div class="toast" id="uToast" style="left:690px;top:752px;width:430px;box-sizing:border-box">
-    <span class="ok">✓</span>
-    <div><div style="font-size:19px;color:#fff">Paper order filled</div><div style="font-size:16px;color:var(--ash);margin-top:4px">Bought <b style="color:#fff;font-weight:500">12.50 SOL</b> at 212.84</div></div>
-  </div>`
-  UI.head = $('uHead')
-  UI.setup = $('uSetup')
-  UI.chart = $('uChart')
-  UI.ticket = $('uTicket')
-  UI.toast = $('uToast')
-  UI.price = makeOdo($('uPrice'), '212.84')
-  UI.setupTxt = $('uSetupTxt')
-  UI.setupLv = $('uSetupLv')
-  const seal = $('uSeal')
-  S('circle', { r: 10.5, fill: 'none', stroke: 'rgba(255,255,255,.22)', 'stroke-width': 0.8 }, seal)
-  for (let a = 0; a < 360; a += 30) {
-    S('line', { x1: f2(10.5 * Math.cos(RAD(a))), y1: f2(10.5 * Math.sin(RAD(a))), x2: f2(9 * Math.cos(RAD(a))), y2: f2(9 * Math.sin(RAD(a))), stroke: 'rgba(255,255,255,.35)', 'stroke-width': 0.8 }, seal)
-  }
-  S('circle', { r: 6.6, fill: 'none', stroke: 'rgba(255,255,255,.1)', 'stroke-width': 0.8 }, seal)
-  UI.sealArc = S('path', { fill: 'none', stroke: '#ff6363', 'stroke-width': 1.4, 'stroke-linecap': 'round' }, seal)
-  UI.sealTip = S('circle', { cx: f2(6.6 * Math.cos(RAD(-35))), cy: f2(6.6 * Math.sin(RAD(-35))), r: 1.6, fill: '#fff' }, seal)
-
-  const plot = $('uPlot')
-  const defs = S('defs', {}, plot)
-  S('feGaussianBlur', { stdDeviation: 5 }, S('filter', { id: 'ug', x: '-300%', y: '-300%', width: '700%', height: '700%' }, defs))
-  const grid = S('g', {}, plot)
-  for (const p of [220, 216, 212, 208, 204]) {
-    S('line', { x1: PLOT.x0, x2: PLOT.x0 + PLOT.w + 10, y1: f1(py(p)), y2: f1(py(p)), stroke: 'rgba(255,255,255,.045)' }, grid)
-    if (p !== 220 && p !== 212) S('text', { x: 1080, y: f1(py(p) + 5), 'font-family': 'Geist Mono', 'font-size': 14, fill: '#6a6b6c' }, grid).textContent = p.toFixed(2)
-  }
-  ;['16:45', '20:45', '00:45', '04:45', '08:45', '12:45'].forEach((label, i) => {
-    S('text', { x: f1(PLOT.x0 + 60 + i * 180), y: 664, 'font-family': 'Geist Mono', 'font-size': 14, fill: '#6a6b6c', 'text-anchor': 'middle' }, grid).textContent = label
-  })
-  UI.grid = grid
-  const candles = buildCandles()
-  const step = PLOT.w / candles.length
   const vmax = Math.max(...candles.map((c) => c.v))
   UI.candles = candles.map((c, i) => {
     const x = PLOT.x0 + (i + 0.5) * step
-    const up = c.c >= c.o
-    const color = up ? '#59d499' : '#f0506e'
+    const color = c.c >= c.o ? '#59d499' : '#f0506e'
     const g = S('g', {}, plot)
-    S('line', { x1: f1(x), x2: f1(x), y1: f1(py(c.h)), y2: f1(py(c.l)), stroke: color, 'stroke-width': 1.3 }, g)
-    const top = py(Math.max(c.o, c.c))
-    S('rect', { x: f1(x - 5.5), y: f1(top), width: 11, height: f1(Math.max(1.5, py(Math.min(c.o, c.c)) - top)), rx: 1, fill: color }, g)
+    S('line', { x1: f1(x), x2: f1(x), y1: f1(ply(c.h)), y2: f1(ply(c.l)), stroke: color, 'stroke-width': 1.3 }, g)
+    const top = ply(Math.max(c.o, c.c))
+    S('rect', { x: f1(x - 4.5), y: f1(top), width: 9, height: f1(Math.max(1.5, ply(Math.min(c.o, c.c)) - top)), rx: 1, fill: color }, g)
     const vg = S('g', {}, plot)
-    const vh = (c.v / vmax) * 64
-    S('rect', { x: f1(x - 5.5), y: f1(628 - vh), width: 11, height: f1(vh), fill: color, 'fill-opacity': 0.28 }, vg)
-    return { g, vg, x, yc: py(c.c) }
+    const vh = (c.v / vmax) * 54
+    S('rect', { x: f1(x - 4.5), y: f1(590 - vh), width: 9, height: f1(vh), fill: color, 'fill-opacity': 0.28 }, vg)
+    return { g, vg, x, yc: ply(c.c) }
   })
-  const last = UI.candles[UI.candles.length - 1]
+  const last = UI.candles[55]
   UI.tip = { x: last.x, y: last.yc }
   const level = (price, color, label, tagBg, tagFg) => {
     const g = S('g', {}, plot)
-    const ln = S('line', { x1: PLOT.x0, x2: PLOT.x0, y1: f1(py(price)), y2: f1(py(price)), stroke: color, 'stroke-dasharray': '6 5', 'stroke-opacity': 0.8 }, g)
-    const tx = S('text', { x: PLOT.x0 + 12, y: f1(py(price) - 9), 'font-family': 'Geist Mono', 'font-size': 14, fill: color }, g)
-    const tag = S('g', { transform: `translate(1066 ${f1(py(price) - 13)})` }, g)
-    S('rect', { width: 82, height: 26, rx: 5, fill: tagBg }, tag)
-    S('text', { x: 41, y: 18, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 14, fill: tagFg }, tag).textContent = price.toFixed(2)
-    return { g, ln, tx, tag, label }
+    const ln = S('line', { x1: PLOT.x0, x2: PLOT.x0, y1: f1(ply(price)), y2: f1(ply(price)), stroke: color, 'stroke-dasharray': '6 5', 'stroke-opacity': 0.8 }, g)
+    const tx = S('text', { x: PLOT.x0 + 10, y: f1(ply(price) - 9), 'font-family': 'Geist Mono', 'font-size': 13, fill: color }, g)
+    const tag = S('g', { transform: `translate(726 ${f1(ply(price) - 12)})` }, g)
+    S('rect', { width: 76, height: 24, rx: 5, fill: tagBg }, tag)
+    S('text', { x: 38, y: 17, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 13, fill: tagFg }, tag).textContent = price.toFixed(2)
+    return { ln, tx, tag, label }
   }
   UI.levels = [level(219, '#9c9c9d', 'Target · 219.00', '#2f3031', '#e6e6e6'), level(206.5, '#f0506e', 'Invalid · 206.50', '#3a1520', '#ff9aab')]
-  UI.lastLine = S('line', { x1: PLOT.x0, x2: 1062, y1: f1(UI.tip.y), y2: f1(UI.tip.y), stroke: '#e6e6e6', 'stroke-dasharray': '2 4', 'stroke-opacity': 0.5 }, plot)
-  UI.lastTag = S('g', { transform: `translate(1066 ${f1(UI.tip.y - 13)})` }, plot)
-  S('rect', { width: 82, height: 26, rx: 5, fill: '#e6e6e6' }, UI.lastTag)
-  S('text', { x: 41, y: 18, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 14, fill: '#454647' }, UI.lastTag).textContent = '212.84'
-  UI.entry = S('g', {}, plot)
-  S('line', { x1: PLOT.x0, x2: last.x - 14, y1: f1(UI.tip.y + 0.5), y2: f1(UI.tip.y + 0.5), stroke: '#59d499', 'stroke-dasharray': '1 4', 'stroke-width': 1.4 }, UI.entry)
-  const mk = S('g', { transform: `translate(${f1(last.x)} ${f1(py(candles[55].l) + 22)})` }, UI.entry)
-  S('path', { d: 'M0 -7 L7 5 L-7 5 Z', fill: '#59d499' }, mk)
-  S('text', { x: 0, y: 26, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 13, fill: '#59d499' }, mk).textContent = 'BUY'
-  UI.tipGlow = S('circle', { cx: f1(UI.tip.x), cy: f1(UI.tip.y), r: 13, fill: '#ff6363', filter: 'url(#ug)' }, plot)
-  UI.tipRing = S('circle', { cx: f1(UI.tip.x), cy: f1(UI.tip.y), r: 8.5, fill: 'none', stroke: 'rgba(255,255,255,.4)', 'stroke-width': 1.2 }, plot)
-  UI.tipCore = S('circle', { cx: f1(UI.tip.x), cy: f1(UI.tip.y), r: 3.6, fill: '#fff' }, plot)
-  // container coordinates of the live tip
-  UI.tipC = { x: UI.tip.x, y: 176 + UI.tip.y }
-  $('ui').style.transformOrigin = `${f1(UI.tipC.x)}px ${f1(UI.tipC.y)}px`
-  UI.amt = $('uAmt')
-  UI.caret = $('uCaret')
-  UI.total = $('uTotal')
-  UI.fee = $('uFee')
-  UI.buy = $('uBuy')
-  UI.kbd = $('uKbd')
-  UI.ripple = $('uRipple')
+  UI.lastLine = S('line', { x1: PLOT.x0, x2: 722, y1: f1(UI.tip.y), y2: f1(UI.tip.y), stroke: '#e6e6e6', 'stroke-dasharray': '2 4', 'stroke-opacity': 0.5 }, plot)
+  UI.lastTag = S('g', { transform: `translate(726 ${f1(UI.tip.y - 12)})` }, plot)
+  S('rect', { width: 76, height: 24, rx: 5, fill: '#e6e6e6' }, UI.lastTag)
+  S('text', { x: 38, y: 17, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 13, fill: '#454647' }, UI.lastTag).textContent = '212.84'
+  UI.tipGlow = S('circle', { cx: f1(UI.tip.x), cy: f1(UI.tip.y), r: 13, fill: '#ff6363', filter: 'url(#pg)' }, plot)
+  UI.tipRing = S('circle', { cx: f1(UI.tip.x), cy: f1(UI.tip.y), r: 8, fill: 'none', stroke: 'rgba(255,255,255,.4)', 'stroke-width': 1.2 }, plot)
+  UI.tipCore = S('circle', { cx: f1(UI.tip.x), cy: f1(UI.tip.y), r: 3.4, fill: '#fff' }, plot)
+  // the chart's live tip in window coordinates (panel at 178, 214 inside the window)
+  UI.tipWin = { x: 178 + UI.tip.x, y: 214 + UI.tip.y }
 }
-function uiTransform(t) {
-  const k = E.outExpo(seg(t, TL.cut - 0.1, TL.cut + 0.75))
-  const pan = E.inOutCubic(seg(t, TL.cut, TL.cut + 0.85))
-  const fin = { x: 140 + UI.tipC.x, y: 110 + UI.tipC.y }
-  let sx = lerp(CX, fin.x, pan) - 40 * seg(t, TL.cut + 0.8, TL.whip)
-  const sy = lerp(CY, fin.y, pan)
-  const w = E.inCubic(seg(t, TL.whip, TL.whip + 0.26))
-  sx -= 2600 * w
-  const s = lerp(0.3, 1, k) * lerp(1, 1.035, seg(t, TL.cut + 0.9, TL.whip))
-  const ry = lerp(-26, -9, E.outCubic(seg(t, TL.cut - 0.1, TL.cut + 0.9))) + 5 * seg(t, TL.cut + 0.9, TL.whip) - 14 * w
-  const rx = lerp(16, 6, E.outCubic(seg(t, TL.cut - 0.1, TL.cut + 0.9))) - 2 * seg(t, TL.cut + 0.9, TL.whip)
-  return `translate(${f1(sx - UI.tipC.x)}px, ${f1(sy - UI.tipC.y)}px) perspective(2200px) rotateY(${f2(ry)}deg) rotateX(${f2(rx)}deg) scale(${f2(s)})`
-}
-function updateUI(t) {
-  const on = t > TL.cut - 0.14 && t < TL.whip + 0.3
-  show($('uiWrap'), on)
-  if (!on) return
-  const ui = $('ui')
-  ui.style.transform = uiTransform(t)
-  ui.style.opacity = f2(E.inOutSine(seg(t, TL.cut - 0.08, TL.cut + 0.06)))
-  const panel = (el, d, dx, dy, z) => {
-    const k = E.outExpo(seg(t, TL.cut + d, TL.cut + d + 0.7))
-    el.style.opacity = f2(clamp(k * 1.6))
-    el.style.transform = `translate3d(${f1((1 - k) * dx)}px, ${f1((1 - k) * dy)}px, ${f1(z * (1 - k))}px)`
+function measureWorld() {
+  // element centres in window coordinates, measured once with the camera at identity
+  const win = $('win')
+  win.style.transform = 'none'
+  $('trade').style.transform = 'none'
+  const at = (id) => {
+    const r = $(id).getBoundingClientRect()
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
   }
-  UI.chart.style.opacity = 1
-  panel(UI.head, 0.12, 0, -50, 140)
-  panel(UI.setup, 0.2, -60, 0, 100)
-  panel(UI.ticket, 0.18, 140, 0, 220)
-  // candles emerge from the tip, right to left
-  const n = UI.candles.length
+  UI.openAt = at('openBtn')
+  UI.chipAt = at('chip50')
+  UI.buyAt = at('buyBtn')
+  UI.navHomeY = $('navHome').offsetTop
+  UI.navTradeY = $('navTrade').offsetTop
+}
+
+function mainSigil(t) {
+  const sp = TL.spark
+  const ig = TL.arc
+  const lit = t >= ig
+  const bloom = 1 - E.outCubic(seg(t, ig, ig + 0.8))
+  // inside out: whatever the lens has already uncovered draws first, the outer ring arrives with the rim
+  const ringT = { 290: [3.06, 0.42], 350: [3.1, 0.44], 410: [3.46, 0.48], 440: [3.86, 0.45], 470: [3.98, 0.5] }
+  return {
+    opacity: 1, strength: 71,
+    ring: (r) => ({ p: E.inOutCubic(seg(t, ringT[r][0], ringT[r][0] + ringT[r][1])) }),
+    tickSpin: (t - 3) * 4,
+    tick: (a) => {
+      const ta = 4.04 + ((((a + 35) % 360) + 360) % 360) / 360 * 0.56
+      return { len: E.outCubic(seg(t, ta, ta + 0.14)), flash: 1 - seg(t, ta + 0.04, ta + 0.45) }
+    },
+    nodeSpin: -(t - 3) * 2.6,
+    node: (i, a) => {
+      const ta = 3.18 + ((((a + 35) % 360) + 360) % 360) / 30 * 0.03
+      const q = seg(t, ta, ta + 0.36)
+      return { s: E.outBack(q, 2.6), rot: lerp(90, 0, E.outCubic(q)) }
+    },
+    hot: seg(t, ig, ig + 0.16),
+    orbit: [E.inOutCubic(seg(t, 3.14, 3.7)), E.inOutCubic(seg(t, 3.2, 3.76))],
+    orbitSpin: (t - 3.14) * 2,
+    star: E.inOutSine(seg(t, 3.2, 4.0)),
+    lineP: E.inOutCubic(seg(t, TL.line[0], TL.line[1])),
+    arcP: E.outExpo(seg(t, ig + 0.02, ig + 0.7)),
+    tipOn: seg(t, sp - 0.02, sp + 0.05),
+    tipR: lit ? lerp(2.4, 3.2, E.outBack(seg(t, ig, ig + 0.35), 3)) : 2.6,
+    glowR: lit ? 9 + 34 * bloom : 8,
+    glowOp: lit ? lerp(1, breath(t), 1 - bloom) : 0.5,
+    ringR: lerp(4, 110, E.outCubic(seg(t, ig, ig + 0.7))),
+    ringOp: lit ? 0.7 * (1 - seg(t, ig, ig + 0.7)) : 0,
+    halo: lit ? E.outCubic(seg(t, ig, ig + 0.9)) * (1 - 0.6 * seg(t, TL.clarity - 0.3, TL.clarity + 0.3)) : 0,
+  }
+}
+
+function updateWorld(t) {
+  const on = t >= TL.spark - 0.05 && t < TL.logo + 0.05
+  show($('world'), on)
+  if (!on) return
+  const c = camAt(t)
+  const C = winCenter(c)
+  const win = $('win')
+  win.style.transform = `translate(${f2(C.x - WIN.C.x)}px, ${f2(C.y - WIN.C.y)}px) scale(${c.s.toFixed(4)}) rotateY(${f2(c.ry)}deg) rotateX(${f2(c.rx)}deg)`
+  const gone = E.inCubic(seg(t, TL.brand + 0.1, TL.logo - 0.05))
+  win.style.opacity = f2(1 - gone)
+  win.style.filter = gone > 0.01 ? `blur(${f1(gone * 8)}px)` : 'none'
+  UI.sigil.update(mainSigil(t))
+  // the UI arrives as the lens clears the frame
+  const ui = E.outCubic(seg(t, TL.expand[0] + 0.35, TL.clarity + 0.15))
+  for (const id of ['wFrame', 'wSide', 'wTop', 'readBg']) $(id).style.opacity = f2(ui)
+  $('scrim').style.opacity = f2(E.inOutSine(seg(t, TL.expand[0] + 0.5, TL.clarity + 0.35)))
+  const clip = lerp(700, 0, E.inOutCubic(seg(t, TL.expand[0] + 0.3, TL.clarity + 0.1)))
+  $('aura').style.clipPath = clip > 0.5 ? `inset(${f1(-clip)}px round 14px)` : 'inset(0 round 14px)'
+  // 03 · Clarity: the read writes itself
+  const v0 = TL.verdict
+  const rise = (el, at, dy = 12, blur = 8) => {
+    const k = E.outCubic(seg(t, at, at + 0.55))
+    el.style.opacity = f2(k)
+    el.style.transform = `translateY(${f1((1 - k) * dy)}px)`
+    el.style.filter = k < 0.995 ? `blur(${f1((1 - k) * blur)}px)` : 'none'
+  }
+  rise($('rEyebrow'), v0 - 0.05, 8, 4)
+  $('rEbText').textContent = decode('MARKET READ', seg(t, v0, v0 + 0.35), 3, Math.floor(t * 30))
+  rise($('rVerdict'), v0 + 0.05)
+  rise($('rBias'), v0 + 0.2)
+  rise($('rExplain'), v0 + 0.32)
+  $('rEvidence').textContent = decode('TREND · MOMENTUM · VOLUME · VOLATILITY · BREADTH · LEVELS · ON-CHAIN', seg(t, v0 + 0.5, v0 + 1.1), 9, Math.floor(t * 30))
+  rise($('rStats'), v0 + 0.25, 16, 6)
+  const trend = 71 * E.outCubic(seg(t, v0 + 0.4, v0 + 1.2))
+  $('sTrend').textContent = String(Math.round(trend))
+  $('sMeter').style.width = `${f1(trend)}%`
+  const st = E.outExpo(seg(t, TL.setups, TL.setups + 0.7))
+  $('setups').style.opacity = f2(clamp(st * 1.5))
+  $('setups').style.transform = `translateY(${f1((1 - st) * 40)}px)`
+  ;['rowSol', 'rowLink', 'rowEth'].forEach((id, i) => {
+    const k = E.outExpo(seg(t, TL.setups + 0.12 + i * 0.07, TL.setups + 0.75 + i * 0.07))
+    $(id).style.opacity = f2(k)
+    $(id).style.transform = `translateX(${f1((1 - k) * 30)}px)`
+  })
+  const press = seg(t, TL.openChart, TL.openChart + 0.06) * (1 - seg(t, TL.openChart + 0.1, TL.openChart + 0.22))
+  $('openBtn').style.transform = `scale(${f2(1 - 0.05 * press)})`
+  $('openBtn').style.background = mixHex('#2f3031', '#4a4b4d', press)
+  // Home → Trade, inside the same window
+  // staggered so the two screens never sit on top of each other: Home leaves, then Trade arrives
+  const nav = E.inOutCubic(seg(t, TL.nav[0], TL.nav[1]))
+  const leave = E.inCubic(seg(t, TL.nav[0], TL.nav[0] + 0.18))
+  const arrive = E.outCubic(seg(t, TL.nav[0] + 0.17, TL.nav[1]))
+  $('home').style.transform = `translateX(${f1(-110 * leave)}px)`
+  $('home').style.opacity = f2(1 - leave)
+  $('home').style.display = leave >= 1 ? 'none' : ''
+  $('trade').style.transform = `translateX(${f1(110 * (1 - arrive))}px)`
+  $('trade').style.opacity = f2(arrive)
+  $('trade').style.display = arrive <= 0 ? 'none' : ''
+  $('navPill').style.top = `${f1(lerp(UI.navHomeY, UI.navTradeY, E.outBack(seg(t, TL.nav[0], TL.nav[0] + 0.45), 1.6)))}px`
+  $('navHome').style.color = mixHex('#ffffff', '#9c9c9d', nav)
+  $('navTrade').style.color = mixHex('#9c9c9d', '#ffffff', nav)
+  const tOut = E.inCubic(seg(t, TL.nav[0], TL.nav[0] + 0.14))
+  const tIn = E.outCubic(seg(t, TL.nav[0] + 0.2, TL.nav[0] + 0.42))
+  $('tHome').style.opacity = f2(1 - tOut)
+  $('tHome').style.transform = `translateY(${f1(-8 * tOut)}px)`
+  $('tTrade').style.opacity = f2(tIn)
+  $('tTrade').style.transform = `translateY(${f1(8 * (1 - tIn))}px)`
+  updateTrade(t)
+}
+
+function updateTrade(t) {
+  if (t < TL.nav[0]) return
+  const n0 = TL.nav[0]
   UI.candles.forEach((c, i) => {
-    const ta = TL.cut - 0.08 + (n - 1 - i) * 0.011
-    const k = E.outCubic(seg(t, ta, ta + 0.3))
+    const ta = n0 + 0.1 + (55 - i) * 0.009
+    const k = E.outCubic(seg(t, ta, ta + 0.28))
     c.g.setAttribute('transform', `translate(0 ${f1(c.yc)}) scale(1 ${f2(Math.max(0.001, k))}) translate(0 ${f1(-c.yc)})`)
     c.g.setAttribute('opacity', f2(clamp(k * 2)))
-    c.vg.setAttribute('transform', `translate(0 628) scale(1 ${f2(Math.max(0.001, k))}) translate(0 -628)`)
+    c.vg.setAttribute('transform', `translate(0 590) scale(1 ${f2(Math.max(0.001, k))}) translate(0 -590)`)
   })
-  UI.grid.setAttribute('opacity', f2(seg(t, TL.cut, TL.cut + 0.5)))
+  UI.grid.setAttribute('opacity', f2(seg(t, n0, n0 + 0.4)))
   UI.levels.forEach((lv, i) => {
-    const st = TL.cut + 0.4 + i * 0.12
-    const p = E.inOutCubic(seg(t, st, st + 0.45))
-    lv.ln.setAttribute('x2', f1(lerp(PLOT.x0, 1062, p)))
-    lv.tx.textContent = decode(lv.label, seg(t, st + 0.2, st + 0.55), i + 20, Math.floor(t * 30))
-    lv.tag.setAttribute('opacity', f2(seg(t, st + 0.35, st + 0.5)))
+    const st = n0 + 0.5 + i * 0.1
+    const p = E.inOutCubic(seg(t, st, st + 0.42))
+    lv.ln.setAttribute('x2', f1(lerp(PLOT.x0, 722, p)))
+    lv.tx.textContent = decode(lv.label, seg(t, st + 0.18, st + 0.5), i + 20, Math.floor(t * 30))
+    lv.tag.setAttribute('opacity', f2(seg(t, st + 0.3, st + 0.45)))
   })
-  const lp = E.inOutCubic(seg(t, TL.cut + 0.3, TL.cut + 0.7))
-  UI.lastLine.setAttribute('x1', f1(lerp(1062, PLOT.x0, lp)))
+  const lp = E.inOutCubic(seg(t, n0 + 0.4, n0 + 0.75))
+  UI.lastLine.setAttribute('x1', f1(lerp(722, PLOT.x0, lp)))
   UI.lastLine.setAttribute('opacity', lp > 0 ? 1 : 0)
-  UI.lastTag.setAttribute('opacity', f2(seg(t, TL.cut + 0.5, TL.cut + 0.65)))
-  UI.price.set(lerp(208.13, 212.84, E.outQuart(seg(t, TL.cut + 0.2, TL.cut + 0.95))))
-  // seal: the arc is as long as the setup's odds (68)
-  const sp = E.outExpo(seg(t, TL.cut + 0.55, TL.cut + 1.1))
-  UI.sealArc.setAttribute('d', sealPath(68, sp))
-  UI.sealTip.setAttribute('opacity', f2(seg(t, TL.cut + 0.5, TL.cut + 0.6)))
-  const txt = E.outExpo(seg(t, TL.cut + 0.6, TL.cut + 1.2))
-  UI.setupTxt.style.opacity = f2(txt)
-  UI.setupTxt.style.transform = `translateX(${f1((1 - txt) * -24)}px)`
-  UI.setupLv.style.opacity = f2(E.outCubic(seg(t, TL.cut + 0.75, TL.cut + 1.2)))
-  // live tip handoff from the hero tip
-  const tipIn = seg(t, TL.cut + 0.35, TL.cut + 0.5)
+  UI.lastTag.setAttribute('opacity', f2(seg(t, n0 + 0.55, n0 + 0.7)))
+  UI.px.set(lerp(208.13, 212.84, E.outQuart(seg(t, n0 + 0.15, n0 + 0.9))))
+  UI.sealArc.setAttribute('d', arcD(6.6, -35, -35 + (40 + 1.6 * 68) * E.outExpo(seg(t, n0 + 0.5, n0 + 1.0))))
   const b = breath(t, 2)
+  const tipIn = seg(t, n0 + 0.4, n0 + 0.6) * (1 - seg(t, TL.brand, TL.brand + 0.15))
   UI.tipCore.setAttribute('opacity', f2(tipIn))
   UI.tipRing.setAttribute('opacity', f2(tipIn))
   UI.tipGlow.setAttribute('opacity', f2(tipIn * (0.25 + b)))
   UI.tipGlow.setAttribute('r', f1(11 + 4 * b))
-  // ticket: type the amount, estimate, press B
-  const typed = '12.50'
-  const nChars = Math.floor(clamp((t - TL.type) / 0.075, 0, typed.length))
-  UI.amt.textContent = t < TL.type ? '' : typed.slice(0, nChars)
-  UI.caret.style.opacity = t < TL.buy && Math.floor(t * 3.4) % 2 === 0 ? 1 : 0
-  const est = E.outCubic(seg(t, TL.type + 0.3, TL.type + 0.6))
-  UI.total.textContent = est > 0 ? `${fmt(2660.5 * est)} USDT` : '—'
-  UI.fee.textContent = est > 0 ? `${fmt(2.66 * est)} USDT` : '—'
-  const press = seg(t, TL.buy, TL.buy + 0.08) * (1 - seg(t, TL.buy + 0.12, TL.buy + 0.26))
-  UI.buy.style.transform = `scale(${f2(1 - 0.03 * press)})`
-  UI.buy.style.filter = `brightness(${f2(1 + 0.18 * press)})`
-  UI.kbd.style.transform = `translateY(${f1(2 * press)}px)`
-  const rp = seg(t, TL.buy + 0.02, TL.buy + 0.6)
-  UI.ripple.style.transform = `scale(${f1(1 + 60 * E.outCubic(rp))})`
-  UI.ripple.style.opacity = f2(rp > 0 && rp < 1 ? 0.28 * (1 - rp) : 0)
-  const toast = E.outExpo(seg(t, TL.buy + 0.14, TL.buy + 0.6))
-  UI.toast.style.opacity = f2(clamp(toast * 1.5))
-  UI.toast.style.transform = `translate3d(0, ${f1((1 - toast) * 40)}px, ${f1(120 * toast)}px)`
-  UI.toast.style.filter = toast < 0.99 ? `blur(${f1((1 - toast) * 8)}px)` : 'none'
-  UI.entry.setAttribute('opacity', f2(seg(t, TL.buy + 0.14, TL.buy + 0.3)))
-}
-function uiTipScreen() {
-  const r = UI.tipCore.getBoundingClientRect()
-  return { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width / 2 }
+  // click one: 50% fills the amount from paper cash
+  const c1 = TL.click1
+  const chip = seg(t, c1, c1 + 0.05) * (1 - seg(t, TL.filled - 0.02, TL.filled + 0.08))
+  $('chip50').style.background = mixHex('#111214', '#2f3031', chip)
+  $('chip50').style.color = mixHex('#9c9c9d', '#ffffff', chip)
+  $('chip50').style.transform = `scale(${f2(1 - 0.06 * seg(t, c1, c1 + 0.05) * (1 - seg(t, c1 + 0.08, c1 + 0.2)))})`
+  const filledIn = t >= TL.filled
+  const amt = seg(t, c1 + 0.04, c1 + 0.3)
+  $('amt').textContent = !filledIn && amt > 0 ? '14.57'.slice(0, Math.max(1, Math.ceil(amt * 5))) : ''
+  const est = E.outCubic(seg(t, c1 + 0.08, c1 + 0.45))
+  $('estT').textContent = !filledIn && est > 0 ? `${fmt(3101.08 * est)} USDT` : '—'
+  $('estF').textContent = !filledIn && est > 0 ? `${fmt(3.1 * est)} USDT` : '—'
+  // click two: Buy SOL, filled at market against simulated balances
+  const c2 = TL.click2
+  const press = seg(t, c2, c2 + 0.06) * (1 - seg(t, c2 + 0.1, c2 + 0.24))
+  $('buyBtn').style.transform = `scale(${f2(1 - 0.03 * press)})`
+  $('buyBtn').style.filter = `brightness(${f2(1 + 0.16 * press)})`
+  $('buyTxt').textContent = t >= c2 + 0.02 && t < TL.filled ? 'Placing…' : 'Buy SOL'
+  const rp = seg(t, c2 + 0.02, c2 + 0.6)
+  $('ripple').style.transform = `scale(${f1(1 + 46 * E.outCubic(rp))})`
+  $('ripple').style.opacity = f2(rp > 0 && rp < 1 ? 0.3 * (1 - rp) : 0)
+  const nk = E.outCubic(seg(t, TL.filled, TL.filled + 0.35))
+  const notice = $('notice')
+  notice.style.height = `${f1(46 * nk)}px`
+  notice.style.marginTop = `${f1(14 * nk)}px`
+  notice.style.opacity = f2(nk)
+  UI.avail.set(lerp(6210, 3105.82, E.outQuart(seg(t, TL.filled + 0.05, TL.filled + 0.7))))
 }
 
-// ---------- scene 5b: allocation dial ----------
-const DIAL = { C: { x: 650, y: 540 }, scale: 3.1 }
-const PARTS = [
-  { name: 'SOL', pair: 'SOL/USDT', v: 2660.5, color: '#8aa4ff' },
-  { name: 'BTC', pair: 'BTC/USDT', v: 1894.2, color: '#ffc07a' },
-  { name: 'ETH', pair: 'ETH/USDT', v: 873.18, color: '#c79bff' },
-  { name: 'Cash', pair: 'USDT', v: 5054.28, color: '#9c9c9d', cash: true },
+// ---------- the cursor: two clicks, numbered ----------
+const CUR = {}
+function buildCursor() {
+  const fx = $('fx')
+  CUR.badges = [1, 2].map((n) => {
+    const g = S('g', {}, fx)
+    S('circle', { r: 15, fill: '#111214', stroke: '#ff6363', 'stroke-width': 1.5 }, g)
+    S('text', { y: 5.5, 'text-anchor': 'middle', 'font-family': 'Geist Mono', 'font-size': 15, fill: '#fff' }, g).textContent = String(n)
+    return g
+  })
+  CUR.ripple = S('circle', { fill: 'none', stroke: '#ffffff' }, fx)
+  CUR.g = S('g', {}, fx)
+  S('path', { d: 'M0 0 L0 25 L6.4 19.2 L10.6 28.6 L14.6 26.8 L10.4 17.6 L18.6 17.6 Z', fill: '#000', opacity: 0.35, transform: 'translate(2 3)', filter: 'url(#fxg6)' }, CUR.g)
+  S('path', { d: 'M0 0 L0 25 L6.4 19.2 L10.6 28.6 L14.6 26.8 L10.4 17.6 L18.6 17.6 Z', fill: '#fff', stroke: '#040506', 'stroke-width': 1.4, 'stroke-linejoin': 'round' }, CUR.g)
+}
+function cursorAt(t) {
+  const P = (p) => project(p, camAt(t))
+  const curve = (a, b, k, bend = 0.18) => {
+    const mx = (a.x + b.x) / 2 - (b.y - a.y) * bend
+    const my = (a.y + b.y) / 2 + (b.x - a.x) * bend
+    return { x: (1 - k) ** 2 * a.x + 2 * (1 - k) * k * mx + k * k * b.x, y: (1 - k) ** 2 * a.y + 2 * (1 - k) * k * my + k * k * b.y }
+  }
+  const start = { x: 1760, y: 1040 }
+  if (t < TL.openChart) return curve(start, P(UI.openAt), E.inOutCubic(seg(t, TL.cursor, TL.openChart - 0.08)))
+  const rest = project(UI.openAt, camAt(TL.openChart))
+  if (t < TL.click1) return curve(rest, P(UI.chipAt), E.inOutCubic(seg(t, TL.push[0] + 0.05, TL.click1 - 0.08)), -0.12)
+  const chipRest = project(UI.chipAt, camAt(TL.click1))
+  if (t < TL.click2) return curve(chipRest, P(UI.buyAt), E.inOutCubic(seg(t, TL.click1 + 0.2, TL.click2 - 0.08)), 0.1)
+  const buyRest = project(UI.buyAt, camAt(TL.click2))
+  const away = project({ x: UI.buyAt.x + 120, y: UI.buyAt.y + 150 }, camAt(t))
+  return curve(buyRest, away, E.inOutCubic(seg(t, TL.click2 + 0.06, TL.click2 + 0.34)), 0.12)
+}
+function updateCursor(t) {
+  const vis = seg(t, TL.cursor, TL.cursor + 0.2) * (1 - seg(t, 12.2, 12.45))
+  if (vis <= 0) {
+    CUR.g.setAttribute('opacity', 0)
+    CUR.ripple.setAttribute('opacity', 0)
+    CUR.badges.forEach((g) => g.setAttribute('opacity', 0))
+    return
+  }
+  const p = cursorAt(t)
+  const clicks = [TL.openChart, TL.click1, TL.click2]
+  let press = 0
+  for (const c of clicks) press = Math.max(press, seg(t, c, c + 0.05) * (1 - seg(t, c + 0.08, c + 0.18)))
+  CUR.g.setAttribute('transform', `translate(${f1(p.x)} ${f1(p.y)}) scale(${f2(1 - 0.14 * press)})`)
+  CUR.g.setAttribute('opacity', f2(vis))
+  // the ripple stays on the control it pressed (the Buy button slides down once the order fills)
+  const shift = 60 * E.outCubic(seg(t, TL.filled, TL.filled + 0.35))
+  const pressed = [UI.openAt, UI.chipAt, { x: UI.buyAt.x, y: UI.buyAt.y + shift }]
+  let ring = -1
+  clicks.forEach((c, i) => { if (t >= c && t < c + 0.34) ring = i })
+  if (ring >= 0) {
+    const k = seg(t, clicks[ring], clicks[ring] + 0.34)
+    const at = project(pressed[ring], camAt(t))
+    set(CUR.ripple, { cx: f1(at.x), cy: f1(at.y), r: f1(6 + 20 * E.outCubic(k)), 'stroke-width': f2(lerp(2, 0.6, k)), opacity: f2(0.7 * (1 - k)) })
+  } else CUR.ripple.setAttribute('opacity', 0)
+  // numbered markers ride on the control they clicked, then clear
+  ;[[TL.click1, UI.chipAt, -34, -30], [TL.click2, { x: UI.buyAt.x, y: UI.buyAt.y + shift }, 66, 0]].forEach(([c, target, dx, dy], i) => {
+    const k = seg(t, c, c + 0.3)
+    const out = seg(t, c + 0.95, c + 1.25)
+    const at = project(target, camAt(t))
+    const s = E.outBack(k, 2.4)
+    CUR.badges[i].setAttribute('transform', `translate(${f1(at.x + dx)} ${f1(at.y + dy)}) scale(${f2(Math.max(0.001, s))})`)
+    CUR.badges[i].setAttribute('opacity', f2(k > 0 ? 1 - out : 0))
+  })
+}
+
+// ---------- captions ----------
+const CAPS = [
+  { eb: '01  ILLUSION', lines: [['Markets', 'are', 'full'], ['of', 'illusions.']], ghost: 'illusions.' },
+  { eb: '02  DISPEL', lines: [['Dispel', 'clears'], ['them', 'away.']], gem: true },
+  { eb: '03  CLARITY', lines: [['So', 'you', 'see', 'the'], ['market', 'clearly.']] },
+  { eb: '04  TRADE', lines: [['And', 'trade', 'it,'], ['right', 'here.']], sub: 'Paper funds. Live prices. No exchange keys.' },
 ]
-function buildDial() {
-  const root = $('dialScene')
-  const size = 200 * DIAL.scale
-  const svg = S('svg', { viewBox: '-100 -100 200 200', width: size, height: size, style: `position:absolute;left:${DIAL.C.x - size / 2}px;top:${DIAL.C.y - size / 2}px;overflow:visible` }, root)
-  DIAL.svg = svg
-  const defs = S('defs', {}, svg)
-  const pat = S('pattern', { id: 'hatch', width: 4, height: 4, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs)
-  S('rect', { width: 4, height: 4, fill: 'rgba(156,156,157,.28)' }, pat)
-  S('rect', { width: 1.6, height: 4, fill: 'rgba(156,156,157,.75)' }, pat)
-  S('feGaussianBlur', { stdDeviation: 3 }, S('filter', { id: 'dg', x: '-50%', y: '-50%', width: '200%', height: '200%' }, defs))
-  DIAL.g = S('g', {}, svg)
-  DIAL.outer = S('path', { fill: 'none', stroke: 'rgba(255,255,255,.14)', 'stroke-width': 0.6 }, DIAL.g)
-  DIAL.ticks = []
-  for (let i = 0; i < 100; i++) {
-    DIAL.ticks.push({ i, long: i % 10 === 0, el: S('line', { 'stroke-width': 0.55 }, DIAL.g) })
-  }
-  DIAL.track = S('path', { fill: 'none', stroke: '#1b1c1e', 'stroke-width': 9 }, DIAL.g)
-  const total = PARTS.reduce((s, p) => s + p.v, 0)
-  let start = -90
-  DIAL.arcs = PARTS.map((p) => {
-    const sweep = (p.v / total) * 360
-    const a = { from: start + 1.2, to: start + sweep - 1.2, p }
-    a.glow = S('path', { fill: 'none', stroke: p.cash ? 'none' : p.color, 'stroke-width': 9, filter: 'url(#dg)', opacity: 0.35 }, DIAL.g)
-    a.el = S('path', { fill: 'none', stroke: p.cash ? 'url(#hatch)' : p.color, 'stroke-width': 9 }, DIAL.g)
-    start += sweep
-    return a
-  })
-  DIAL.coral = S('path', { fill: 'none', stroke: '#ff6363', 'stroke-width': 9 }, DIAL.g)
-  DIAL.inner = S('circle', { r: 56, fill: 'none', stroke: 'rgba(255,255,255,.08)', 'stroke-dasharray': '1 4' }, DIAL.g)
-  DIAL.pct = S('text', { y: 6, 'text-anchor': 'middle', fill: '#fff', 'font-family': 'Inter Variable', 'font-size': 26, 'font-weight': 400 }, DIAL.g)
-  DIAL.cashLbl = S('text', { y: 22, 'text-anchor': 'middle', fill: '#6a6b6c', 'font-family': 'Geist Mono', 'font-size': 7.5, 'letter-spacing': 0.8 }, DIAL.g)
-
-  const eqEb = D('div', 'eq mono', root, 'PAPER EQUITY')
-  eqEb.style.cssText += ';top:262px;font-size:17px;letter-spacing:2px;color:var(--ash)'
-  const eq = D('div', 'eq', root)
-  eq.style.cssText += ';top:298px;font-size:104px;font-weight:400;letter-spacing:.2px;display:flex;align-items:baseline;gap:18px'
-  DIAL.eqOdo = makeOdo(eq, '10,482.16')
-  D('span', '', eq, 'USDT').style.cssText = 'font-size:30px;color:var(--smoke)'
-  const chip = D('div', 'eq', root)
-  chip.style.cssText += ';top:430px;display:flex;gap:10px;font-size:19px'
-  chip.innerHTML = '<span style="padding:7px 14px;border-radius:8px;background:rgba(89,212,153,.1);color:#59d499;box-shadow:rgba(89,212,153,.25) 0 0 0 1px inset">+180.54 · +1.75% all time</span><span style="padding:7px 14px;border-radius:8px;background:var(--badge);color:var(--ash);box-shadow:var(--key-soft)">Paper · no real funds</span>'
-  DIAL.texts = [eqEb, eq, chip]
-  DIAL.rows = PARTS.map((p, i) => {
-    const row = D('div', 'legend-row', root)
-    row.style.top = `${512 + i * 62}px`
-    const sw = D('span', 'sw', row)
-    sw.style.background = p.cash ? 'repeating-linear-gradient(45deg, rgba(156,156,157,.8) 0 2px, rgba(156,156,157,.25) 2px 4px)' : p.color
-    D('span', 'nm', row, p.name)
-    D('span', 'pr', row, p.pair)
-    D('span', 'v', row, fmt(p.v))
-    D('span', 'pc', row, `${((p.v / total) * 100).toFixed(1)}%`)
-    return row
+function buildCaps() {
+  const root = $('caps')
+  CAPS.forEach((cap, ci) => {
+    cap.el = D('div', 'cap', root)
+    cap.ebEl = D('div', 'eb', cap.el)
+    cap.ebEl.innerHTML = `${DIAMOND}<span></span>`
+    cap.ebText = cap.ebEl.querySelector('span')
+    const h2 = D('h2', '', cap.el)
+    cap.words = []
+    cap.letters = []
+    cap.lines.forEach((line, li) => {
+      line.forEach((word, wi) => {
+        const w = D('span', 'w', h2)
+        if (cap.gem && word === 'Dispel') {
+          w.innerHTML = `<svg class="gem" viewBox="0 0 14 14"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>`
+          w.appendChild(document.createTextNode(word))
+        } else if (word === cap.ghost) {
+          for (const ch of word) {
+            const box = D('span', 'ch', w)
+            const ghosts = [D('span', 'ghost', box, ch), D('span', 'ghost', box, ch)]
+            D('span', '', box, ch)
+            cap.letters.push({ box, ghosts, i: cap.letters.length })
+          }
+        } else w.textContent = word
+        cap.words.push(w)
+        if (wi < line.length - 1) h2.appendChild(document.createTextNode(' '))
+      })
+      if (li < cap.lines.length - 1) D('br', '', h2)
+    })
+    if (cap.sub) cap.subEl = D('div', 'sub', cap.el, cap.sub)
+    cap.at = TL.captions[ci]
+    cap.out = ci < CAPS.length - 1 ? TL.captions[ci + 1] - 0.34 : TL.brand - 0.25
   })
 }
-function updateDial(t) {
-  const on = t > TL.whip + 0.05 && t < TL.logo + 0.1
-  show($('dialScene'), on)
-  if (!on) return
-  const root = $('dialScene')
-  const enter = E.outCubic(seg(t, TL.whip + 0.08, TL.whip + 0.5))
-  root.style.transform = `translateX(${f1((1 - enter) * 2400)}px)`
-  const d0 = TL.dial
-  const outer = E.inOutCubic(seg(t, d0, d0 + 0.45))
-  DIAL.outer.setAttribute('d', outer > 0 ? arcD(94, -90 - 180 * outer, -90 + 180 * outer) : 'M0 0')
-  DIAL.ticks.forEach((tk) => {
-    const ta = d0 + 0.05 + tk.i * 0.0045
-    const k = E.outCubic(seg(t, ta, ta + 0.2))
-    const a = RAD(tk.i * 3.6 - 90)
-    const o = 88
-    const inner = o - (tk.long ? 8 : 3.5) * k
-    set(tk.el, { x1: f2(o * Math.cos(a)), y1: f2(o * Math.sin(a)), x2: f2(inner * Math.cos(a)), y2: f2(inner * Math.sin(a)), stroke: `rgba(255,255,255,${f2((tk.long ? 0.38 : 0.14) * (1 + 1.5 * (1 - seg(t, ta + 0.05, ta + 0.4))) * (k > 0 ? 1 : 0))})` })
-  })
-  const tr = E.inOutCubic(seg(t, d0 + 0.05, d0 + 0.45))
-  DIAL.track.setAttribute('d', tr > 0 ? arcD(70, -90, -90 + 360 * tr) : 'M0 0')
-  DIAL.arcs.forEach((a, i) => {
-    const st = d0 + 0.2 + i * 0.1
-    const k = E.outCubic(seg(t, st, st + 0.42))
-    const d = k > 0 ? arcD(70, a.from, lerp(a.from, a.to, k)) : 'M0 0'
-    a.el.setAttribute('d', d)
-    a.glow.setAttribute('d', d)
-  })
-  const cash = PARTS[3].v / PARTS.reduce((s, p) => s + p.v, 0)
-  DIAL.pct.textContent = `${Math.round(100 * cash * E.outCubic(seg(t, d0 + 0.2, d0 + 0.9)))}%`
-  DIAL.cashLbl.textContent = decode('IN CASH', seg(t, d0 + 0.35, d0 + 0.75), 31, Math.floor(t * 30))
-  DIAL.eqOdo.set(lerp(10000, 10482.16, E.outQuart(seg(t, d0 + 0.05, d0 + 0.95))))
-  // resolve: the dial collapses into the logo diamond
-  const out = E.inCubic(seg(t, TL.resolve - 0.06, TL.resolve + 0.22))
-  const place = (el, d) => {
-    const k = E.outExpo(seg(t, d0 + 0.1 + d, d0 + 0.75 + d))
-    el.style.opacity = f2(clamp(k * 1.4) * (1 - out))
-    el.style.transform = `translateX(${f1((1 - k) * 50 + out * 90)}px)`
-    el.style.filter = k < 0.99 || out > 0 ? `blur(${f1((1 - k) * 10 + out * 12)}px)` : 'none'
+function measureCaps() {
+  for (const cap of CAPS) cap.el.style.top = `${f1(540 - cap.el.offsetHeight / 2)}px`
+}
+function updateCaps(t) {
+  const step = Math.floor(t * 30)
+  for (const [ci, cap] of CAPS.entries()) {
+    const on = t >= cap.at - 0.05 && t < cap.out + 0.5
+    cap.el.style.display = on ? '' : 'none'
+    if (!on) continue
+    const ebk = seg(t, cap.at, cap.at + 0.4)
+    cap.ebText.textContent = decode(cap.eb, ebk, ci + 3, step)
+    const gem = cap.ebEl.querySelector('svg')
+    gem.style.transform = `scale(${f2(Math.max(0.001, E.outBack(seg(t, cap.at, cap.at + 0.3), 2.6)))}) rotate(${f1(90 * (1 - E.outCubic(seg(t, cap.at, cap.at + 0.4))))}deg)`
+    const outE = (i) => E.inCubic(seg(t, cap.out + i * 0.025, cap.out + 0.28 + i * 0.025))
+    cap.ebEl.style.opacity = f2(1 - outE(0))
+    cap.words.forEach((w, i) => {
+      const st = cap.at + 0.1 + i * 0.07
+      const k = E.outExpo(seg(t, st, st + 0.8))
+      const o = outE(i)
+      w.style.opacity = f2(seg(t, st, st + 0.3) * (1 - o))
+      w.style.transform = `translateY(${f1((1 - k) * 30 - o * 18)}px)`
+      const bl = (1 - k) * 14 + o * 10
+      w.style.filter = bl > 0.05 ? `blur(${f1(bl)}px)` : 'none'
+    })
+    if (cap.subEl) {
+      const k = E.outExpo(seg(t, cap.at + 0.55, cap.at + 1.2))
+      const o = outE(cap.words.length)
+      cap.subEl.style.opacity = f2(seg(t, cap.at + 0.55, cap.at + 0.85) * (1 - o))
+      cap.subEl.style.transform = `translateY(${f1((1 - k) * 16)}px)`
+    }
+    // the illusion wobbles until the spell lands, then snaps into one clear word
+    const I = intensity(t)
+    const snap = 1 - seg(t, TL.spark - 0.02, TL.spark + 0.12)
+    for (const l of cap.letters) {
+      const dy = (hash(l.i, Math.floor(t * 20)) - 0.5) * I * 7 * snap
+      l.box.style.transform = `translateY(${f1(dy)}px)`
+      l.ghosts.forEach((g, gi) => {
+        const dx = (gi ? -1 : 1) * (4 + 16 * I) * (0.6 + 0.4 * Math.sin(t * 7 + l.i + gi * 2)) * snap
+        g.style.transform = `translate(${f1(dx)}px, ${f1((gi ? 3 : -3) * I * snap)}px)`
+        g.style.opacity = f2((0.16 + 0.22 * I) * snap)
+        g.style.filter = `blur(${f1(1 + 2 * I)}px)`
+      })
+    }
   }
-  DIAL.texts.forEach((el, i) => place(el, i * 0.06))
-  DIAL.rows.forEach((el, i) => place(el, 0.2 + i * 0.06))
-  const m = E.inOutExpo(seg(t, TL.resolve, TL.logo))
-  const dest = END.diamond
-  const cx = lerp(DIAL.C.x, dest.x, m)
-  const cy = lerp(DIAL.C.y, dest.y, m)
-  const sc = lerp(1, 30 / (94 * DIAL.scale), m)
-  DIAL.svg.style.transform = `translate(${f1(cx - DIAL.C.x)}px, ${f1(cy - DIAL.C.y)}px) rotate(${f1(lerp(0, 225, m))}deg) scale(${sc.toFixed(4)})`
-  const coral = seg(t, TL.resolve + 0.12, TL.resolve + 0.42)
-  DIAL.coral.setAttribute('d', coral > 0 ? arcD(70, -90, 270) : 'M0 0')
-  DIAL.coral.setAttribute('opacity', f2(coral))
-  DIAL.svg.style.opacity = f2(1 - seg(t, TL.logo - 0.06, TL.logo + 0.02))
-  const fadeRest = 1 - seg(t, TL.resolve + 0.05, TL.resolve + 0.35)
-  DIAL.inner.setAttribute('opacity', f2(fadeRest))
-  DIAL.pct.setAttribute('opacity', f2(fadeRest * seg(t, d0 + 0.18, d0 + 0.32)))
-  DIAL.cashLbl.setAttribute('opacity', f2(fadeRest))
+  // full scrim over the illusion and over the trade close-up, lighter while the window sits to the right
+  const light = seg(t, TL.expand[1] - 0.2, TL.clarity + 0.3) * (1 - seg(t, TL.push[0], TL.push[1]))
+  $('scrimL').style.opacity = f2(lerp(1, 0.5, light) * (1 - seg(t, TL.brand - 0.2, TL.brand + 0.3)))
 }
 
-// ---------- scene 6: resolve ----------
+// ---------- 05 · Brand ----------
 const END = {}
 const END_SCALE = 1.6
 const END_ORIGIN = { x: 960, y: 1080 * 0.46 }
 const endZoom = (t) => lerp(1, 1.035, E.outCubic(seg(t, TL.logo, 15)))
-let ENDSIG
 function buildEnd() {
   const root = $('end')
   END.cam = D('div', 'layer', root)
   const svg = S('svg', { class: 'layer', width: 1920, height: 1080 }, END.cam)
-  svg.style.cssText = 'overflow:visible;-webkit-mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,.18) 0, rgba(0,0,0,.18) 24%, #000 46%, #000 60%, transparent 82%);mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,.18) 0, rgba(0,0,0,.18) 24%, #000 46%, #000 60%, transparent 82%)'
-  const g = S('g', { transform: `translate(${CX} ${CY}) scale(${END_SCALE})` }, svg)
-  ENDSIG = makeSigil(g, 'end', 1.5)
+  const m = 'radial-gradient(circle at 50% 50%, rgba(0,0,0,.18) 0, rgba(0,0,0,.18) 24%, #000 46%, #000 60%, transparent 82%)'
+  svg.style.cssText = `overflow:visible;-webkit-mask-image:${m};mask-image:${m}`
+  const g = S('svg', { x: CX - 520 * END_SCALE, y: CY - 520 * END_SCALE, width: 1040 * END_SCALE, height: 1040 * END_SCALE, viewBox: '-520 -520 1040 1040', overflow: 'visible' }, svg)
+  END.sigil = makeSigil(g, 'end', 1.5)
   const lock = D('div', 'lockup', END.cam)
   const dsvg = S('svg', { width: 64, height: 64, viewBox: '-32 -32 64 64', style: 'overflow:visible' }, lock)
   S('feGaussianBlur', { stdDeviation: 7 }, S('filter', { id: 'dmg', x: '-100%', y: '-100%', width: '300%', height: '300%' }, S('defs', {}, dsvg)))
   END.dGlow = S('path', { d: 'M0 -30 L30 0 L0 30 L-30 0 Z', fill: '#ff6363', filter: 'url(#dmg)' }, dsvg)
-  END.dPath = S('path', { d: 'M0 -30 L30 0 L0 30 L-30 0 Z', fill: '#ff6363' }, dsvg)
+  S('path', { d: 'M0 -30 L30 0 L0 30 L-30 0 Z', fill: '#ff6363' }, dsvg)
   END.dsvg = dsvg
   const wm = D('div', 'wordmark', lock)
   END.letters = [...'Dispel'].map((ch) => D('span', '', wm, ch))
   const tag = D('div', 'tagline', END.cam)
   END.words = []
-  'Markets are full of illusions.'.split(' ').forEach((w) => {
-    END.words.push(D('span', '', tag, w))
-    tag.appendChild(document.createTextNode(' '))
-  })
   'Dispel them before you trade.'.split(' ').forEach((w, i, arr) => {
-    const s = D('span', '', tag, w)
-    s.style.color = 'var(--smoke)'
-    END.words.push(s)
+    END.words.push(D('span', '', tag, w))
     if (i < arr.length - 1) tag.appendChild(document.createTextNode(' '))
   })
   END.meta = D('div', 'meta', END.cam)
+  const fx = $('fx')
+  END.flyGlow = S('circle', { fill: '#ff6363', filter: 'url(#fxg14)' }, fx)
+  END.flyCore = S('circle', { fill: '#fff' }, fx)
+  END.shock = S('circle', { fill: 'none', stroke: '#ff6363' }, fx)
+  END.shock2 = S('circle', { fill: 'none', stroke: '#ffffff' }, fx)
 }
 function measureEnd() {
   const r = END.dsvg.getBoundingClientRect()
   END.diamond = { x: r.left + r.width / 2, y: r.top + r.height / 2 }
 }
-function endState(t) {
+function endSigil(t) {
   const L = TL.logo
   const ig = TL.endIgnite
   const lit = t >= ig
   const bloom = 1 - E.outCubic(seg(t, ig, ig + 0.8))
   const order = { 290: 0, 350: 1, 410: 2, 440: 3, 470: 4 }
   return {
-    opacity: 1, fog: 0, a0: '#ffc07a', a1: '#ff6363', strength: 60, dash: 0, w: [1, 0, 0, 0], anchor: -35,
+    opacity: 1, strength: 60,
     ring: (r) => {
       const st = L - 0.02 + order[r] * 0.05
       const q = E.outExpo(seg(t, st, st + 0.9))
@@ -1352,15 +1334,13 @@ function endState(t) {
     nodeRs: Math.max(0.001, E.outExpo(seg(t, L + 0.05, L + 0.95))),
     nodeSpin: -(t - L) * 2.6,
     node: (i) => {
-      const ta = L + 0.2 + i * 0.03
-      const q = seg(t, ta, ta + 0.4)
-      return { s: E.outBack(q, 2.6), rot: lerp(135, 0, E.outCubic(q)) }
+      const q = seg(t, L + 0.2 + i * 0.03, L + 0.6 + i * 0.03)
+      return { s: E.outBack(q, 2.6), rot: lerp(90, 0, E.outCubic(q)) }
     },
     hot: seg(t, ig, ig + 0.16),
     orbit: [E.inOutCubic(seg(t, L + 0.2, L + 0.9)), E.inOutCubic(seg(t, L + 0.28, L + 0.98))],
     orbitSpin: (t - L) * 3,
-    star: 0,
-    lineP: 0,
+    star: 0, lineP: 0,
     arcP: E.outExpo(seg(t, ig + 0.02, ig + 0.8)),
     tipOn: seg(t, ig - 0.04, ig),
     tipR: lerp(1.5, 3, E.outBack(seg(t, ig, ig + 0.4), 3)),
@@ -1372,17 +1352,38 @@ function endState(t) {
   }
 }
 function updateEnd(t) {
-  const on = t > TL.logo - 0.1
+  const L = TL.logo
+  // the chart's live tip carries the spell to the logo
+  const flyK = seg(t, TL.brand + 0.05, L)
+  if (flyK > 0 && flyK < 1 + 1e-9 && t < L + 0.05) {
+    const from = project(UI.tipWin, camAt(TL.brand + 0.05))
+    const to = END.diamond
+    const k = E.inOutCubic(flyK)
+    const mx = (from.x + to.x) / 2
+    const my = Math.min(from.y, to.y) - 160
+    const x = (1 - k) ** 2 * from.x + 2 * (1 - k) * k * mx + k * k * to.x
+    const y = (1 - k) ** 2 * from.y + 2 * (1 - k) * k * my + k * k * to.y
+    const fade = 1 - seg(t, L - 0.08, L)
+    set(END.flyCore, { cx: f1(x), cy: f1(y), r: f1(lerp(3.4, 12, k)), opacity: f2(fade) })
+    set(END.flyGlow, { cx: f1(x), cy: f1(y), r: f1(lerp(14, 46, k)), opacity: f2(0.8 * fade) })
+  } else {
+    END.flyCore.setAttribute('opacity', 0)
+    END.flyGlow.setAttribute('opacity', 0)
+  }
+  const d = END.diamond
+  const sk = seg(t, L, L + 0.75)
+  const sk2 = seg(t, L + 0.06, L + 0.95)
+  set(END.shock, { cx: f1(d.x), cy: f1(d.y), r: f1(lerp(30, 380, E.outCubic(sk))), 'stroke-width': f2(lerp(2.5, 0.5, sk)), opacity: f2(sk > 0 && sk < 1 ? 0.65 * (1 - sk) : 0) })
+  set(END.shock2, { cx: f1(d.x), cy: f1(d.y), r: f1(lerp(20, 230, E.outCubic(sk2))), 'stroke-width': 1, opacity: f2(sk2 > 0 && sk2 < 1 ? 0.35 * (1 - sk2) : 0) })
+  const on = t > L - 0.12
   show($('end'), on)
   if (!on) return
-  const L = TL.logo
   END.cam.style.transform = `scale(${endZoom(t).toFixed(4)})`
   END.cam.style.transformOrigin = '50% 46%'
-  ENDSIG.update(endState(t))
-  const land = seg(t, L - 0.06, L + 0.02)
+  END.sigil.update(endSigil(t))
   const pop = E.outBack(seg(t, L - 0.02, L + 0.4), 3)
-  END.dsvg.style.opacity = f2(land)
-  END.dsvg.style.transform = `scale(${f2(lerp(0.7, 1, pop))})`
+  END.dsvg.style.opacity = f2(seg(t, L - 0.08, L + 0.02))
+  END.dsvg.style.transform = `scale(${f2(lerp(0.6, 1, pop))})`
   END.dGlow.setAttribute('opacity', f2(0.35 + 0.65 * (1 - seg(t, L, L + 0.9))))
   const spread = 26 * (1 - E.outExpo(seg(t, L + 0.02, L + 0.9)))
   END.letters.forEach((l, i) => {
@@ -1393,87 +1394,27 @@ function updateEnd(t) {
     l.style.filter = k < 0.995 ? `blur(${f1((1 - k) * 14)}px)` : 'none'
   })
   END.words.forEach((w, i) => {
-    const st = TL.tagline + i * 0.045 + (i >= 5 ? 0.12 : 0)
+    const st = TL.tagline + i * 0.06
     const k = E.outExpo(seg(t, st, st + 0.7))
     w.style.opacity = f2(clamp(k * 1.4))
     w.style.transform = `translateY(${f1((1 - k) * 16)}px)`
     w.style.filter = k < 0.995 ? `blur(${f1((1 - k) * 8)}px)` : 'none'
   })
-  END.meta.textContent = decode('PAPER TRADING  ·  LIVE BINANCE DATA  ·  NO REAL FUNDS', seg(t, TL.meta, TL.meta + 0.4), 51, Math.floor(t * 30))
-}
-
-// ---------- fx that cross scenes ----------
-function updateFlares(t, cam) {
-  const fl = (at, pos, strength) => {
-    const k = seg(t, at, at + 0.7)
-    if (k <= 0 || k >= 1 || !pos) return 0
-    const e = 1 - E.outCubic(k)
-    set(COMET.flareWide, { cx: f1(pos.x), cy: f1(pos.y), rx: f1(lerp(160, 620, E.outCubic(k)) * strength), ry: f2(2.2), opacity: f2(e * 0.9) })
-    set(COMET.flareSoft, { cx: f1(pos.x), cy: f1(pos.y), rx: f1(240 * strength), ry: f1(26 * strength), opacity: f2(e * 0.28) })
-    return 1
-  }
-  const tipMain = screenOf(cam, TIP)
-  const z = endZoom(t)
-  const endTip = {
-    x: END_ORIGIN.x + z * (CX + END_SCALE * TIP.x - END_ORIGIN.x),
-    y: END_ORIGIN.y + z * (CY + END_SCALE * TIP.y - END_ORIGIN.y),
-  }
-  const any = fl(TL.ignite, tipMain, 1) || fl(TL.endIgnite, endTip, 0.8)
-  if (!any) {
-    COMET.flareWide.setAttribute('opacity', 0)
-    COMET.flareSoft.setAttribute('opacity', 0)
-  }
-  // hero tip across the zoom and the cut
-  const heroOn = t >= TL.zoom && t < TL.cut + 0.55
-  if (heroOn) {
-    let pos
-    let core
-    if (t < TL.cut) {
-      pos = screenOf(cam, TIP)
-      core = lerp(3.2, 5.5, E.inCubic(seg(t, TL.zoom, TL.cut)))
-    } else {
-      const ui = uiTipScreen()
-      pos = ui
-      core = lerp(5.5, Math.max(2, ui.r), E.outCubic(seg(t, TL.cut, TL.cut + 0.45)))
-    }
-    const flash = seg(t, TL.cut - 0.12, TL.cut) * (1 - seg(t, TL.cut, TL.cut + 0.3))
-    const fade = 1 - seg(t, TL.cut + 0.38, TL.cut + 0.52)
-    set(COMET.heroCore, { cx: f1(pos.x), cy: f1(pos.y), r: f2(core), opacity: f2(fade) })
-    set(COMET.heroGlow, { cx: f1(pos.x), cy: f1(pos.y), r: f1(core * 2.4 + 22 * flash), opacity: f2(fade * (0.45 + 0.3 * flash)) })
-    set(COMET.heroRing, { cx: f1(pos.x), cy: f1(pos.y), r: f1(core * 2.4), opacity: f2(fade * 0.4), 'stroke-width': 1.2 })
-  } else {
-    for (const n of [COMET.heroCore, COMET.heroGlow, COMET.heroRing]) n.setAttribute('opacity', 0)
-  }
-  // logo landing shockwaves
-  const sk = seg(t, TL.logo, TL.logo + 0.75)
-  const sk2 = seg(t, TL.logo + 0.06, TL.logo + 0.95)
-  const d = END.diamond
-  set(COMET.logoShock, { cx: f1(d.x), cy: f1(d.y), r: f1(lerp(30, 360, E.outCubic(sk))), 'stroke-width': f2(lerp(2.5, 0.5, sk)), opacity: f2(sk > 0 && sk < 1 ? 0.65 * (1 - sk) : 0) })
-  set(COMET.logoShock2, { cx: f1(d.x), cy: f1(d.y), r: f1(lerp(20, 220, E.outCubic(sk2))), 'stroke-width': 1, opacity: f2(sk2 > 0 && sk2 < 1 ? 0.35 * (1 - sk2) : 0) })
+  END.meta.textContent = decode('PAPER TRADING  ·  LIVE MARKET DATA', seg(t, TL.meta, TL.meta + 0.4), 51, Math.floor(t * 30))
 }
 
 // ---------- seek ----------
+const FX = {}
 function seek(t) {
-  const cam = camMain(t)
-  const worldOn = t > TL.land - 0.05 && t < TL.cut + 0.02
-  show($('world'), worldOn)
-  if (worldOn) {
-    $('cam').setAttribute('transform', `translate(${f2(CX + cam.x)} ${f2(CY + cam.y)}) rotate(${f2(cam.r)}) scale(${cam.s.toFixed(4)})`)
-    MAIN.update(mainState(t))
-  }
-  $('bg').style.opacity = f2(lerp(0.3, 1, seg(t, 2.9, 3.8)))
-  updateNoise(t)
-  updateHeadline(t)
-  updateComet(t)
-  updateHud(t, cam)
-  updateRead(t)
-  updateUI(t)
-  updateDial(t)
+  updateChaos(t)
+  updateWorld(t)
+  updateDispel(t)
+  updateCursor(t)
+  updateCaps(t)
   updateEnd(t)
-  updateFlares(t, cam)
-  const flash = 0.035 * (1 - seg(t, TL.land, TL.land + 0.3)) * (t >= TL.land ? 1 : 0)
-    + 0.05 * (1 - seg(t, TL.ignite, TL.ignite + 0.35)) * (t >= TL.ignite ? 1 : 0)
-    + 0.03 * seg(t, TL.cut - 0.1, TL.cut) * (1 - seg(t, TL.cut, TL.cut + 0.25))
+  $('bg').style.opacity = f2(seg(t, TL.spark, TL.spark + 0.5))
+  const flash = 0.05 * (1 - seg(t, TL.spark, TL.spark + 0.35)) * (t >= TL.spark ? 1 : 0)
+    + 0.035 * (1 - seg(t, TL.clarity - 0.1, TL.clarity + 0.3)) * seg(t, TL.clarity - 0.2, TL.clarity - 0.1)
     + 0.045 * (1 - seg(t, TL.logo, TL.logo + 0.4)) * (t >= TL.logo ? 1 : 0)
   $('flash').style.opacity = f2(flash)
   $('fade').style.opacity = f2(1 - seg(t, 0, 0.3))
@@ -1486,26 +1427,19 @@ async function init() {
   S('feTurbulence', { id: 'grainTurb', type: 'fractalNoise', baseFrequency: 0.9, numOctaves: 2, seed: 0, stitchTiles: 'stitch' }, gf)
   S('feColorMatrix', { type: 'matrix', values: '0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.4 0 0 0 -0.55' }, gf)
   S('rect', { width: 1920, height: 1080, filter: 'url(#gr)' }, grain)
-  const defs = $('defs')
-  S('feGaussianBlur', { stdDeviation: 6 }, S('filter', { id: 'glow6', x: '-300%', y: '-300%', width: '700%', height: '700%' }, defs))
-  await Promise.all([document.fonts.load('400 104px "Inter Variable"'), document.fonts.load('500 142px "Inter Variable"'), document.fonts.load('400 17px "Geist Mono"')])
+  await Promise.all([document.fonts.load('400 76px "Inter Variable"'), document.fonts.load('500 142px "Inter Variable"'), document.fonts.load('400 16px "Geist Mono"')])
   await document.fonts.ready
-  MAIN = makeSigil($('cam'), 'main', 1.8)
-  const c3 = camMain(TL.land)
-  COMET.tip = screenOf(c3, TIP)
-  COMET.endAngle = (Math.atan2(COMET.tip.y - CY, COMET.tip.x - CX) * 180) / Math.PI
-  COMET.endR = Math.hypot(COMET.tip.x - CX, COMET.tip.y - CY)
-  buildNoise()
-  buildHeadline()
-  buildFx()
-  buildHud()
-  buildRead()
-  buildUI()
-  buildDial()
+  buildChaos()
+  buildWorld()
+  buildDispel()
+  buildCursor()
+  buildCaps()
   buildEnd()
-  measureHeadline()
-  measureRead()
+  measureBubbles()
+  measureWorld()
+  measureCaps()
   measureEnd()
+  solveDissolves()
   window.seek = seek
   const params = new URLSearchParams(location.search)
   if (params.has('t')) seek(Number(params.get('t')))
