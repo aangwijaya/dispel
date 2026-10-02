@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Download Dispel — a paper-trading terminal for crypto spot markets." />
+    <title>Download Dispel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500&display=swap"
+    />
+    <style>
+      :root {
+        --void: #040506;
+        --card: #07080a;
+        --recessed: #111214;
+        --hair: rgba(255, 255, 255, 0.07);
+        --white: #ffffff;
+        --mist: #e6e6e6;
+        --ash: #9c9c9d;
+        --smoke: #6a6b6c;
+        --iron: #454647;
+        --coral: #ff6363;
+        --f-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        --f-mono: 'Geist Mono', 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--void);
+        color: var(--ash);
+        font: 14px/1.55 var(--f-ui);
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+      }
+      .rings {
+        position: fixed;
+        right: -300px;
+        top: -140px;
+        width: 880px;
+        height: 880px;
+        opacity: 0.75;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 28px 20px 72px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 6px 0 56px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--white);
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .brand svg {
+        width: 16px;
+        height: 16px;
+      }
+      header nav a {
+        color: var(--smoke);
+        font-size: 13px;
+        text-decoration: none;
+        margin-left: 18px;
+      }
+      header nav a:hover {
+        color: var(--white);
+      }
+      .eyebrow {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--smoke);
+      }
+      h1 {
+        margin: 14px 0 0;
+        font-size: clamp(30px, 5vw, 44px);
+        font-weight: 400;
+        letter-spacing: 0.2px;
+        line-height: 1.12;
+        color: var(--white);
+      }
+      h1 span {
+        display: block;
+        color: var(--smoke);
+      }
+      .lede {
+        margin: 14px 0 0;
+        max-width: 56ch;
+      }
+      .dl {
+        margin-top: 38px;
+        display: grid;
+        gap: 10px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1 1 180px;
+        min-width: 0;
+        padding: 13px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        background: rgba(7, 8, 10, 0.94);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        color: var(--white);
+        transition:
+          background 0.15s,
+          box-shadow 0.15s;
+      }
+      .btn:hover {
+        background: var(--recessed);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+      }
+      .btn b {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .btn small {
+        font-family: var(--f-mono);
+        font-size: 10.5px;
+        color: var(--smoke);
+      }
+      .btn.primary {
+        background: var(--mist);
+        box-shadow: none;
+        color: var(--iron);
+      }
+      .btn.primary small {
+        color: var(--smoke);
+      }
+      .btn.primary:hover {
+        background: var(--white);
+      }
+      .btn .tag {
+        position: absolute;
+        right: 12px;
+        top: 13px;
+        font-family: var(--f-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--coral);
+        opacity: 0;
+      }
+      .btn.is-detected .tag,
+      .btn.primary.is-detected .tag {
+        opacity: 1;
+      }
+      .meta {
+        margin-top: 14px;
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--smoke);
+      }
+      .meta a {
+        color: var(--ash);
+        text-decoration: none;
+      }
+      .meta a:hover {
+        color: var(--white);
+      }
+      .notes {
+        margin-top: 34px;
+        padding-top: 18px;
+        border-top: 1px solid var(--hair);
+        display: grid;
+        gap: 7px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--smoke);
+        max-width: 62ch;
+      }
+      .notes b {
+        color: var(--ash);
+        font-weight: 500;
+      }
+      footer {
+        margin-top: 52px;
+        font-size: 12px;
+        color: var(--smoke);
+      }
+      footer a {
+        color: var(--ash);
+        text-decoration: none;
+      }
+      footer a:hover {
+        color: var(--white);
+      }
+      @media (max-width: 560px) {
+        .btn {
+          flex: 1 1 100%;
+        }
+        header nav a:first-child {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg class="rings" viewBox="-520 -520 1040 1040" aria-hidden="true">
+      <circle r="470" fill="none" stroke="rgba(255,255,255,.08)" />
+      <circle r="440" fill="none" stroke="rgba(255,255,255,.04)" stroke-dasharray="2 7" />
+      <circle r="350" fill="none" stroke="rgba(255,255,255,.05)" />
+      <circle r="290" fill="none" stroke="rgba(255,255,255,.035)" stroke-dasharray="1 5" />
+      <path d="M335.9 -235.2 A410 410 0 0 1 274.3 304.7" fill="none" stroke="#ff6363" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round" />
+      <circle cx="335.9" cy="-235.2" r="3" fill="#fff" />
+    </svg>
+
+    <div class="wrap">
+      <header>
+        <span class="brand">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" stroke-width="14" stroke-linejoin="round" />
+            <rect x="66.5" y="22.6" width="17" height="17" fill="#fff" />
+          </svg>
+          Dispel
+        </span>
+        <nav>
+          <a href="https://github.com/aangwijaya/dispel">GitHub</a>
+          <a href="https://github.com/aangwijaya/dispel/releases">All releases</a>
+        </nav>
+      </header>
+
+      <span class="eyebrow">Paper trading terminal</span>
+      <h1>Markets are full of illusions.<span>Dispel them before you trade.</span></h1>
+      <p class="lede">
+        Live public prices from Binance, simulated orders and balances. No real funds, no exchange keys,
+        no custody. Windows, macOS and Linux.
+      </p>
+
+      <div class="dl">
+        <div class="row">
+          <a class="btn primary" data-asset="windows" href="https://github.com/aangwijaya/dispel/releases">
+            <span class="tag">your system</span>
+            <b>Windows</b>
+            <small>x64 installer · WebView2 included</small>
+          </a>
+        </div>
+        <div class="row">
+          <a class="btn" data-asset="macArm" href="https://github.com/aangwijaya/dispel/releases">
+            <span class="tag">your system</span>
+            <b>macOS · Apple Silicon</b>
+            <small>.dmg · arm64</small>
+          </a>
+          <a class="btn" data-asset="macIntel" href="https://github.com/aangwijaya/dispel/releases">
+            <span class="tag">your system</span>
+            <b>macOS · Intel</b>
+            <small>.dmg · x64</small>
+          </a>
+        </div>
+        <div class="row">
+          <a class="btn" data-asset="appimage" href="https://github.com/aangwijaya/dispel/releases">
+            <span class="tag">your system</span>
+            <b>Linux · AppImage</b>
+            <small>portable</small>
+          </a>
+          <a class="btn" data-asset="deb" href="https://github.com/aangwijaya/dispel/releases">
+            <b>Debian / Ubuntu</b>
+            <small>.deb</small>
+          </a>
+          <a class="btn" data-asset="rpm" href="https://github.com/aangwijaya/dispel/releases">
+            <b>Fedora / RHEL</b>
+            <small>.rpm</small>
+          </a>
+        </div>
+      </div>
+
+      <p class="meta"><span id="version">Checking the latest release…</span> · <a href="https://github.com/aangwijaya/dispel/releases">release notes</a></p>
+
+      <div class="notes">
+        <span><b>Unsigned builds.</b> Windows shows SmartScreen — choose <i>More info</i> → <i>Run anyway</i>. macOS needs a right-click → <i>Open</i> the first time.</span>
+        <span><b>Requirements.</b> Windows 10/11 x64 · macOS 11+ · a modern Linux desktop with WebKitGTK 4.1.</span>
+        <span><b>Data.</b> Public market data only; orders, balances and transfers are simulated and stored in your paper account.</span>
+      </div>
+
+      <footer>
+        Dispel is a practice tool, not investment advice. <a href="https://github.com/aangwijaya/dispel">Source on GitHub</a>.
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        'use strict'
+        var REPO = 'aangwijaya/dispel'
+        var API = 'https://api.github.com/repos/' + REPO + '/releases/latest'
+        var ACTIONS = 'https://github.com/' + REPO + '/actions'
+        var MATCH = {
+          windows: /x64-setup\.exe$/i,
+          macArm: /aarch64.*\.dmg$/i,
+          macIntel: /(x64|x86_64).*\.dmg$/i,
+          appimage: /\.AppImage$/i,
+          deb: /\.deb$/i,
+          rpm: /\.rpm$/i,
+        }
+        var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-asset]'))
+        var version = document.getElementById('version')
+
+        fetch(API, { headers: { Accept: 'application/vnd.github+json' } })
+          .then(function (res) {
+            if (!res.ok) throw new Error('no release')
+            return res.json()
+          })
+          .then(function (release) {
+            var tag = String(release.tag_name || '').replace(/^v/, '')
+            var date = release.published_at ? new Date(release.published_at).toISOString().slice(0, 10) : ''
+            version.textContent = 'v' + tag + (date ? ' · ' + date : '')
+            buttons.forEach(function (btn) {
+              var re = MATCH[btn.dataset.asset]
+              if (!re) return
+              var asset = (release.assets || []).filter(function (item) {
+                return re.test(item.name)
+              })[0]
+              if (asset) btn.href = asset.browser_download_url
+            })
+          })
+          .catch(function () {
+            version.textContent = 'No published release yet'
+            buttons.forEach(function (btn) {
+              btn.href = ACTIONS
+            })
+          })
+
+        var platform = String(
+          (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '',
+        ).toLowerCase()
+        var detected = ''
+        if (platform.indexOf('win') !== -1) detected = 'windows'
+        else if (platform.indexOf('mac') !== -1) {
+          detected = navigator.maxTouchPoints > 1 || /arm64|aarch64/i.test(navigator.userAgent) ? 'macArm' : 'macIntel'
+        } else if (platform.indexOf('linux') !== -1) detected = 'appimage'
+        if (detected) {
+          var el = document.querySelector('[data-asset="' + detected + '"]')
+          if (el) el.classList.add('is-detected')
+        }
+      })()
+    </script>
+  </body>
+</html>

@@ -1,8 +1,19 @@
 # Dispel
 
+[![Release](https://img.shields.io/github/v/release/aangwijaya/dispel?label=release&color=ff6363)](https://github.com/aangwijaya/dispel/releases/latest)
+[![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-1b1c1e)](https://aangwijaya.github.io/dispel/)
+
 A desktop paper-trading terminal for crypto spot markets. Live market data from Binance public
 endpoints, simulated orders and balances persisted in Supabase. No real funds, no exchange API
 keys, no custody.
+
+## Download
+
+Installers are built for Windows, macOS (Apple Silicon and Intel) and Linux on GitHub's runners.
+Grab the latest from the **[download page](https://aangwijaya.github.io/dispel/)** or the
+**[releases page](https://github.com/aangwijaya/dispel/releases/latest)**. Builds are unsigned:
+Windows shows SmartScreen (*More info → Run anyway*) and macOS needs a right-click → *Open* the
+first time.
 
 ## Features
 
