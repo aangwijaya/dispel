@@ -796,10 +796,10 @@ const ICON = {
   activity: '<path d="M8 2v12M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/>',
 }
 const icon = (k) => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">${ICON[k]}</svg>`
-// the logo mark: an open D whose bowl stops at the sigil's tip in a white terminal (DispelMark in the app)
-const MARK_INNER = '<path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><circle cx="75" cy="31.1" r="10.5" fill="#fff"/>'
+// the logo mark at small size: an open D whose bowl stops on a solid square node (DispelMark in the app)
+const MARK_INNER = '<path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" stroke-width="14" stroke-linejoin="round"/><rect x="66.5" y="22.6" width="17" height="17" fill="#fff"/>'
 const MARK = `<svg viewBox="0 0 100 100">${MARK_INNER}</svg>`
-const TIPDOT = '<svg viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#ff6363"/></svg>'
+const NODE = '<svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="#ff6363"/></svg>'
 function buildWorld() {
   const win = $('win')
   win.innerHTML = `
@@ -1198,7 +1198,7 @@ function buildCaps() {
   CAPS.forEach((cap, ci) => {
     cap.el = D('div', 'cap', root)
     cap.ebEl = D('div', 'eb', cap.el)
-    cap.ebEl.innerHTML = `${TIPDOT}<span></span>`
+    cap.ebEl.innerHTML = `${NODE}<span></span>`
     cap.ebText = cap.ebEl.querySelector('span')
     const h2 = D('h2', '', cap.el)
     cap.words = []
@@ -1288,8 +1288,10 @@ function buildEnd() {
   END.sigil = makeSigil(g, 'end', 1.5)
   const lock = D('div', 'lockup', END.cam)
   const msvg = S('svg', { width: 128, height: 128, viewBox: '0 0 100 100', style: 'overflow:visible' }, lock)
-  END.mStroke = S('path', { d: 'M42 17H19V83H48A33 33 0 0 0 75 31.1', fill: 'none', stroke: '#ff6363', 'stroke-width': 14, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1 }, msvg)
-  END.mTip = S('circle', { cx: 75, cy: 31.1, r: 10.5, fill: '#fff' }, msvg)
+  // the full mark: the arc's track runs on from the node through the opening, the node is outlined
+  END.mTrack = S('path', { d: 'M75 31.1A33 33 0 0 0 48 17', fill: 'none', stroke: '#ffffff', 'stroke-opacity': 0.32, 'stroke-width': 3.4, 'stroke-linecap': 'round', pathLength: 1 }, msvg)
+  END.mStroke = S('path', { d: 'M42 17H19V83H48A33 33 0 0 0 75 31.1', fill: 'none', stroke: '#ff6363', 'stroke-width': 14, 'stroke-linejoin': 'round', pathLength: 1 }, msvg)
+  END.mTip = S('rect', { x: 67, y: 23.1, width: 16, height: 16, fill: '#040506', stroke: '#ffffff', 'stroke-width': 3.6 }, msvg)
   END.msvg = msvg
   const wm = D('div', 'wordmark', lock)
   END.letters = [...'Dispel'].map((ch) => D('span', '', wm, ch))
@@ -1380,10 +1382,13 @@ function updateEnd(t) {
   END.cam.style.transform = `scale(${endZoom(t).toFixed(4)})`
   END.cam.style.transformOrigin = '50% 46%'
   END.sigil.update(endSigil(t))
-  // the D draws itself toward the tip as the spell arrives; the terminal lands with it
+  // the D draws itself toward the node as the spell arrives; the node lands with it, then the track runs on
   const draw = E.inOutCubic(seg(t, L - 0.46, L))
   END.mStroke.setAttribute('stroke-dasharray', `${draw.toFixed(4)} 1`)
   END.mStroke.setAttribute('opacity', draw > 0.002 ? 1 : 0)
+  const track = E.outCubic(seg(t, L + 0.08, L + 0.55))
+  END.mTrack.setAttribute('stroke-dasharray', `${track.toFixed(4)} 1`)
+  END.mTrack.setAttribute('opacity', track > 0.002 ? 1 : 0)
   const pop = E.outBack(seg(t, L - 0.02, L + 0.4), 3)
   END.mTip.setAttribute('opacity', f2(seg(t, L - 0.04, L)))
   END.mTip.setAttribute('transform', `translate(75 31.1) scale(${f2(Math.max(0.001, lerp(0.4, 1, pop)))}) translate(-75 -31.1)`)
