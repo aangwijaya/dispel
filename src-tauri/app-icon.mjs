@@ -1,7 +1,7 @@
 // Generates Dispel's app icon set from code.
 //   node src-tauri/app-icon.mjs
-// app-icon.svg        full icon (48px and up): the brand mark, an open coral D ending in the white tip, on a near-black tile. Flat.
-// app-icon-small.svg  16/24/32px: the same mark, larger in a fuller tile and without the hairline edge
+// app-icon.svg        full icon (48px and up): the open coral D, its track running on to an outlined square node, on a near-black tile. Flat.
+// app-icon-small.svg  16/24/32px: the D and a solid node, larger in a fuller tile, without the track or the hairline edge
 // Then runs `tauri icon` for both and builds icons/icon.ico with the small variant for 16/24/32px.
 import { writeFileSync, readFileSync, copyFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -21,14 +21,20 @@ const tile = (m) => {
   }
   return `${d}Z`;
 };
-// The mark, in a 100-unit box: the same geometry as the in-app logo (DispelMark in src/features/shell/nav.tsx).
-const MARK = `<path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><circle cx="75" cy="31.1" r="10.5" fill="#ffffff"/>`;
+// The mark, in a 100-unit box (the D of DispelMark in src/features/shell/nav.tsx). As on the sigil, the arc
+// rides a faint track: it runs on through the D's opening to a square node, upright so it never reads as a diamond.
+const D = `<path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" stroke-width="14" stroke-linejoin="round"/>`;
+const TRACK = `<path d="M48 17A33 33 0 0 1 75 31.1" fill="none" stroke="#ffffff" stroke-opacity=".32" stroke-width="3.4" stroke-linecap="round"/>`;
+const node = (small) =>
+  small
+    ? `<rect x="66.5" y="22.6" width="17" height="17" fill="#ffffff"/>`
+    : `<rect x="67" y="23.1" width="16" height="16" fill="#111214" stroke="#ffffff" stroke-width="3.6"/>`;
 function icon({ small }) {
   const m = small ? 16 : 40, s = small ? 9.4 : 6.4, o = C - 50 * s;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <path d="${tile(m)}" fill="#111214"/>
   ${small ? '' : `<path d="${tile(m + 3)}" fill="none" stroke="#ffffff" stroke-opacity=".08" stroke-width="6"/>`}
-  <g transform="translate(${F(o)} ${F(o)}) scale(${s})">${MARK}</g>
+  <g transform="translate(${F(o)} ${F(o)}) scale(${s})">${small ? '' : TRACK}${D}${node(small)}</g>
 </svg>
 `;
 }
