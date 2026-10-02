@@ -67,7 +67,12 @@ jobs:
         with:
           tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
           releaseName: ${{ github.ref_type == 'tag' && format('Dispel {0}', github.ref_name) || '' }}
-          releaseDraft: true
+          releaseBody: |
+            Installers are built from `${{ github.sha }}` and are unsigned: Windows shows SmartScreen
+            (*More info → Run anyway*) and macOS needs a right-click → *Open* the first time.
+
+            Windows x64 · macOS Apple Silicon · macOS Intel · Linux AppImage/.deb/.rpm
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.target != '' && format('--target {0}', matrix.target) || '' }}
 

@@ -312,7 +312,6 @@
         'use strict'
         var REPO = 'aangwijaya/dispel'
         var API = 'https://api.github.com/repos/' + REPO + '/releases/latest'
-        var ACTIONS = 'https://github.com/' + REPO + '/actions'
         var MATCH = {
           windows: /x64-setup\.exe$/i,
           macArm: /aarch64.*\.dmg$/i,
@@ -345,7 +344,7 @@
           .catch(function () {
             version.textContent = 'No published release yet'
             buttons.forEach(function (btn) {
-              btn.href = ACTIONS
+              btn.href = 'https://github.com/' + REPO + '/releases'
             })
           })
 
