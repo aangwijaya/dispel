@@ -50,10 +50,15 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'activity', label: 'Activity', icon: ActivityIcon },
 ]
 
+/**
+ * The mark: an open D drawn by the spell. The bowl stops on a square node at the sigil's tip angle (−35°).
+ * At this size the node is solid; the app icon adds the faint track and an outlined node (src-tauri/app-icon.mjs).
+ */
 export function DispelMark() {
   return (
-    <svg viewBox="0 0 14 14" aria-hidden="true">
-      <path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363" />
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" strokeWidth="14" strokeLinejoin="round" />
+      <rect x="66.5" y="22.6" width="17" height="17" fill="#fff" />
     </svg>
   )
 }

@@ -31,12 +31,11 @@ svg.layer { overflow: visible; }
 #scrimL { background: linear-gradient(90deg, rgba(4,5,6,.95) 0, rgba(4,5,6,.86) 560px, rgba(4,5,6,.4) 800px, transparent 1000px); }
 .cap { position: absolute; left: 120px; width: 640px; }
 .cap .eb { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 16px; letter-spacing: 3px; color: var(--smoke); margin-bottom: 22px; height: 20px; }
-.cap .eb svg { width: 12px; height: 12px; }
+.cap .eb svg { width: 10px; height: 10px; }
 .cap h2 { margin: 0; font-size: 76px; font-weight: 400; letter-spacing: .2px; line-height: 1.06; }
 .cap h2 .w { display: inline-block; white-space: nowrap; }
 .cap h2 .ch { display: inline-block; position: relative; }
 .cap h2 .ghost { position: absolute; left: 0; top: 0; }
-.cap h2 .gem { display: inline-block; width: .5em; height: .5em; margin-right: .22em; vertical-align: .06em; }
 .cap .sub { margin-top: 26px; font-size: 26px; color: var(--ash); letter-spacing: .1px; }
 
 /* ── chaos: the market as it looks without Dispel ── */
@@ -56,7 +55,7 @@ svg.layer { overflow: visible; }
   box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 60px 140px rgba(0,0,0,.7); }
 .w-side { position: absolute; left: 0; top: 0; width: 168px; height: 860px; border-right: 1px solid var(--hair); box-sizing: border-box; padding: 16px 10px; }
 .w-logo { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 8px; font-size: 16px; font-weight: 500; }
-.w-logo svg { width: 14px; height: 14px; }
+.w-logo svg { width: 16px; height: 16px; }
 .w-nav { position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 10px; margin-top: 4px; font-size: 15.5px; color: var(--ash); border-radius: 9px; }
 .w-nav svg { width: 17px; height: 17px; }
 .w-nav .cnt { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ash); background: var(--badge); border-radius: 6px; padding: 1px 7px; }
@@ -797,13 +796,16 @@ const ICON = {
   activity: '<path d="M8 2v12M4.5 5.5 8 2l3.5 3.5M4.5 10.5 8 14l3.5-3.5"/>',
 }
 const icon = (k) => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">${ICON[k]}</svg>`
-const DIAMOND = '<svg viewBox="0 0 14 14"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>'
+// the logo mark at small size: an open D whose bowl stops on a solid square node (DispelMark in the app)
+const MARK_INNER = '<path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" stroke-width="14" stroke-linejoin="round"/><rect x="66.5" y="22.6" width="17" height="17" fill="#fff"/>'
+const MARK = `<svg viewBox="0 0 100 100">${MARK_INNER}</svg>`
+const NODE = '<svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="#ff6363"/></svg>'
 function buildWorld() {
   const win = $('win')
   win.innerHTML = `
   <div class="w-frame" id="wFrame"></div>
   <aside class="w-side" id="wSide">
-    <div class="w-logo">${DIAMOND}Dispel</div>
+    <div class="w-logo">${MARK}Dispel</div>
     <div class="w-pill" id="navPill"></div>
     <div class="w-nav" id="navHome">${icon('home')}Home<span class="cnt">3</span></div>
     <div class="w-nav" id="navTrade">${icon('trade')}Trade</div>
@@ -1187,7 +1189,7 @@ function updateCursor(t) {
 // ---------- captions ----------
 const CAPS = [
   { eb: '01  ILLUSION', lines: [['Markets', 'are', 'full'], ['of', 'illusions.']], ghost: 'illusions.' },
-  { eb: '02  DISPEL', lines: [['Dispel', 'clears'], ['them', 'away.']], gem: true },
+  { eb: '02  DISPEL', lines: [['Dispel', 'clears'], ['them', 'away.']] },
   { eb: '03  CLARITY', lines: [['So', 'you', 'see', 'the'], ['market', 'clearly.']] },
   { eb: '04  TRADE', lines: [['And', 'trade', 'it,'], ['right', 'here.']], sub: 'Paper funds. Live prices. No exchange keys.' },
 ]
@@ -1196,7 +1198,7 @@ function buildCaps() {
   CAPS.forEach((cap, ci) => {
     cap.el = D('div', 'cap', root)
     cap.ebEl = D('div', 'eb', cap.el)
-    cap.ebEl.innerHTML = `${DIAMOND}<span></span>`
+    cap.ebEl.innerHTML = `${NODE}<span></span>`
     cap.ebText = cap.ebEl.querySelector('span')
     const h2 = D('h2', '', cap.el)
     cap.words = []
@@ -1204,10 +1206,7 @@ function buildCaps() {
     cap.lines.forEach((line, li) => {
       line.forEach((word, wi) => {
         const w = D('span', 'w', h2)
-        if (cap.gem && word === 'Dispel') {
-          w.innerHTML = `<svg class="gem" viewBox="0 0 14 14"><path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363"/></svg>`
-          w.appendChild(document.createTextNode(word))
-        } else if (word === cap.ghost) {
+        if (word === cap.ghost) {
           for (const ch of word) {
             const box = D('span', 'ch', w)
             const ghosts = [D('span', 'ghost', box, ch), D('span', 'ghost', box, ch)]
@@ -1236,8 +1235,8 @@ function updateCaps(t) {
     if (!on) continue
     const ebk = seg(t, cap.at, cap.at + 0.4)
     cap.ebText.textContent = decode(cap.eb, ebk, ci + 3, step)
-    const gem = cap.ebEl.querySelector('svg')
-    gem.style.transform = `scale(${f2(Math.max(0.001, E.outBack(seg(t, cap.at, cap.at + 0.3), 2.6)))}) rotate(${f1(90 * (1 - E.outCubic(seg(t, cap.at, cap.at + 0.4))))}deg)`
+    const dot = cap.ebEl.querySelector('svg')
+    dot.style.transform = `scale(${f2(Math.max(0.001, E.outBack(seg(t, cap.at, cap.at + 0.3), 2.6)))})`
     const outE = (i) => E.inCubic(seg(t, cap.out + i * 0.025, cap.out + 0.28 + i * 0.025))
     cap.ebEl.style.opacity = f2(1 - outE(0))
     cap.words.forEach((w, i) => {
@@ -1288,11 +1287,12 @@ function buildEnd() {
   const g = S('svg', { x: CX - 520 * END_SCALE, y: CY - 520 * END_SCALE, width: 1040 * END_SCALE, height: 1040 * END_SCALE, viewBox: '-520 -520 1040 1040', overflow: 'visible' }, svg)
   END.sigil = makeSigil(g, 'end', 1.5)
   const lock = D('div', 'lockup', END.cam)
-  const dsvg = S('svg', { width: 64, height: 64, viewBox: '-32 -32 64 64', style: 'overflow:visible' }, lock)
-  S('feGaussianBlur', { stdDeviation: 7 }, S('filter', { id: 'dmg', x: '-100%', y: '-100%', width: '300%', height: '300%' }, S('defs', {}, dsvg)))
-  END.dGlow = S('path', { d: 'M0 -30 L30 0 L0 30 L-30 0 Z', fill: '#ff6363', filter: 'url(#dmg)' }, dsvg)
-  S('path', { d: 'M0 -30 L30 0 L0 30 L-30 0 Z', fill: '#ff6363' }, dsvg)
-  END.dsvg = dsvg
+  const msvg = S('svg', { width: 128, height: 128, viewBox: '0 0 100 100', style: 'overflow:visible' }, lock)
+  // the full mark: the arc's track runs on from the node through the opening, the node is outlined
+  END.mTrack = S('path', { d: 'M75 31.1A33 33 0 0 0 48 17', fill: 'none', stroke: '#ffffff', 'stroke-opacity': 0.32, 'stroke-width': 3.4, 'stroke-linecap': 'round', pathLength: 1 }, msvg)
+  END.mStroke = S('path', { d: 'M42 17H19V83H48A33 33 0 0 0 75 31.1', fill: 'none', stroke: '#ff6363', 'stroke-width': 14, 'stroke-linejoin': 'round', pathLength: 1 }, msvg)
+  END.mTip = S('rect', { x: 67, y: 23.1, width: 16, height: 16, fill: '#040506', stroke: '#ffffff', 'stroke-width': 3.6 }, msvg)
+  END.msvg = msvg
   const wm = D('div', 'wordmark', lock)
   END.letters = [...'Dispel'].map((ch) => D('span', '', wm, ch))
   const tag = D('div', 'tagline', END.cam)
@@ -1309,8 +1309,9 @@ function buildEnd() {
   END.shock2 = S('circle', { fill: 'none', stroke: '#ffffff' }, fx)
 }
 function measureEnd() {
-  const r = END.dsvg.getBoundingClientRect()
-  END.diamond = { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+  // where the mark's white terminal sits on screen: the live tip lands exactly there
+  const r = END.msvg.getBoundingClientRect()
+  END.tip = { x: r.left + r.width * 0.75, y: r.top + r.height * 0.311 }
 }
 function endSigil(t) {
   const L = TL.logo
@@ -1337,7 +1338,7 @@ function endSigil(t) {
       const q = seg(t, L + 0.2 + i * 0.03, L + 0.6 + i * 0.03)
       return { s: E.outBack(q, 2.6), rot: lerp(90, 0, E.outCubic(q)) }
     },
-    hot: seg(t, ig, ig + 0.16),
+    hot: 0, // the end card's coral belongs to the mark and the arc
     orbit: [E.inOutCubic(seg(t, L + 0.2, L + 0.9)), E.inOutCubic(seg(t, L + 0.28, L + 0.98))],
     orbitSpin: (t - L) * 3,
     star: 0, lineP: 0,
@@ -1357,7 +1358,7 @@ function updateEnd(t) {
   const flyK = seg(t, TL.brand + 0.05, L)
   if (flyK > 0 && flyK < 1 + 1e-9 && t < L + 0.05) {
     const from = project(UI.tipWin, camAt(TL.brand + 0.05))
-    const to = END.diamond
+    const to = END.tip
     const k = E.inOutCubic(flyK)
     const mx = (from.x + to.x) / 2
     const my = Math.min(from.y, to.y) - 160
@@ -1370,7 +1371,7 @@ function updateEnd(t) {
     END.flyCore.setAttribute('opacity', 0)
     END.flyGlow.setAttribute('opacity', 0)
   }
-  const d = END.diamond
+  const d = END.tip
   const sk = seg(t, L, L + 0.75)
   const sk2 = seg(t, L + 0.06, L + 0.95)
   set(END.shock, { cx: f1(d.x), cy: f1(d.y), r: f1(lerp(30, 380, E.outCubic(sk))), 'stroke-width': f2(lerp(2.5, 0.5, sk)), opacity: f2(sk > 0 && sk < 1 ? 0.65 * (1 - sk) : 0) })
@@ -1381,10 +1382,16 @@ function updateEnd(t) {
   END.cam.style.transform = `scale(${endZoom(t).toFixed(4)})`
   END.cam.style.transformOrigin = '50% 46%'
   END.sigil.update(endSigil(t))
+  // the D draws itself toward the node as the spell arrives; the node lands with it, then the track runs on
+  const draw = E.inOutCubic(seg(t, L - 0.46, L))
+  END.mStroke.setAttribute('stroke-dasharray', `${draw.toFixed(4)} 1`)
+  END.mStroke.setAttribute('opacity', draw > 0.002 ? 1 : 0)
+  const track = E.outCubic(seg(t, L + 0.08, L + 0.55))
+  END.mTrack.setAttribute('stroke-dasharray', `${track.toFixed(4)} 1`)
+  END.mTrack.setAttribute('opacity', track > 0.002 ? 1 : 0)
   const pop = E.outBack(seg(t, L - 0.02, L + 0.4), 3)
-  END.dsvg.style.opacity = f2(seg(t, L - 0.08, L + 0.02))
-  END.dsvg.style.transform = `scale(${f2(lerp(0.6, 1, pop))})`
-  END.dGlow.setAttribute('opacity', f2(0.35 + 0.65 * (1 - seg(t, L, L + 0.9))))
+  END.mTip.setAttribute('opacity', f2(seg(t, L - 0.04, L)))
+  END.mTip.setAttribute('transform', `translate(75 31.1) scale(${f2(Math.max(0.001, lerp(0.4, 1, pop)))}) translate(-75 -31.1)`)
   const spread = 26 * (1 - E.outExpo(seg(t, L + 0.02, L + 0.9)))
   END.letters.forEach((l, i) => {
     const st = L + 0.04 + i * 0.04
