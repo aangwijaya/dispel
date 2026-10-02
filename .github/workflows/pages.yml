@@ -1,13 +1,11 @@
 # Publishes docs/ (the download page) to GitHub Pages.
-# Runs on every push to main that touches docs/, or manually from the Actions tab.
+# Runs on every push to main, or manually from the Actions tab.
 name: Pages
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'docs/**'
   workflow_dispatch:
 
 permissions:
