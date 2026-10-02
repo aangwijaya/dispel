@@ -50,10 +50,19 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'activity', label: 'Activity', icon: ActivityIcon },
 ]
 
+/** The mark: an open D drawn by the spell. The bowl stops at the sigil's tip (−35°) in a white terminal. */
 export function DispelMark() {
   return (
-    <svg viewBox="0 0 14 14" aria-hidden="true">
-      <path d="M7 .8 13.2 7 7 13.2.8 7Z" fill="#ff6363" />
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <path
+        d="M42 17H19V83H48A33 33 0 0 0 75 31.1"
+        fill="none"
+        stroke="#ff6363"
+        strokeWidth="14"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="75" cy="31.1" r="10.5" fill="#fff" />
     </svg>
   )
 }

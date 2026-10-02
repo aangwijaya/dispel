@@ -229,7 +229,7 @@ toggle.
   --smoke: #6a6b6c;     /* redundant labels only */
   --iron: #454647;      /* text on Mist */
   /* brand */
-  --coral: #ff6363;     /* brand: logo diamond, sigil arc/tip/hot node, live-border tip */
+  --coral: #ff6363;     /* brand: the logo mark, sigil arc/tip/hot node, live-border tip */
   --ember: #452324;     /* reserved; no longer used by the welcome banner */
   /* semantic */
   --up: #59d499;
@@ -260,7 +260,13 @@ Bundle Inter and Geist Mono locally for Tauri. Don't load them from a CDN.
 
 - **App shell:** the sidebar sits on Void with a hairline right edge. Nav rows are 32px, 8px radius. The active
   row has a Recessed fill, `--key-soft` and white text. A Graphite count badge in Geist Mono shows changes since
-  the last visit. The logo is a coral diamond + "Dispel" 13px/500.
+  the last visit. The logo is the mark (16px) + "Dispel" 13px/500.
+- **Logo mark:** an open D drawn by the spell. A coral stroke (14 on a 100 grid, round caps and joins) runs from
+  the top bar down the stem and round the bowl, and stops at the sigil's tip angle (−35°) in a white terminal
+  (r 10.5). The open top-right is the point: the arc is still being cast. One geometry everywhere: `DispelMark`
+  in the app, and `src-tauri/app-icon.mjs` for the app icon (the mark on a flat `#111214` superellipse tile, no
+  glow or gradient). On a light background the terminal turns Void (`#040506`). Never a diamond or rotated
+  square: that shape belongs to other brands.
 - **Top bar:** 48px, page title 14px/500, a `Live` badge (Graphite, 6px radius, green dot), a "Mock data" /
   environment badge (caution outline), account.
 - **Panel:** Card fill, 12px radius, `--key-soft`, 8px apart on Void. Internal columns are divided by `--hair`.
