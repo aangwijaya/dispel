@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { DEMO_READS, DEMO_READ, oddsTexture, regimeAt, series } from './demo'
+import {
+  DEMO_READS,
+  DEMO_READ,
+  isCloseSplit,
+  isNearEven,
+  oddsCertainty,
+  oddsTexture,
+  regimeAt,
+  series,
+  setupCertainty,
+} from './demo'
 import type { Stance } from '../../types/read'
 
 const STANCES: Stance[] = ['favorable', 'wait', 'unclear', 'reduce-risk']
@@ -57,3 +67,33 @@ describe('demo read layer', () => {
     expect(DEMO_READ.setups.length).toBeGreaterThan(0)
   })
 })
+
+describe('confidence display helpers', () => {
+  it('treats odds between 40% and 60% as near even', () => {
+    expect(isNearEven(53)).toBe(true)
+    expect(isNearEven(41)).toBe(true)
+    expect(isNearEven(60)).toBe(false)
+    expect(isNearEven(68)).toBe(false)
+  })
+
+  it('grades odds by distance from a coin flip', () => {
+    expect(oddsCertainty(53)).toBe(0)
+    expect(oddsCertainty(68)).toBe(1)
+    expect(oddsCertainty(25)).toBe(2)
+    expect(oddsCertainty(90)).toBe(2)
+  })
+
+  it('takes the weaker of pattern and odds certainty', () => {
+    expect(setupCertainty(2, 53)).toBe(0)
+    expect(setupCertainty(2, 68)).toBe(1)
+    expect(setupCertainty(1, 90)).toBe(1)
+    expect(setupCertainty(2, null)).toBe(2)
+  })
+
+  it('reads a top-to-second ratio under 1.5 as a close split', () => {
+    expect(isCloseSplit([{ pct: 41 }, { pct: 37 }])).toBe(true)
+    expect(isCloseSplit([{ pct: 60 }, { pct: 20 }])).toBe(false)
+    expect(isCloseSplit([{ pct: 60 }])).toBe(false)
+  })
+})
+

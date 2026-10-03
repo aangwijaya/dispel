@@ -26,6 +26,8 @@ Always finish a change with `npm run typecheck`, `npm test` and `npm run build`.
 
 ## Hard rules
 
+- Every change adds an entry to `CHANGELOG.md` (newest version at the top) and bumps the app version in the
+  same commit: `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json` and the sign-in top bar.
 - Keep it stupid simple. No abstraction layers, no global state library, no router, no contexts
   unless a real need is demonstrated.
 - Strict TypeScript. No `any`, no type gymnastics, no duplicate domain types.

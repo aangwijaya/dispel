@@ -13,10 +13,19 @@ export interface Regime {
   color: string
 }
 
+export interface StanceOdds {
+  stance: Stance
+  pct: number
+}
+
 export interface ReadStats {
   strength: number
   confidence: Confidence
+  /** Low-confidence reads only: the two most likely stances, most likely first. */
+  split?: StanceOdds[]
   risk: RiskLevel
+  /** Set when risk reads above its most likely level: the chance of this level or higher. */
+  riskRaisedPct?: number
   volatility: Volatility
 }
 
@@ -114,6 +123,8 @@ export interface MarketRead {
   explainRest: string
   caution: string
   time: string
+  /** Partial (degraded) reads only: when the reused market judgment was made. */
+  judgedTime?: string
   coverage: string
   regimeIndex: number
   ribbon: RibbonSegment[]

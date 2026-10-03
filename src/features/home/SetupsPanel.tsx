@@ -1,5 +1,12 @@
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react'
-import { BIAS_LABEL, TONE_COLOR, oddsTexture } from '../../lib/read/demo'
+import {
+  BIAS_LABEL,
+  PATTERN_LABEL,
+  TONE_COLOR,
+  isNearEven,
+  oddsTexture,
+  setupCertainty,
+} from '../../lib/read/demo'
 import type { Exposure, MarketRead, Setup } from '../../types/read'
 import { LevelChart } from './LevelChart'
 import { Pct } from './Pct'
@@ -9,6 +16,7 @@ const RISK_COLOR = ['#9c9c9d', '#e8b04a', '#f0506e']
 interface SetupsPanelProps {
   read: MarketRead
   selected: number
+  partial: boolean
   onSelect: (index: number) => void
   onOpenChart: (symbol: string) => void
   onToggleWatch: (symbol: string) => void
@@ -18,6 +26,7 @@ interface SetupsPanelProps {
 export function SetupsPanel({
   read,
   selected,
+  partial,
   onSelect,
   onOpenChart,
   onToggleWatch,
@@ -25,6 +34,7 @@ export function SetupsPanel({
 }: SetupsPanelProps) {
   const isExposure = read.exposure.length > 0
   const forming = !isExposure && read.setups.length === 0
+  const paused = forming && partial
   const items: Exposure[] | Setup[] = isExposure
     ? read.exposure
     : read.setups.length > 0
@@ -33,8 +43,10 @@ export function SetupsPanel({
 
   const countLabel = isExposure
     ? `${read.exposure.length} positions`
-    : forming
-      ? `0 ready · ${read.forming.length} forming`
+    : paused
+      ? `paused · ${read.forming.length} forming`
+      : forming
+        ? `0 ready · ${read.forming.length} forming`
       : `${read.setups.length}`
 
   const current = items[selected] ?? items[0]
@@ -85,15 +97,22 @@ export function SetupsPanel({
               </div>
             ) : null}
 
-            {forming ? (
-              <>
-                <div className="empty">
-                  <b>No setup worth chasing</b>
-                  <p>Nothing meets the bar in this market. These two are closest to forming.</p>
-                </div>
-                <div className="sublabel eyebrow">Closest to forming</div>
-              </>
+            {paused ? (
+              <div className="empty">
+                <b>Setups paused for this cycle</b>
+                <p>
+                  Prices refreshed at {read.time}, but the market judgment carries over
+                  {read.judgedTime ? ` from ${read.judgedTime}` : ' from an earlier read'}. Setup odds depend on
+                  levels that have moved since then, so none are shown. They return with the next full read.
+                </p>
+              </div>
+            ) : forming ? (
+              <div className="empty">
+                <b>No setup worth chasing</b>
+                <p>Nothing meets the bar in this market. These two are closest to forming.</p>
+              </div>
             ) : null}
+            {forming ? <div className="sublabel eyebrow">Closest to forming</div> : null}
 
             {items.map((item, index) => {
               const color = TONE_COLOR[item.tone]
@@ -158,12 +177,13 @@ export function SetupsPanel({
                   <div className="odds">
                     <b className="num">{item.odds}</b>
                     <small>%</small>
-                    <div className="obar">
+                    <div className="obar mid">
                       <i
-                        className={oddsTexture(item.confidence)}
+                        className={oddsTexture(setupCertainty(item.confidence, item.odds))}
                         style={{ width: `${item.odds}%`, '--c': color } as CSSProperties}
                       />
                     </div>
+                    {isNearEven(item.odds) ? <em className="even">near even</em> : null}
                   </div>
                 )
 
@@ -190,8 +210,14 @@ export function SetupsPanel({
                       <span>{item.condition}</span>
                     ) : (
                       <>
-                        <span>{BIAS_LABEL[item.confidence]} confidence</span>
+                        <span>{PATTERN_LABEL[item.confidence]} pattern</span>
                         <i>·</i>
+                        {item.odds !== null && isNearEven(item.odds) ? (
+                          <>
+                            <span>Odds near even</span>
+                            <i>·</i>
+                          </>
+                        ) : null}
                         <span style={{ color: RISK_COLOR[item.risk] }}>{BIAS_LABEL[item.risk]} risk</span>
                         <i>·</i>
                         <span>{item.horizon}</span>
@@ -240,11 +266,19 @@ export function SetupsPanel({
                   </span>
                 </div>
                 <div>
+                  <div className="obar mid">
+                    <i className="medium" style={{ width: '53%', '--c': '#e6e6e6' } as CSSProperties} />
+                  </div>
+                  <span>
+                    <b>The tick</b> marks 50%. Odds near it are close to a coin flip.
+                  </span>
+                </div>
+                <div>
                   <div className="obar">
                     <i className="thin" style={{ width: '80%', '--c': '#e6e6e6' } as CSSProperties} />
                   </div>
                   <span>
-                    <b>Hatched</b> means the evidence is thin. A solid bar means strong agreement.
+                    <b>Hatched</b> means the pattern or the odds are unclear. Solid means both are clear.
                   </span>
                 </div>
               </>
@@ -346,9 +380,18 @@ function SetupDetail({
     )
   }
 
-  const dims: Array<[string, string]> = [
-    ['Odds', item.odds === null ? 'Conditional' : `${item.odds}%`],
-    ['Confidence', BIAS_LABEL[item.confidence]],
+  const dims: Array<[string, ReactNode]> = [
+    [
+      'Odds',
+      item.odds === null ? (
+        'Conditional'
+      ) : (
+        <>
+          {item.odds}%{isNearEven(item.odds) ? <span className="s">near even</span> : null}
+        </>
+      ),
+    ],
+    ['Pattern', PATTERN_LABEL[item.confidence]],
     ['Risk', BIAS_LABEL[item.risk]],
     ['Horizon', item.horizon],
   ]

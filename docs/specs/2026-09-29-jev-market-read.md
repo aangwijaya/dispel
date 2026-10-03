@@ -17,8 +17,14 @@ supplies only the judgments.
    indicators, features, pre-screen, state builder, question set, answer mapper, C4 templates and the
    composer. The Edge Function only does I/O. Vitest covers all of it.
 3. **Jev only judges.** Regime, stance, bias, trend strength, risk, per-candidate worth, setup type,
-   target-before-invalidation probability and setup risk. Confidence gating: stance below 0.5 is
-   published as `unclear`; low-confidence regime uses the probability-weighted expected step.
+   target-before-invalidation probability and setup risk. Confidence gating (floor 0.5): stance
+   below it is published as `unclear`, bias as `mixed`, positioning and on-chain alignment as
+   unclear; low-confidence regime uses the probability-weighted expected step. Market and setup
+   risk publish the highest level at least 40% likely, so a medium/high split reads as high.
+   A low-confidence read also publishes `stats.split` (the two most likely stances), a raised risk
+   publishes `stats.riskRaisedPct`, and a degraded read publishes `judgedTime`. All three are
+   optional, so older rows still validate. Setup odds certainty (|2p − 1|) is derived on the client
+   from `odds`.
 4. **No secret in the repo.** `TYPESAFE_API_KEY` and `READ_CRON_SECRET` live in function secrets; the
    cron job reads the URL and secret from Vault at run time. `market-read` deploys with
    `--no-verify-jwt` and authenticates on `x-cron-secret` (constant-time compare, 401 otherwise).
@@ -30,7 +36,9 @@ supplies only the judgments.
    every 5 minutes, and derive `exposure` (real positions vs setup levels) and `since` (diff against
    the last seen read id in localStorage).
 7. **Degraded reads.** If Jev fails but Binance works, the function reuses the previous answers with
-   fresh facts and stores `status = 'degraded'`. If Binance is unreachable, nothing is written and
+   fresh facts and stores `status = 'degraded'`. Only answers from the last `ok` read within 45
+   minutes are reused, and a degraded read publishes no setups, because their odds were judged
+   against levels this cycle recomputed. With no fresh `ok` read, nothing is written. If Binance is unreachable, nothing is written and
    the next cycle retries.
 
 ## Data flow

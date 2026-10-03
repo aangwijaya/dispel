@@ -138,7 +138,7 @@ export function LoginForm() {
             <i style={status === 'connected' ? undefined : { background: 'var(--caution)' }} />
             {STATUS_LABEL[status]}
           </span>
-          <span className="ver"> · v0.1.0</span>
+          <span className="ver"> · v0.1.1</span>
         </span>
       </div>
 

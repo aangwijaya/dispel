@@ -3,8 +3,10 @@ import {
   BIAS_LABEL,
   REGIMES,
   STANCE_COLOR,
+  STANCE_WORD,
   VERDICT_TINT,
   VOLATILITY_LABEL,
+  isCloseSplit,
   regimeAt,
 } from '../../lib/read/demo'
 import type { MarketRead, Tone } from '../../types/read'
@@ -25,6 +27,7 @@ interface MarketReadPanelProps {
   firstLaunch: boolean
   stale: boolean
   staleMinutes: number
+  partial: boolean
   whyOpen: boolean
   onToggleWhy: () => void
 }
@@ -37,13 +40,23 @@ function WarningIcon() {
   )
 }
 
-export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpen, onToggleWhy }: MarketReadPanelProps) {
+export function MarketReadPanel({
+  read,
+  firstLaunch,
+  stale,
+  staleMinutes,
+  partial,
+  whyOpen,
+  onToggleWhy,
+}: MarketReadPanelProps) {
   const style = {
     '--stance': STANCE_COLOR[read.stance],
     '--vtint': VERDICT_TINT[read.stance],
   } as CSSProperties
 
   const regime = regimeAt(read.regimeIndex)
+  const split = read.stats.confidence === 0 ? (read.stats.split ?? []) : []
+  const riskWord = BIAS_LABEL[read.stats.risk].toLowerCase()
 
   return (
     <section className="panel read-panel" id="read" aria-label="Market read" data-stance={read.stance} style={style}>
@@ -67,8 +80,11 @@ export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpe
             <span className={`mono ${stale ? 'caution' : ''}`}>
               {stale ? `last read ${staleMinutes}m ago · ${read.coverage}` : `${read.time} · ${read.coverage}`}
             </span>
+            {partial ? (
+              <span className="partial-chip">{read.judgedTime ? `partial · judged ${read.judgedTime}` : 'partial'}</span>
+            ) : null}
           </div>
-          <h2 key={read.stance} className={`verdict enter ${stale ? 'stale' : ''}`}>
+          <h2 key={read.stance} className={`verdict enter ${stale || partial ? 'stale' : ''}`}>
             {read.verdict}
           </h2>
           <p className="stance">
@@ -161,12 +177,27 @@ export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpe
         </div>
         <div>
           <div className="k">Confidence</div>
-          <div className="v">{BIAS_LABEL[read.stats.confidence]}</div>
-          <div className="steps3">
-            {[0, 1, 2].map((step) => (
-              <i key={step} className={step <= read.stats.confidence ? 'f' : undefined} />
-            ))}
+          <div className="v">
+            {BIAS_LABEL[read.stats.confidence]}
+            {split.length === 2 ? <small> · {isCloseSplit(split) ? 'close split' : 'spread out'}</small> : null}
           </div>
+          {split.length > 0 ? (
+            <div className="split">
+              {split.map((share) => (
+                <div key={share.stance}>
+                  <span>{STANCE_WORD[share.stance]}</span>
+                  <i style={{ '--w': `${share.pct}%` } as CSSProperties} />
+                  <span className="num">{share.pct}%</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="steps3">
+              {[0, 1, 2].map((step) => (
+                <i key={step} className={step <= read.stats.confidence ? 'f' : undefined} />
+              ))}
+            </div>
+          )}
           {firstLaunch ? <div className="hint">How much of the evidence agrees with this read.</div> : null}
         </div>
         <div>
@@ -179,6 +210,12 @@ export function MarketReadPanel({ read, firstLaunch, stale, staleMinutes, whyOpe
               <i key={step} className={step <= read.stats.risk ? 'f' : undefined} />
             ))}
           </div>
+          {read.stats.riskRaisedPct !== undefined ? (
+            <div className="hint">
+              {read.stats.riskRaisedPct}% chance of {riskWord}
+              {read.stats.risk < 2 ? ' or higher' : ''}, so it reads as {riskWord}
+            </div>
+          ) : null}
           {firstLaunch ? <div className="hint">How costly being wrong could be right now.</div> : null}
         </div>
         <div>

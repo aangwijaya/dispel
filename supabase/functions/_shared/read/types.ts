@@ -175,16 +175,23 @@ export interface MappedSetup {
   risk: LevelIndex
 }
 
+export interface StanceShare {
+  stance: StanceKey
+  p: number
+}
+
 export interface MappedRead {
   stance: StanceKey
   stanceConfidence: number
+  stanceSplit: StanceShare[]
   regimeKey: RegimeKey
   regimeIndex: number
   regimeConfidence: number
   bias: BiasKey
   biasConfidence: number
   trendScore: number
-  riskScore: number
+  risk: LevelIndex
+  riskRaisedPct: number | null
   setups: MappedSetup[]
   positioning: PositioningKey | null
   onchainAlignment: OnchainAlignmentKey | null
@@ -192,6 +199,8 @@ export interface MappedRead {
 
 export interface ComposeInput {
   asOf: string
+  /** Set on a degraded read: when the reused judgments were made. */
+  judgedAt?: string
   facts: MarketFacts[]
   candidates: Candidate[]
   mapped: MappedRead
