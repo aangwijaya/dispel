@@ -9,7 +9,7 @@
  *
  * I/O only: every read calculation lives in ../_shared/read.
  */
-import { mapAnswers, parseJevResponse, WORTH_THRESHOLD } from '../_shared/read/answers.ts'
+import { freshFallback, mapAnswers, parseJevResponse, WORTH_THRESHOLD } from '../_shared/read/answers.ts'
 import { composeRead } from '../_shared/read/compose.ts'
 import {
   computeCandidateDerivatives,
@@ -707,22 +707,26 @@ async function run(): Promise<RunResult> {
   let status: 'ok' | 'degraded' = 'ok'
   let response: JevResponse
   let jevLatencyMs = 0
+  let judgedAt: string | undefined
   try {
     const result = await callJev(requireEnv('TYPESAFE_API_KEY'), state, questions)
     response = result.response
     jevLatencyMs = result.latencyMs
   } catch (cause) {
-    const previous = rows[0]
-    if (!previous) throw new Error(`jev_failed_without_previous_read:${messageOf(cause)}`)
+    const previous = freshFallback(rows, asOf)
+    if (!previous) throw new Error(`jev_failed_without_fresh_read:${messageOf(cause)}`)
     response = parseJevResponse({ model: previous.model, answers: previous.answers, usage: previous.usage })
     status = 'degraded'
+    judgedAt = previous.as_of
   }
 
-  const covered =
-    status === 'degraded' ? candidates.filter((candidate) => response.answers[`${candidate.symbol}_worth`] !== undefined) : candidates
+  // Setup odds were judged against that read's levels, which this cycle recomputed, so a
+  // degraded read keeps only the slower market-wide judgments.
+  const covered = status === 'degraded' ? [] : candidates
   const mapped = mapAnswers(response, covered)
   const read = composeRead({
     asOf,
+    judgedAt,
     facts,
     candidates: formingCandidates,
     mapped,

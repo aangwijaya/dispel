@@ -312,6 +312,7 @@ function buildTags(
 export function composeRead(input: ComposeInput): ReadPayload {
   const {
     asOf,
+    judgedAt,
     facts,
     candidates,
     mapped,
@@ -349,6 +350,7 @@ export function composeRead(input: ComposeInput): ReadPayload {
     medianRatio,
   })
 
+  const confidence = confidenceLevel(mapped.stanceConfidence)
   const text = explain({ bias: mapped.bias, up, down, coverage, btc, volatility, volumePct })
 
   return {
@@ -361,14 +363,19 @@ export function composeRead(input: ComposeInput): ReadPayload {
     explainRest: text.rest,
     caution: caution(volatility, extended),
     time: formatReadTime(asOf),
+    ...(judgedAt === undefined ? {} : { judgedTime: formatReadTime(judgedAt) }),
     coverage: `${coverage} markets`,
     regimeIndex: mapped.regimeIndex,
     ribbon,
     shift,
     stats: {
       strength: Math.round((mapped.trendScore / 4) * 100),
-      confidence: confidenceLevel(mapped.stanceConfidence),
-      risk: Math.min(2, Math.max(0, Math.round(mapped.riskScore))) as 0 | 1 | 2,
+      confidence,
+      ...(confidence === 0
+        ? { split: mapped.stanceSplit.map((share) => ({ stance: uiStance(share.stance), pct: Math.round(share.p * 100) })) }
+        : {}),
+      risk: mapped.risk,
+      ...(mapped.riskRaisedPct === null ? {} : { riskRaisedPct: mapped.riskRaisedPct }),
       volatility,
     },
     evidence: evidenceWells({

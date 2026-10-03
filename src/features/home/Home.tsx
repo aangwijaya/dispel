@@ -17,6 +17,7 @@ interface HomeProps {
   seenAt: string | null
   stale: boolean
   staleMinutes: number
+  partial: boolean
   firstLaunch: boolean
   onDismissWelcome: () => void
   onOpenChart: (symbol: string) => void
@@ -34,6 +35,7 @@ export function Home({
   seenAt,
   stale,
   staleMinutes,
+  partial,
   firstLaunch,
   onDismissWelcome,
   onOpenChart,
@@ -123,6 +125,7 @@ export function Home({
         firstLaunch={firstLaunch}
         stale={stale}
         staleMinutes={staleMinutes}
+        partial={partial}
         whyOpen={whyOpen}
         onToggleWhy={() => setWhyOpen((open) => !open)}
       />
@@ -131,6 +134,7 @@ export function Home({
         <SetupsPanel
           read={read}
           selected={selected}
+          partial={partial}
           onSelect={setSelected}
           onOpenChart={handleOpenChart}
           onToggleWatch={(symbol) => void toggleWatch(symbol)}

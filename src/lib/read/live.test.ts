@@ -28,6 +28,34 @@ describe('toReadPayload', () => {
   })
 })
 
+describe('toReadPayload optional confidence fields', () => {
+  it('keeps a valid split, raised risk and judged time', () => {
+    const payload = toReadPayload({
+      ...DEMO_READ,
+      judgedTime: '14:15 UTC',
+      stats: { ...DEMO_READ.stats, confidence: 0, split: [{ stance: 'wait', pct: 41 }, { stance: 'favorable', pct: 37 }], riskRaisedPct: 43 },
+    })
+    expect(payload?.judgedTime).toBe('14:15 UTC')
+    expect(payload?.stats.split).toEqual([
+      { stance: 'wait', pct: 41 },
+      { stance: 'favorable', pct: 37 },
+    ])
+    expect(payload?.stats.riskRaisedPct).toBe(43)
+  })
+
+  it('accepts older reads without them', () => {
+    const payload = toReadPayload(DEMO_READ)
+    expect(payload?.judgedTime).toBeUndefined()
+    expect(payload?.stats.riskRaisedPct).toBeUndefined()
+  })
+
+  it('rejects malformed values', () => {
+    expect(toReadPayload({ ...DEMO_READ, judgedTime: 5 })).toBeNull()
+    expect(toReadPayload({ ...DEMO_READ, stats: { ...DEMO_READ.stats, split: [{ stance: 'moon', pct: 1 }] } })).toBeNull()
+    expect(toReadPayload({ ...DEMO_READ, stats: { ...DEMO_READ.stats, riskRaisedPct: 'high' } })).toBeNull()
+  })
+})
+
 describe('toLiveRead', () => {
   it('accepts a valid row and keeps its metadata', () => {
     const live = toLiveRead(ROW)

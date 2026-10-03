@@ -20,6 +20,8 @@ Reference mocks (all values are mock design data):
 - [`design/signin.html`](design/signin.html): Sign in
 - [`design/trade.html`](design/trade.html): Trade
 - [`design/portfolio-activity.html`](design/portfolio-activity.html): Portfolio + Activity
+- [`design/home-confidence.html`](design/home-confidence.html): Home confidence states (setup odds near even,
+  stance split, partial read), current vs shipped
 - [`design/home-sigil-clarity.html`](design/home-sigil-clarity.html): Home sigil before and after `crisp` (real app
   CSS and markup)
 - The Astrolabe sigil is generated in code from data (see B6). There are no image files for it.
@@ -577,8 +579,10 @@ Breakpoints (container queries on main): **<1180** Changes moves under Setups, f
 - Regime column: current regime name 20px/400 + "step n of 5" · 5-step scale (only the current step is
   coloured) · Today ribbon (segments tinted 20% into Recessed, 5px radius, labelled when wide enough, mono ticks)
   · latest shift with its cause, or "No regime change today".
-- Stats row: Trend strength (0–100 meter with a midline), Confidence (3 steps, Mist), Risk (3 steps; Low
-  neutral, Medium caution, High down), Volatility (4-step position; caution when Elevated or above). On first
+- Stats row: Trend strength (0–100 meter with a midline), Confidence (3 steps, Mist; when Low, the two most
+  likely stances replace the steps as split bars, labelled "close split" when the top is under 1.5× the runner-up,
+  otherwise "spread out"), Risk (3 steps; Low neutral, Medium caution, High down; when risk reads above its most
+  likely level, a hint says why: "43% chance of high, so it reads as high"), Volatility (4-step position; caution when Elevated or above). On first
   launch, a one-line plain-language hint sits under each stat.
 - "Why this read" `E`: 6 recessed wells (Trend, Momentum, Volume, Volatility, Breadth, Levels), each with a
   label, a one-word state and a one-line reason.
@@ -587,12 +591,13 @@ Breakpoints (container queries on main): **<1180** Changes moves under Setups, f
 - Header: "Setups" + count. The subtitle is always "Worth investigating, not instructions to buy. Ordered by time
   horizon, not by score." Rows are never numbered or ranked.
 - List row: monogram · pair + bias word (+ `new` badge) · **odds bar** · a 2-line setup sentence · a mono meta line
-  `Medium confidence · Medium risk · 15m – 1h`.
-- **Odds bar:** length = odds. **Texture = confidence**: solid (high), 60% opacity (medium), hatched (low).
-  Colour = bias. A legend under the list explains it.
+  `Clear pattern · Odds near even · Medium risk · 15m – 1h` ("Odds near even" only between 40% and 60%).
+- **Odds bar:** length = odds, with a Mist tick at 50% (the coin-flip line) and "near even" under the number
+  when odds are within 10 points of it. **Texture = the weaker of pattern clarity and odds certainty**: solid
+  (high), 60% opacity (medium), hatched (low). Colour = bias. A legend under the list explains it.
 - Conditional setups (ranges, compressions) show "If / then" instead of odds.
 - Detail: header (monogram, pair, bias, price, 24h) · setup sentence 15px Mist · four dimension wells (Odds,
-  Confidence, Risk, Horizon) · level chart (price line, 5% area, dashed invalidation in Down, dashed target in
+  Pattern, Risk, Horizon) · level chart (price line, 5% area, dashed invalidation in Down, dashed target in
   Smoke, labelled last price) · "What we see" (3 bullets) · Levels · actions: **Open chart ↵** (Mist) and
   **Add to watchlist** (secondary) · "Paper funds only".
 - **Wait state:** a recessed "No setup worth chasing" card, then "Closest to forming" rows. The detail pane shows
@@ -645,7 +650,9 @@ Name the cause, not the mood. Every read carries one caution. Odds are estimates
 ## C5. Required states
 Favorable · Wait · Unclear · Reduce risk · First launch (welcome, hints, explained Changes, no diff) · Returning
 (diff, nav count, no hints) · **Stale read** (meta time turns caution, "last read 47m ago", verdict dims to Ash)
-· **Offline** (the verdict is replaced by "Live data needed for a market read". Never guess).
+· **Offline** (the verdict is replaced by "Live data needed for a market read". Never guess) · **Partial read**
+(degraded: a caution `partial · judged 14:32 UTC` chip in the meta line, the verdict dims to Ash, and the Setups
+panel shows "Setups paused for this cycle" above "Closest to forming", never "Nothing meets the bar").
 
 ## C6. Navigation
 Sidebar: **Home** (default landing, with a change count) · Trade · Portfolio · Activity.

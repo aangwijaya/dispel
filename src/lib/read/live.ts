@@ -11,6 +11,8 @@ import type {
   RibbonSegment,
   RiskLevel,
   Setup,
+  Stance,
+  StanceOdds,
   Tone,
   Volatility,
 } from '../../types/read'
@@ -46,6 +48,7 @@ function isEnum<T extends string>(value: unknown, allowed: readonly T[]): value 
 }
 
 const TONES: readonly Tone[] = ['up', 'down', 'caution', 'neutral']
+const STANCES: readonly Stance[] = ['favorable', 'wait', 'unclear', 'reduce-risk']
 
 function isTone(value: unknown): value is Tone {
   return isEnum(value, TONES)
@@ -144,6 +147,22 @@ function parseShift(value: unknown): RegimeShift | null {
   return { time: value.time, from: Math.round(value.from), to: Math.round(value.to), why: value.why }
 }
 
+function parsePct(value: unknown): number | null {
+  return isNumber(value) ? Math.min(100, Math.max(0, Math.round(value))) : null
+}
+
+function parseSplit(value: unknown): StanceOdds[] | null {
+  if (!Array.isArray(value) || value.length > 2) return null
+  const split: StanceOdds[] = []
+  for (const item of value) {
+    if (!isRecord(item) || !isEnum(item.stance, STANCES)) return null
+    const pct = parsePct(item.pct)
+    if (pct === null) return null
+    split.push({ stance: item.stance, pct })
+  }
+  return split
+}
+
 function parseTag(value: unknown): ReadTag | null {
   if (!isRecord(value) || !isString(value.label) || !isTone(value.tone)) return null
   return { label: value.label, tone: value.tone }
@@ -155,7 +174,7 @@ export function toReadPayload(value: unknown): ReadPayload | null {
   const stats = isRecord(value.stats) ? value.stats : null
   const breadth = isRecord(value.breadth) ? value.breadth : null
   if (
-    !isEnum(value.stance, ['favorable', 'wait', 'unclear', 'reduce-risk'] as const) ||
+    !isEnum(value.stance, STANCES) ||
     !isString(value.verdict) ||
     !isString(value.bias) ||
     !isTone(value.biasTone) ||
@@ -217,6 +236,10 @@ export function toReadPayload(value: unknown): ReadPayload | null {
 
   const shift = parseShift(value.shift)
   if (value.shift !== null && shift === null) return null
+  const split = stats.split === undefined ? undefined : parseSplit(stats.split)
+  const riskRaisedPct = stats.riskRaisedPct === undefined ? undefined : parsePct(stats.riskRaisedPct)
+  if (split === null || riskRaisedPct === null) return null
+  if (value.judgedTime !== undefined && !isString(value.judgedTime)) return null
   if (
     !isNumber(stats.strength) ||
     !isNumber(stats.confidence) ||
@@ -238,6 +261,7 @@ export function toReadPayload(value: unknown): ReadPayload | null {
     explainRest: value.explainRest,
     caution: value.caution,
     time: value.time,
+    ...(isString(value.judgedTime) ? { judgedTime: value.judgedTime } : {}),
     coverage: value.coverage,
     regimeIndex: Math.min(4, Math.max(0, Math.round(value.regimeIndex))),
     ribbon,
@@ -245,7 +269,9 @@ export function toReadPayload(value: unknown): ReadPayload | null {
     stats: {
       strength: Math.min(100, Math.max(0, stats.strength)),
       confidence: Math.min(2, Math.max(0, Math.round(stats.confidence))) as Confidence,
+      ...(split === undefined ? {} : { split }),
       risk: Math.min(2, Math.max(0, Math.round(stats.risk))) as RiskLevel,
+      ...(riskRaisedPct === undefined ? {} : { riskRaisedPct }),
       volatility: Math.min(3, Math.max(0, Math.round(stats.volatility))) as Volatility,
     },
     evidence,

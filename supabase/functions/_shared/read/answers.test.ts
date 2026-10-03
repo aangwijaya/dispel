@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { confidenceLevel, mapAnswers, parseJevResponse } from './answers.ts'
+import { confidenceLevel, freshFallback, mapAnswers, parseJevResponse, riskLevel } from './answers.ts'
 import { SPIKE_ANSWERS } from './__fixtures__/spike-answers.ts'
-import { candidateAnswers, choice, makeResponse, marketAnswers } from './__fixtures__/answers.ts'
+import { candidateAnswers, choice, makeResponse, marketAnswers, score } from './__fixtures__/answers.ts'
 import { mockCandidate } from './__fixtures__/mock.ts'
 import type { Candidate } from './types.ts'
 
@@ -116,5 +116,75 @@ describe('mapAnswers', () => {
     expect(mapped.regimeIndex).toBe(2)
     expect(mapped.trendScore).toBeCloseTo(0.83, 2)
     expect(mapped.setups).toHaveLength(0)
+  })
+})
+
+describe('confidence gating', () => {
+  it('publishes mixed when bias confidence is below the floor', () => {
+    const response = makeResponse(marketAnswers({ bias: choice('bullish', 0.3) }))
+    expect(mapAnswers(response, []).bias).toBe('mixed')
+  })
+
+  it('drops low-confidence positioning and on-chain alignment', () => {
+    const response = makeResponse({
+      ...marketAnswers(),
+      positioning: choice('crowded_long', 0.2),
+      onchain_alignment: choice('supports', 0.45),
+    })
+    const mapped = mapAnswers(response, [])
+    expect(mapped.positioning).toBeNull()
+    expect(mapped.onchainAlignment).toBeNull()
+  })
+
+  it('keeps confident positioning and on-chain alignment', () => {
+    const response = makeResponse({
+      ...marketAnswers(),
+      positioning: choice('crowded_long', 0.7),
+      onchain_alignment: choice('supports', 0.6),
+    })
+    const mapped = mapAnswers(response, [])
+    expect(mapped.positioning).toBe('crowded_long')
+    expect(mapped.onchainAlignment).toBe('supports')
+  })
+})
+
+describe('riskLevel', () => {
+  function split(p0: number, p1: number, p2: number) {
+    return { ...score(p1 + 2 * p2, 0.5, 3), probabilities: { '0': p0, '1': p1, '2': p2 } }
+  }
+
+  it('reads a medium/high split as high', () => {
+    expect(riskLevel(split(0, 0.57, 0.43))).toBe(2)
+    expect(riskLevel(split(0.5, 0, 0.5))).toBe(2)
+  })
+
+  it('keeps a concentrated answer at its peak', () => {
+    expect(riskLevel(split(0.05, 0.9, 0.05))).toBe(1)
+    expect(riskLevel(split(0.7, 0.3, 0))).toBe(0)
+  })
+
+  it('falls back to the rounded score without probabilities', () => {
+    expect(riskLevel({ ...score(1.6, 0.8, 3), probabilities: {} })).toBe(2)
+  })
+})
+
+describe('freshFallback', () => {
+  const asOf = '2026-10-04T12:00:00.000Z'
+
+  it('uses the latest ok read within 45 minutes, skipping degraded rows', () => {
+    const rows = [
+      { as_of: '2026-10-04T11:45:00.000Z', status: 'degraded' },
+      { as_of: '2026-10-04T11:30:00.000Z', status: 'ok' },
+    ]
+    expect(freshFallback(rows, asOf)).toBe(rows[1])
+  })
+
+  it('refuses answers older than 45 minutes', () => {
+    const rows = [
+      { as_of: '2026-10-04T11:50:00.000Z', status: 'degraded' },
+      { as_of: '2026-10-04T11:00:00.000Z', status: 'ok' },
+    ]
+    expect(freshFallback(rows, asOf)).toBeNull()
+    expect(freshFallback([], asOf)).toBeNull()
   })
 })

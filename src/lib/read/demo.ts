@@ -1,4 +1,4 @@
-import type { MarketRead, Regime, Stance, Tone } from '../../types/read'
+import type { Confidence, MarketRead, Regime, Stance, Tone } from '../../types/read'
 
 export const REGIMES: Regime[] = [
   { name: 'Risk-off', color: '#f0506e' },
@@ -39,6 +39,40 @@ export function regimeAt(index: number): Regime {
 
 export function oddsTexture(confidence: 0 | 1 | 2): string {
   return ['thin', 'medium', ''][confidence] ?? ''
+}
+
+export const PATTERN_LABEL = ['Loose', 'Fair', 'Clear'] as const
+
+export const STANCE_WORD: Record<Stance, string> = {
+  favorable: 'Look',
+  wait: 'Wait',
+  unclear: 'Unclear',
+  'reduce-risk': 'Reduce',
+}
+
+/** How far the odds sit from a coin flip, on the same 3 steps as pattern confidence. */
+export function oddsCertainty(odds: number): Confidence {
+  // |2p - 1| in percentage points: under 0.2 is near even, under 0.5 is moderate.
+  const distance = Math.abs(odds - 50)
+  if (distance < 10) return 0
+  if (distance < 25) return 1
+  return 2
+}
+
+/** Odds strictly between 40% and 60% are close to a coin flip. */
+export function isNearEven(odds: number): boolean {
+  return oddsCertainty(odds) === 0
+}
+
+/** A setup is only as certain as the weaker of its pattern label and its odds. */
+export function setupCertainty(confidence: Confidence, odds: number | null): Confidence {
+  return odds === null ? confidence : (Math.min(confidence, oddsCertainty(odds)) as Confidence)
+}
+
+/** Low confidence reads as a close split when the top stance is less than 1.5x the runner-up. */
+export function isCloseSplit(split: ReadonlyArray<{ pct: number }>): boolean {
+  const [first, second] = split
+  return first !== undefined && second !== undefined && second.pct > 0 && first.pct / second.pct < 1.5
 }
 
 export function rng(seed: number): () => number {
@@ -312,7 +346,16 @@ const UNCLEAR: MarketRead = {
   regimeIndex: 2,
   ribbon: [{ from: 0, to: 14.53, regime: 2 }],
   shift: null,
-  stats: { strength: 50, confidence: 0, risk: 1, volatility: 0 },
+  stats: {
+    strength: 50,
+    confidence: 0,
+    split: [
+      { stance: 'wait', pct: 41 },
+      { stance: 'favorable', pct: 37 },
+    ],
+    risk: 1,
+    volatility: 0,
+  },
   evidence: [
     { label: 'Trend', state: 'Flat', tone: 'neutral', detail: 'No new highs or lows since Tuesday' },
     { label: 'Momentum', state: 'Neutral', tone: 'neutral', detail: 'RSI 48–52 on majors' },
