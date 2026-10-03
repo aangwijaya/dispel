@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mapAnswers } from './answers.ts'
 import { composeRead } from './compose.ts'
 import { collectCopy, findC4Violations } from './__fixtures__/c4.ts'
-import { candidateAnswers, choice, makeResponse, marketAnswers } from './__fixtures__/answers.ts'
+import { candidateAnswers, choice, makeResponse, marketAnswers, score } from './__fixtures__/answers.ts'
 import { mockCandidate, mockFacts, previousRead } from './__fixtures__/mock.ts'
 import type { ComposeInput, DerivativesFacts, MarketFacts, OnchainFacts, ReadPayload } from './types.ts'
 
@@ -169,6 +169,41 @@ describe('composeRead', () => {
     const payload = composeRead({ asOf: AS_OF, facts, candidates: [], mapped, previousReads: [] })
     expect(payload.stance).toBe('reduce-risk')
     expect(payload.verdict).toBe('Reduce risk')
+  })
+
+  it('publishes the stance split, raised risk and judged time when uncertain or partial', () => {
+    const mapped = mapAnswers(
+      makeResponse(
+        marketAnswers({
+          stance: choice('wait', 0.21, { wait: 0.41, favorable: 0.37, unclear: 0.12, reduce_risk: 0.1 }),
+          risk: { ...score(1.43, 0.35, 3), probabilities: { '0': 0, '1': 0.57, '2': 0.43 } },
+        }),
+      ),
+      [],
+    )
+    const payload = composeRead({
+      asOf: AS_OF,
+      judgedAt: '2026-09-28T14:15:00.000Z',
+      facts: fixtureFacts(),
+      candidates: [],
+      mapped,
+      previousReads: [],
+    })
+    expect(payload.stats.confidence).toBe(0)
+    expect(payload.stats.split).toEqual([
+      { stance: 'wait', pct: 41 },
+      { stance: 'favorable', pct: 37 },
+    ])
+    expect(payload.stats.risk).toBe(2)
+    expect(payload.stats.riskRaisedPct).toBe(43)
+    expect(payload.judgedTime).toBe('14:15 UTC')
+  })
+
+  it('leaves the split and raised risk out of a confident read', () => {
+    const payload = composeFixture()
+    expect(payload.stats.split).toBeUndefined()
+    expect(payload.stats.riskRaisedPct).toBeUndefined()
+    expect(payload.judgedTime).toBeUndefined()
   })
 
   it('keeps every user-facing string inside the DESIGN C4 voice', () => {

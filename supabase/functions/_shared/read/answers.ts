@@ -21,13 +21,19 @@ import {
   type RegimeKey,
   type SetupTypeKey,
   type StanceKey,
+  type StanceShare,
 } from './types.ts'
 
 export const WORTH_THRESHOLD = 0.6
 export const MAX_SETUPS = 5
 export const ODDS_MIN = 5
 export const ODDS_MAX = 95
-export const STANCE_CONFIDENCE_FLOOR = 0.5
+export const CONFIDENCE_FLOOR = 0.5
+// Risk is published as the highest level at least this likely to be reached, so a split
+// between medium and high reads as high instead of averaging down to medium.
+export const RISK_TAIL = 0.4
+// A degraded read may only reuse answers from an ok read this recent (cron runs every 15 min).
+export const FALLBACK_MAX_AGE_MS = 45 * 60_000
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -140,12 +146,53 @@ export function clamp(value: number, min: number, max: number): number {
 export function regimeIndexFromAnswer(answer: JevChoiceAnswer): number {
   const choice = asRegime(answer.choice)
   const choiceIndex = choice === null ? 2 : REGIME_KEYS.indexOf(choice)
-  if (answer.confidence >= STANCE_CONFIDENCE_FLOOR) return clamp(choiceIndex, 0, 4)
+  if (answer.confidence >= CONFIDENCE_FLOOR) return clamp(choiceIndex, 0, 4)
   const expected = REGIME_KEYS.reduce(
     (total, key, index) => total + (answer.probabilities[key] ?? 0) * index,
     0,
   )
   return clamp(Math.round(expected), 0, 4)
+}
+
+export function riskLevel(answer: JevScoreAnswer): LevelIndex {
+  let level = 0
+  let atOrAbove = 0
+  for (let index = 2; index >= 0; index--) {
+    atOrAbove += answer.probabilities[String(index)] ?? 0
+    if (atOrAbove >= RISK_TAIL) {
+      level = index
+      break
+    }
+  }
+  if (atOrAbove === 0) level = Math.round(answer.score)
+  return clamp(level, 0, 2) as LevelIndex
+}
+
+/** Percent chance of the published risk level or higher, when it sits above the most likely level. */
+export function riskRaisedPct(answer: JevScoreAnswer): number | null {
+  const level = riskLevel(answer)
+  let peak = 0
+  let atOrAbove = 0
+  for (let index = 0; index <= 2; index++) {
+    const probability = answer.probabilities[String(index)] ?? 0
+    if (probability > (answer.probabilities[String(peak)] ?? 0)) peak = index
+    if (index >= level) atOrAbove += probability
+  }
+  return level > peak ? Math.round(atOrAbove * 100) : null
+}
+
+/** The two most likely stances, most likely first. */
+export function stanceSplit(answer: JevChoiceAnswer): StanceShare[] {
+  return STANCE_KEYS.map((stance) => ({ stance, p: answer.probabilities[stance] ?? 0 }))
+    .sort((a, b) => b.p - a.p)
+    .slice(0, 2)
+}
+
+export function freshFallback<T extends { as_of: string; status: string }>(rows: T[], asOf: string): T | null {
+  const lastOk = rows.find((row) => row.status === 'ok')
+  if (!lastOk) return null
+  const age = Date.parse(asOf) - Date.parse(lastOk.as_of)
+  return age >= 0 && age <= FALLBACK_MAX_AGE_MS ? lastOk : null
 }
 
 function horizonRank(horizon: string): number {
@@ -157,22 +204,27 @@ function horizonRank(horizon: string): number {
 export function mapAnswers(response: JevResponse, candidates: Candidate[]): MappedRead {
   const stanceAnswer = requireChoice(response, 'stance')
   const stance: StanceKey =
-    stanceAnswer.confidence < STANCE_CONFIDENCE_FLOOR ? 'unclear' : asStance(stanceAnswer.choice)
+    stanceAnswer.confidence < CONFIDENCE_FLOOR ? 'unclear' : asStance(stanceAnswer.choice)
 
   const regimeAnswer = requireChoice(response, 'regime')
   const regimeKey = asRegime(regimeAnswer.choice) ?? 'neutral'
   const regimeIndex = regimeIndexFromAnswer(regimeAnswer)
 
   const biasAnswer = requireChoice(response, 'bias')
+  const bias: BiasKey = biasAnswer.confidence < CONFIDENCE_FLOOR ? 'mixed' : asBias(biasAnswer.choice)
   const trendAnswer = requireScore(response, 'trend_strength')
   const riskAnswer = requireScore(response, 'risk')
 
   const positioningAnswer = response.answers.positioning
   const positioning =
-    positioningAnswer?.type === 'choice' ? asPositioning(positioningAnswer.choice) : null
+    positioningAnswer?.type === 'choice' && positioningAnswer.confidence >= CONFIDENCE_FLOOR
+      ? asPositioning(positioningAnswer.choice)
+      : null
   const onchainAnswer = response.answers.onchain_alignment
   const onchainAlignment =
-    onchainAnswer?.type === 'choice' ? asOnchainAlignment(onchainAnswer.choice) : null
+    onchainAnswer?.type === 'choice' && onchainAnswer.confidence >= CONFIDENCE_FLOOR
+      ? asOnchainAlignment(onchainAnswer.choice)
+      : null
 
   const setups: MappedSetup[] = []
   for (const candidate of candidates) {
@@ -182,7 +234,7 @@ export function mapAnswers(response: JevResponse, candidates: Candidate[]): Mapp
     const typeAnswer = requireChoice(response, typeId)
     const type = asSetupType(typeAnswer.choice)
     const targetFirst = requireNoul(response, targetId).noul
-    const riskScore = requireScore(response, riskId).score
+    const risk = riskLevel(requireScore(response, riskId))
     if (worth < WORTH_THRESHOLD || type === 'none') continue
     setups.push({
       candidate,
@@ -191,7 +243,7 @@ export function mapAnswers(response: JevResponse, candidates: Candidate[]): Mapp
       targetFirst,
       odds: clamp(Math.round(targetFirst * 100), ODDS_MIN, ODDS_MAX),
       confidence: confidenceLevel(typeAnswer.confidence),
-      risk: clamp(Math.round(riskScore), 0, 2) as LevelIndex,
+      risk,
     })
   }
 
@@ -204,13 +256,15 @@ export function mapAnswers(response: JevResponse, candidates: Candidate[]): Mapp
   return {
     stance,
     stanceConfidence: stanceAnswer.confidence,
+    stanceSplit: stanceSplit(stanceAnswer),
     regimeKey,
     regimeIndex,
     regimeConfidence: regimeAnswer.confidence,
-    bias: asBias(biasAnswer.choice),
+    bias,
     biasConfidence: biasAnswer.confidence,
     trendScore: clamp(trendAnswer.score, 0, 4),
-    riskScore: clamp(riskAnswer.score, 0, 4),
+    risk: riskLevel(riskAnswer),
+    riskRaisedPct: riskRaisedPct(riskAnswer),
     setups: setups.slice(0, MAX_SETUPS),
     positioning,
     onchainAlignment,

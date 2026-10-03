@@ -143,6 +143,7 @@ export function AppShell({ userId, email }: AppShellProps) {
               seenAt={marketRead.seenAt}
               stale={marketRead.stale}
               staleMinutes={marketRead.staleMinutes}
+              partial={marketRead.status === 'degraded'}
               firstLaunch={firstLaunch}
               onDismissWelcome={dismissWelcome}
               onOpenChart={openChart}

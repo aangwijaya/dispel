@@ -97,8 +97,10 @@ installer; switch it to `downloadBootstrapper` for a ~5 MB installer when the ta
 Unsigned builds trigger SmartScreen (“Windows protected your PC” → *More info* → *Run anyway*); a
 code-signing certificate via `bundle.windows.signCommand` removes it.
 
-There is no auto-updater: bump `version` in `package.json`, `src-tauri/Cargo.toml` and
-`src-tauri/tauri.conf.json`, rebuild, and send the new installer.
+There is no auto-updater: bump `version` in `package.json`, `src-tauri/Cargo.toml`,
+`src-tauri/tauri.conf.json` and the sign-in top bar (`src/features/auth/LoginForm.tsx`), add a
+`CHANGELOG.md` entry, rebuild, and send the new installer. Tag `vX.Y.Z` to publish through the
+Release workflow.
 
 ### GitHub Actions (all three platforms)
 
@@ -208,7 +210,9 @@ select status_code, content, created from net._http_response order by created de
 ```
 
 `status = 'ok'` means fresh Jev answers. `status = 'degraded'` means Jev was unavailable and the
-previous answers were reused with fresh facts. If Binance cannot be reached from the project region,
+market-wide answers from the last `ok` read (at most 45 minutes old) were reused with fresh facts;
+degraded reads publish no setups. Home marks them as partial (with the time of the reused judgment)
+and shows "Setups paused" instead of an empty list. If Binance cannot be reached from the project region,
 the function returns 503 and writes nothing, so the schedule simply retries in 15 minutes.
 
 ### Inputs (derivatives + on-chain)
