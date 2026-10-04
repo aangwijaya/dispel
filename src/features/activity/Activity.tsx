@@ -316,7 +316,7 @@ export function Activity({ paper }: ActivityProps) {
       setNotice(
         `${transaction.kind === 'deposit' ? 'Deposited' : 'Withdrew'} ${formatQuantity(
           transaction.amount,
-          market.quantityPrecision,
+          market?.quantityPrecision ?? 8,
         )} ${transaction.asset} on ${network.label}.`,
       )
       flash(transaction.id)

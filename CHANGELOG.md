@@ -4,6 +4,13 @@ All notable changes to Dispel are documented in this file. Keep the newest versi
 The app version lives in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`
 (plus the sign-in top bar in `src/features/auth/LoginForm.tsx`); tag releases as `vX.Y.Z`.
 
+## [0.1.2] — 2026-10-04
+
+### Market read (Jev)
+- Universe is now **24 Binance USDT spot pairs**: added ENA, INJ, VIRTUAL, ONDO, ASTER, PENGU, SEI
+  and AERO; removed DOT and OP. Breadth, the majors and candidate selection all draw from the new
+  list (`src/lib/markets.ts`, shared by the app and the edge function).
+
 ## [0.1.1] — 2026-10-04
 
 ### Market read (Jev)
