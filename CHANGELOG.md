@@ -4,6 +4,27 @@ All notable changes to Dispel are documented in this file. Keep the newest versi
 The app version lives in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`
 (plus the sign-in top bar in `src/features/auth/LoginForm.tsx`); tag releases as `vX.Y.Z`.
 
+## [0.1.5] — 2026-10-04
+
+### Trade chart
+- Indicators: EMA 20, EMA 50, EMA 200 and SMA 20 drawn over the candles, and RSI 14 in its own
+  pane below the price pane (30 / 70 guides, 50 midline). Chips in the chart toolbar switch them on
+  and double as the legend; EMA 20 and EMA 50 are on by default. The choice is remembered on the
+  device. Active values join the OHLC readout and follow the crosshair. Design:
+  `design/trade-indicators.html`.
+- New timeframes: **1w** and **1mo** (Binance `1M`, labelled so it cannot be read as 1 minute).
+- The candle price scale now uses the market's price precision. Low-priced pairs (PENGU, DOGE)
+  previously collapsed onto 0.01 steps, which also misplaced the live-price tip.
+- The Setup levels and Volume toggles wrap together, so Volume never sits alone on a row.
+- Live kline ticks that arrive before a market's history has loaded are ignored instead of being
+  appended to the previous market's series.
+
+### Market read (Jev)
+- `ema` and `rsi` moved to `src/lib/market/indicators.ts`, shared by the chart and the Edge
+  Function. EMA is now seeded with the SMA of its first period (TradingView-style) and both return
+  `null` during warm-up instead of 0 or an unseeded value, so `ema50` 4h / `rsi1h` facts can shift
+  slightly and a short 1h history no longer reads as an RSI cross of 50.
+
 ## [0.1.4] — 2026-10-04
 
 ### Paper transfers

@@ -1,9 +1,8 @@
+import { ema, rsi } from '../../../../src/lib/market/indicators.ts'
 import {
   anchorsFrom,
   atrSeries,
-  ema,
   median,
-  rsi,
   seedFrom,
   swings,
   trendLabel,
@@ -144,7 +143,7 @@ export function prescreen(facts: MarketFacts): Candidate | null {
   }
 
   const rsi1hSeries = rsi(facts.candles1h.map((candle) => candle.close))
-  const rsiWindow = rsi1hSeries.slice(-7)
+  const rsiWindow = rsi1hSeries.slice(-7).map((value) => value ?? 50)
   const currentRsi = rsiWindow.at(-1) ?? 50
   const crossedUp =
     currentRsi >= 50 &&
@@ -229,7 +228,7 @@ export function selectCandidates(drafts: Candidate[], max = 6): Candidate[] {
 
 export function attachRsi15m(candidate: Candidate, candles15m: Candle[]): Candidate {
   const value = rsi(candles15m.map((candle) => candle.close)).at(-1)
-  return { ...candidate, rsi15m: value === undefined ? null : value }
+  return { ...candidate, rsi15m: value ?? null }
 }
 
 /**

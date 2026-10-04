@@ -563,8 +563,9 @@
   font-family: var(--f-mono);
   font-size: var(--t-eyebrow);
   color: var(--smoke);
+  right: 76px;
   display: flex;
-  gap: 12px;
+  gap: 2px 12px;
   flex-wrap: wrap;
   pointer-events: none;
 }
@@ -572,6 +573,94 @@
 .ohlc b {
   font-weight: 500;
   color: var(--mist);
+  margin-left: 3px;
+}
+
+/* Indicators: chips share the timeframe well; each carries its line swatch (the legend). */
+.ch-tools {
+  display: flex;
+  gap: 4px 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* The two toggles wrap as one unit, so Volume never ends up alone on a row. */
+.ch-tools .tg {
+  display: flex;
+  gap: 4px;
+}
+
+.ind {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--recessed);
+  border-radius: var(--r-ctl);
+}
+
+.ind button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  color: var(--smoke);
+}
+
+.ind button:hover {
+  color: var(--mist);
+}
+
+.ind button[aria-pressed='true'] {
+  background: var(--badge);
+  color: var(--white);
+  box-shadow: var(--key-soft);
+}
+
+.ind svg {
+  width: 14px;
+  height: 6px;
+  flex: none;
+  opacity: 0.35;
+}
+
+.ind button[aria-pressed='true'] svg {
+  opacity: 1;
+}
+
+.ind .sep {
+  width: 1px;
+  margin: 5px 2px;
+  background: var(--slate);
+}
+
+/* The RSI pane adds height below the candles instead of squeezing them. */
+.chart.has-rsi {
+  height: 530px;
+}
+
+@container app (max-width: 720px) {
+  .chart.has-rsi {
+    height: 420px;
+  }
+}
+
+.rsi-label {
+  position: absolute;
+  left: 12px;
+  z-index: 1;
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  color: var(--smoke);
+  pointer-events: none;
+}
+
+.rsi-label b {
+  font-weight: 500;
+  color: #63a1ff;
   margin-left: 3px;
 }
 

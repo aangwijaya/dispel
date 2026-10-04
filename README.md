@@ -25,8 +25,9 @@ first time.
 - **Responsive**: 1440 desktop window, web, iPad, down to a 390px mobile layout (bottom tab bar,
   stacked panels, search overlay for markets)
 - Live market list and watchlist (Binance REST + WebSocket, no API key)
-- Candlestick chart with volume, OHLC readout, setup levels as dashed price lines, order book and
-  recent trades in one Book/Trades panel
+- Candlestick chart (1m to 1mo) with volume, OHLC readout, setup levels as dashed price lines,
+  EMA 20/50/200 and SMA 20 overlays, an RSI 14 pane, and order book and recent trades in one
+  Book/Trades panel
 - Paper order entry: market and limit orders, validation, estimated total and fees, percent chips,
   Buy/Sell keyboard keys
 - Open orders, order history, cancel, and limit fills when the live price crosses
