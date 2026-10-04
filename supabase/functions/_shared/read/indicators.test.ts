@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { anchorsFrom, atrSeries, ema, median, rsi, seedFrom, swings, trendLabel, volumeRatio } from './indicators.ts'
+import { anchorsFrom, atrSeries, median, seedFrom, swings, trendLabel, volumeRatio } from './indicators.ts'
 import type { Candle } from './types.ts'
 
 function flatCandles(values: number[]): Candle[] {
@@ -12,34 +12,6 @@ function flatCandles(values: number[]): Candle[] {
     volume: 1,
   }))
 }
-
-describe('ema', () => {
-  it('smooths with the standard multiplier', () => {
-    const result = ema([1, 2, 3], 2)
-    expect(result[0]).toBe(1)
-    expect(result[1]).toBeCloseTo(1.6667, 3)
-    expect(result[2]).toBeCloseTo(2.5556, 3)
-  })
-})
-
-describe('rsi', () => {
-  it('reads 100 on a monotonic rise', () => {
-    const values = Array.from({ length: 30 }, (_, index) => 100 + index)
-    expect(rsi(values).at(-1)).toBe(100)
-  })
-
-  it('reads 0 on a monotonic fall', () => {
-    const values = Array.from({ length: 30 }, (_, index) => 100 - index)
-    expect(rsi(values).at(-1)).toBe(0)
-  })
-
-  it('stays near the middle on an even oscillation', () => {
-    const values = Array.from({ length: 60 }, (_, index) => 100 + Math.sin(index / 3))
-    const value = rsi(values).at(-1) ?? 0
-    expect(value).toBeGreaterThan(20)
-    expect(value).toBeLessThan(80)
-  })
-})
 
 describe('atrSeries', () => {
   it('matches a constant true range', () => {

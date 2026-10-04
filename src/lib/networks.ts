@@ -1,4 +1,4 @@
-import type { Parsed } from './validation'
+import type { Parsed } from '../types/parsed.ts'
 
 export type AddressFamily = 'evm' | 'solana' | 'bitcoin'
 
@@ -36,7 +36,6 @@ export const TRANSFER_ASSETS: TransferAsset[] = [
   },
   { symbol: 'UNI', marketSymbol: 'UNIUSDT', networks: [ETHEREUM, ARBITRUM, BASE] },
   { symbol: 'ARB', marketSymbol: 'ARBUSDT', networks: [ARBITRUM, ETHEREUM] },
-  { symbol: 'OP', marketSymbol: 'OPUSDT', networks: [OPTIMISM, ETHEREUM] },
 ]
 
 const EVM_PATTERN = /^0x[a-fA-F0-9]{40}$/

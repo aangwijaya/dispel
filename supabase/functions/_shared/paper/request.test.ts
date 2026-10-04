@@ -57,6 +57,36 @@ describe('parsePaperOrderRequest', () => {
   })
 })
 
+describe('parsePaperOrderRequest transfer', () => {
+  const evm = '0x52908400098527886E0F7030069857D2E4169EE7'
+  const base = { action: 'transfer', symbol: 'ETHUSDT', asset: 'ETH', kind: 'deposit', quantity: '0.5', network: 'arbitrum', address: evm }
+
+  it('accepts a deposit with a valid address for the network', () => {
+    expect(parsePaperOrderRequest(base)).toEqual(base)
+    expect(parsePaperOrderRequest({ ...base, kind: 'withdraw' })).toEqual({ ...base, kind: 'withdraw' })
+  })
+
+  it('drops a client-supplied reference price', () => {
+    expect(parsePaperOrderRequest({ ...base, referencePrice: '0.01' })).toEqual(base)
+  })
+
+  it('rejects mismatched assets, unknown networks and addresses of the wrong family', () => {
+    expect(parsePaperOrderRequest({ ...base, symbol: 'BTCUSDT' })).toBeNull()
+    expect(parsePaperOrderRequest({ ...base, asset: 'DOGE', symbol: 'DOGEUSDT' })).toBeNull()
+    expect(parsePaperOrderRequest({ ...base, network: 'solana' })).toBeNull()
+    expect(parsePaperOrderRequest({ ...base, address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' })).toBeNull()
+    expect(parsePaperOrderRequest({ ...base, address: ` ${evm}` })).toBeNull()
+    expect(parsePaperOrderRequest({ ...base, kind: 'mint' })).toBeNull()
+    expect(parsePaperOrderRequest({ ...base, quantity: '0' })).toBeNull()
+  })
+
+  it('rejects assets that are not transferable', () => {
+    expect(
+      parsePaperOrderRequest({ ...base, asset: 'OP', symbol: 'OPUSDT', network: 'optimism' }),
+    ).toBeNull()
+  })
+})
+
 describe('parseTickerPrice', () => {
   it('returns the price for the requested symbol only', () => {
     expect(parseTickerPrice({ symbol: 'BTCUSDT', price: '67012.34000000' }, 'BTCUSDT')).toBe('67012.34000000')

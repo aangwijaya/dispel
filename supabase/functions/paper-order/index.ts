@@ -1,11 +1,13 @@
 /**
  * paper-order — Supabase Edge Function.
  *
- * Places and fills paper orders at a price the server reads from Binance itself, so a client can
- * never choose its own fill price. The caller's JWT is checked against GoTrue; the RPCs
- * `place_order` / `fill_order` are executable by the service role only.
+ * Places and fills paper orders, and records simulated crypto transfers, at a price the server
+ * reads from Binance itself, so a client can never choose its own fill or deposit entry price.
+ * The caller's JWT is checked against GoTrue; the RPCs `place_order`, `fill_order` and
+ * `transfer_paper_crypto` are executable by the service role only.
  *
- * Body: {"action":"place","symbol","side","type","price","quantity"} or {"action":"fill","orderId"}.
+ * Body: {"action":"place","symbol","side","type","price","quantity"}, {"action":"fill","orderId"}
+ * or {"action":"transfer","symbol","asset","kind","quantity","network","address"}.
  * Errors come back as {"error": "<postgres exception code>"} for the client's friendly mapping.
  */
 import {
@@ -124,6 +126,19 @@ async function handle(request: Request): Promise<unknown> {
   if (parsed.action === 'fill') {
     const price = await livePrice(await orderSymbol(userId, parsed.orderId))
     return callRpc('fill_order', { p_user_id: userId, p_order_id: parsed.orderId, p_fill_price: price })
+  }
+
+  if (parsed.action === 'transfer') {
+    return callRpc('transfer_paper_crypto', {
+      p_user_id: userId,
+      p_symbol: parsed.symbol,
+      p_asset: parsed.asset,
+      p_kind: parsed.kind,
+      p_quantity: parsed.quantity,
+      p_network: parsed.network,
+      p_address: parsed.address,
+      p_reference_price: parsed.kind === 'deposit' ? await livePrice(parsed.symbol) : null,
+    })
   }
 
   const referencePrice = parsed.type === 'market' ? await livePrice(parsed.symbol) : null

@@ -44,17 +44,9 @@ describe('parseAddress', () => {
 })
 
 describe('transfer asset config', () => {
-  // The read universe is curated and may drop a pair while its transfer asset stays live for
-  // accounts that already hold it. Each exception must stay out of MARKETS.
-  const LEGACY_TRANSFER_ASSETS = new Set(['OP'])
-
-  it('maps every transfer asset to a curated market or a legacy exception', () => {
+  it('maps every transfer asset to a curated market', () => {
     for (const asset of TRANSFER_ASSETS) {
       const market = MARKETS.find((item) => item.symbol === asset.marketSymbol)
-      if (LEGACY_TRANSFER_ASSETS.has(asset.symbol)) {
-        expect(market, `${asset.symbol} should stay out of the read universe`).toBeUndefined()
-        continue
-      }
       expect(market, `missing market for ${asset.symbol}`).toBeDefined()
       expect(market?.baseAsset).toBe(asset.symbol)
     }

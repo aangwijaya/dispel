@@ -1,39 +1,5 @@
 import type { Candle } from './types.ts'
 
-export function ema(values: number[], period: number): number[] {
-  const k = 2 / (period + 1)
-  const out: number[] = []
-  let prev = 0
-  for (let i = 0; i < values.length; i++) {
-    const value = values[i] ?? 0
-    prev = i === 0 ? value : value * k + prev * (1 - k)
-    out.push(prev)
-  }
-  return out
-}
-
-export function rsi(values: number[], period = 14): number[] {
-  const out: number[] = new Array(values.length).fill(0)
-  if (values.length <= period) return out
-  let gain = 0
-  let loss = 0
-  for (let i = 1; i <= period; i++) {
-    const diff = (values[i] ?? 0) - (values[i - 1] ?? 0)
-    if (diff >= 0) gain += diff
-    else loss -= diff
-  }
-  gain /= period
-  loss /= period
-  out[period] = loss === 0 ? 100 : 100 - 100 / (1 + gain / loss)
-  for (let i = period + 1; i < values.length; i++) {
-    const diff = (values[i] ?? 0) - (values[i - 1] ?? 0)
-    gain = (gain * (period - 1) + (diff > 0 ? diff : 0)) / period
-    loss = (loss * (period - 1) + (diff < 0 ? -diff : 0)) / period
-    out[i] = loss === 0 ? 100 : 100 - 100 / (1 + gain / loss)
-  }
-  return out
-}
-
 export function atrSeries(candles: Candle[], period = 14): number[] {
   const out: number[] = new Array(candles.length).fill(0)
   if (candles.length <= period) return out

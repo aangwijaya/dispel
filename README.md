@@ -25,8 +25,9 @@ first time.
 - **Responsive**: 1440 desktop window, web, iPad, down to a 390px mobile layout (bottom tab bar,
   stacked panels, search overlay for markets)
 - Live market list and watchlist (Binance REST + WebSocket, no API key)
-- Candlestick chart with volume, OHLC readout, setup levels as dashed price lines, order book and
-  recent trades in one Book/Trades panel
+- Candlestick chart (1m to 1mo) with volume, OHLC readout, setup levels as dashed price lines,
+  EMA 20/50/200 and SMA 20 overlays, an RSI 14 pane, and order book and recent trades in one
+  Book/Trades panel
 - Paper order entry: market and limit orders, validation, estimated total and fees, percent chips,
   Buy/Sell keyboard keys
 - Open orders, order history, cancel, and limit fills when the live price crosses
@@ -50,7 +51,7 @@ cp .env.example .env          # fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON
 
 supabase link --project-ref <project-ref>
 supabase db push              # applies supabase/migrations
-supabase functions deploy paper-order   # places and fills orders at a server-read price
+supabase functions deploy paper-order   # orders, fills and crypto transfers at a server-read price
 
 npm run tauri dev
 ```
@@ -245,15 +246,14 @@ columns via security-definer RPCs (`place_order`, `fill_order`, `cancel_order`,
 directly — RLS blocks it. The frontend only sends exact, validated payloads and uses decimal.js for
 estimates and display.
 
-Order fill prices never come from the client. The app sends placements and limit-fill requests to
-the `paper-order` Edge Function, which verifies the user's JWT, reads the live price from Binance
-itself and calls `place_order` / `fill_order`; those two RPCs are executable by the service role
-only. Crypto deposits still use the client-observed market price as the position's entry price.
-Server-side checks enforce ownership, order state, limit-price invariants, address formats and
-non-negative balances. Crypto
-deposits/withdrawals are simulated only: addresses are public strings validated per network and
-never used for signing. Real on-chain movement and exchange execution are out of scope and would
-require a separate custody/signing service.
+Prices never come from the client. The app sends placements, limit-fill requests and crypto
+transfers to the `paper-order` Edge Function, which verifies the user's JWT, reads the live price
+from Binance itself and calls `place_order`, `fill_order` or `transfer_paper_crypto`; those RPCs
+are executable by the service role only. Server-side checks enforce ownership, order state,
+limit-price invariants, address formats and non-negative balances. Crypto deposits/withdrawals
+are simulated only: addresses are public strings validated per network and never used for
+signing. Real on-chain movement and exchange execution are out of scope and would require a
+separate custody/signing service.
 
 Market data tries `api.binance.com` / `stream.binance.com` first and automatically falls back to
 `data-api.binance.vision` / `data-stream.binance.vision` when blocked.
