@@ -4,6 +4,20 @@ All notable changes to Dispel are documented in this file. Keep the newest versi
 The app version lives in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`
 (plus the sign-in top bar in `src/features/auth/LoginForm.tsx`); tag releases as `vX.Y.Z`.
 
+## [0.1.4] — 2026-10-04
+
+### Paper transfers
+- Crypto deposit entry prices are read on the server. Deposits and withdrawals now go through the
+  `paper-order` Edge Function (`action: "transfer"`), which validates the asset, network and
+  address with `src/lib/networks.ts` and fetches the live Binance price for deposits itself.
+  Clients can no longer set a deposit's average entry price (and with it realized P/L). No UI change.
+- Migration `20261004000002_server_priced_transfers.sql` replaces `transfer_paper_crypto` with a
+  `p_user_id` variant executable by the service role only. Redeploy `paper-order` together with it.
+- Removed OP from the transferable assets; its market was dropped in 0.1.2, so transfers already
+  failed with "Unsupported asset.".
+- `Parsed` moved to `src/types/parsed.ts` so the Edge Function can import the address validators
+  without pulling in `decimal.js`.
+
 ## [0.1.3] — 2026-10-04
 
 ### Paper trading
