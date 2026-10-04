@@ -11,6 +11,10 @@ The app version lives in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/t
   and AERO; removed DOT and OP. Breadth, the majors and candidate selection all draw from the new
   list (`src/lib/markets.ts`, shared by the app and the edge function).
 
+### Site
+- Added `docs/privacy.html` (linked from the download page) so the Google OAuth consent screen has
+  a home page and privacy policy URL for publishing the app.
+
 ## [0.1.1] — 2026-10-04
 
 ### Market read (Jev)
