@@ -122,8 +122,8 @@ export interface PlaceOrderPayload {
   quantity: string
 }
 
-/** Place and fill run in the paper-order edge function, which reads the fill price itself. */
-async function callPaperOrder(body: Record<string, unknown>): Promise<Order> {
+/** Place, fill and crypto transfers run in the paper-order edge function, which reads prices itself. */
+export async function invokePaperOrder(body: Record<string, unknown>): Promise<unknown> {
   const { data, error } = await supabase.functions.invoke('paper-order', { body })
   if (error) {
     const context: unknown = 'context' in error ? error.context : null
@@ -131,6 +131,11 @@ async function callPaperOrder(body: Record<string, unknown>): Promise<Order> {
     const code = asRecord(payload)?.error
     throw new Error(friendlyDbError(typeof code === 'string' ? code : error.message))
   }
+  return data
+}
+
+async function callPaperOrder(body: Record<string, unknown>): Promise<Order> {
+  const data = await invokePaperOrder(body)
   const order = toOrder(data)
   if (!order) throw new Error('Unexpected response from the trading engine.')
   return order

@@ -1,8 +1,7 @@
 import { dec } from './decimal'
 import type { Market } from '../types/market'
 import type { OrderSide, OrderType } from '../types/trading'
-
-export type Parsed<T> = { ok: true; value: T } | { ok: false; error: string }
+import type { Parsed } from '../types/parsed'
 
 const DECIMAL_PATTERN = /^\d+(\.\d+)?$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

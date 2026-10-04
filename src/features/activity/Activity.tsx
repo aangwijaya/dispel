@@ -293,12 +293,6 @@ export function Activity({ paper }: ActivityProps) {
       return
     }
 
-    const referencePrice = kind === 'deposit' ? lastPrice : null
-    if (kind === 'deposit' && referencePrice === null) {
-      setFormError('Waiting for market price.')
-      return
-    }
-
     setSubmitting(true)
     try {
       const transaction = await transferCrypto({
@@ -308,7 +302,6 @@ export function Activity({ paper }: ActivityProps) {
         quantity: parsedQuantity.value,
         network: network.id,
         address: parsedAddress.value,
-        referencePrice,
       })
       setAmount('')
       setAddress('')

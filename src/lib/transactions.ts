@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { friendlyDbError } from './errors'
+import { invokePaperOrder } from './orders'
 import type { Transaction, TransactionKind } from '../types/trading'
 
 const TRANSACTION_COLUMNS = 'id,kind,asset,amount,balance_after,network,address,created_at'
@@ -69,20 +70,18 @@ export interface CryptoTransferPayload {
   quantity: string
   network: string
   address: string
-  referencePrice: string | null
 }
 
 export async function transferCrypto(payload: CryptoTransferPayload): Promise<Transaction> {
-  const { data, error } = await supabase.rpc('transfer_paper_crypto', {
-    p_symbol: payload.symbol,
-    p_asset: payload.asset,
-    p_kind: payload.kind,
-    p_quantity: payload.quantity,
-    p_network: payload.network,
-    p_address: payload.address,
-    p_reference_price: payload.referencePrice,
+  const data = await invokePaperOrder({
+    action: 'transfer',
+    symbol: payload.symbol,
+    asset: payload.asset,
+    kind: payload.kind,
+    quantity: payload.quantity,
+    network: payload.network,
+    address: payload.address,
   })
-  if (error) throw new Error(friendlyDbError(error.message))
   const transaction = toTransaction(data)
   if (!transaction) throw new Error('Unexpected response from the paper engine.')
   return transaction
