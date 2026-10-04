@@ -102,15 +102,161 @@
         color: var(--white);
       }
       h1 span {
-        display: block;
+        display: inline-block;
         color: var(--smoke);
       }
-      .lede {
-        margin: 14px 0 0;
-        max-width: 56ch;
+      .preview {
+        position: relative;
+        margin: 32px 0 0;
+      }
+      .frame {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #000;
+      }
+      .frame video {
+        display: block;
+        width: 100%;
+        height: auto;
+        cursor: pointer;
+      }
+      .frame::before,
+      .frame::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+      }
+      .frame::before {
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      /* The app's live border, driven by the video: one lap per loop, still while paused. */
+      .frame::after {
+        padding: 1px;
+        background: conic-gradient(
+          from calc(var(--t, 0) * 1turn),
+          transparent 0 58%,
+          rgba(255, 99, 99, 0.35) 72%,
+          #ff6363 80%,
+          rgba(255, 255, 255, 0.8) 82%,
+          transparent 90%
+        );
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+      }
+      .play {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        height: 36px;
+        padding: 0 15px 0 13px;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(4, 5, 6, 0.6);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(10px);
+        color: var(--white);
+        font: 500 11px/1 var(--f-mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(4px);
+        transition:
+          opacity 0.2s,
+          transform 0.2s,
+          visibility 0.2s;
+      }
+      .is-paused .play {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+      .play:hover {
+        background: rgba(17, 18, 20, 0.85);
+      }
+      .preview figcaption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .cap {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        white-space: nowrap;
+      }
+      .cap i {
+        width: 6px;
+        height: 6px;
+        background: var(--coral);
+        transition: background 0.2s;
+      }
+      .is-paused .cap i {
+        background: var(--iron);
+      }
+      .ctl {
+        display: flex;
+        gap: 6px;
+      }
+      .ctl[hidden] {
+        display: none;
+      }
+      .ctl button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        height: 28px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        color: var(--ash);
+        font: 500 10.5px/1 var(--f-mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          box-shadow 0.15s,
+          color 0.15s;
+      }
+      .ctl button:hover {
+        background: var(--recessed);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+        color: var(--white);
+      }
+      .play:focus-visible,
+      .ctl button:focus-visible {
+        outline: 2px solid var(--coral);
+        outline-offset: 2px;
+      }
+      .play svg,
+      .ctl svg {
+        width: 12px;
+        height: 12px;
+        flex: none;
+      }
+      .is-paused .i-pause,
+      .preview:not(.is-paused) .i-play,
+      .is-muted .i-sound,
+      .preview:not(.is-muted) .i-muted {
+        display: none;
       }
       .dl {
-        margin-top: 38px;
+        margin-top: 30px;
         display: grid;
         gap: 10px;
       }
@@ -216,6 +362,14 @@
         color: var(--white);
       }
       @media (max-width: 560px) {
+        .frame {
+          border-radius: 10px;
+        }
+        .play {
+          left: 10px;
+          bottom: 10px;
+          height: 32px;
+        }
         .btn {
           flex: 1 1 100%;
         }
@@ -250,12 +404,49 @@
         </nav>
       </header>
 
-      <span class="eyebrow">Paper trading terminal</span>
-      <h1>Markets are full of illusions.<span>Dispel them before you trade.</span></h1>
-      <p class="lede">
-        Live public prices from Binance, simulated orders and balances. No real funds, no exchange keys,
-        no custody. Windows, macOS and Linux.
-      </p>
+      <span class="eyebrow">Crypto paper trading</span>
+      <h1>Real markets. <span>No real money.</span></h1>
+
+      <figure class="preview is-muted" id="preview">
+        <div class="frame">
+          <video
+            src="media/dispel-preview.mp4"
+            poster="media/dispel-preview.jpg"
+            width="1920"
+            height="1080"
+            muted
+            autoplay
+            loop
+            playsinline
+            preload="metadata"
+            aria-label="15-second preview of Dispel"
+          ></video>
+          <button class="play" type="button">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8Z" fill="currentColor" /></svg>
+            <span>Play preview</span>
+          </button>
+        </div>
+        <figcaption>
+          <span class="cap eyebrow"><i aria-hidden="true"></i>15-second preview</span>
+          <span class="ctl" hidden>
+            <button type="button" data-sound>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.5 6.2h2.4L8.4 3.3v9.4L4.9 9.8H2.5Z" />
+                <path class="i-muted" d="m11 6.2 3.6 3.6m0-3.6L11 9.8" />
+                <path class="i-sound" d="M10.8 6a2.8 2.8 0 0 1 0 4M12.6 4.2a5.4 5.4 0 0 1 0 7.6" />
+              </svg>
+              <span>Sound on</span>
+            </button>
+            <button type="button" data-toggle>
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path class="i-pause" d="M4.2 3h2.6v10H4.2Zm5 0h2.6v10H9.2Z" />
+                <path class="i-play" d="M4.5 2.8v10.4L13 8Z" />
+              </svg>
+              <span>Pause</span>
+            </button>
+          </span>
+        </figcaption>
+      </figure>
 
       <div class="dl">
         <div class="row">
@@ -299,7 +490,7 @@
       <div class="notes">
         <span><b>Unsigned builds.</b> Windows shows SmartScreen — choose <i>More info</i> → <i>Run anyway</i>. macOS needs a right-click → <i>Open</i> the first time.</span>
         <span><b>Requirements.</b> Windows 10/11 x64 · macOS 11+ · a modern Linux desktop with WebKitGTK 4.1.</span>
-        <span><b>Data.</b> Public market data only; orders, balances and transfers are simulated and stored in your paper account.</span>
+        <span><b>Data.</b> Public market data only, no exchange keys. Orders, balances and transfers are simulated and stored in your paper account.</span>
       </div>
 
       <footer>
@@ -361,6 +552,63 @@
           var el = document.querySelector('[data-asset="' + detected + '"]')
           if (el) el.classList.add('is-detected')
         }
+      })()
+
+      ;(function () {
+        'use strict'
+        var figure = document.getElementById('preview')
+        var video = figure && figure.querySelector('video')
+        if (!video) return
+        var play = figure.querySelector('.play')
+        var sound = figure.querySelector('[data-sound]')
+        var toggle = figure.querySelector('[data-toggle]')
+        var restarted = false
+        var raf = 0
+
+        function orbit() {
+          if (video.duration) figure.style.setProperty('--t', String(video.currentTime / video.duration))
+          raf = video.paused ? 0 : requestAnimationFrame(orbit)
+        }
+
+        function sync() {
+          figure.classList.toggle('is-paused', video.paused)
+          figure.classList.toggle('is-muted', video.muted)
+          play.lastElementChild.textContent = video.ended ? 'Replay' : 'Play preview'
+          toggle.lastElementChild.textContent = video.paused ? 'Play' : 'Pause'
+          sound.lastElementChild.textContent = video.muted ? 'Sound on' : 'Mute'
+          if (!video.paused && !raf) raf = requestAnimationFrame(orbit)
+        }
+
+        function start() {
+          var result = video.play()
+          if (result) result.catch(sync)
+        }
+
+        function flip() {
+          if (video.paused) start()
+          else video.pause()
+        }
+
+        ;['play', 'pause', 'ended', 'volumechange'].forEach(function (name) {
+          video.addEventListener(name, sync)
+        })
+        video.addEventListener('click', flip)
+        play.addEventListener('click', flip)
+        toggle.addEventListener('click', flip)
+        sound.addEventListener('click', function () {
+          video.muted = !video.muted
+          // With sound it plays once from the top and rests on the end card, right above the downloads.
+          video.loop = video.muted
+          if (video.muted) return
+          if (!restarted) video.currentTime = 0
+          restarted = true
+          start()
+        })
+
+        figure.querySelector('.ctl').hidden = false
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) video.pause()
+        else start()
+        sync()
       })()
     </script>
   </body>
