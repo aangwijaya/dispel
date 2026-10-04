@@ -10,15 +10,21 @@ export const MARKETS: Market[] = [
   { symbol: 'DOGEUSDT', baseAsset: 'DOGE', quoteAsset: 'USDT', displayName: 'DOGE/USDT', pricePrecision: 5, quantityPrecision: 1, minNotional: '5' },
   { symbol: 'AVAXUSDT', baseAsset: 'AVAX', quoteAsset: 'USDT', displayName: 'AVAX/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
   { symbol: 'LINKUSDT', baseAsset: 'LINK', quoteAsset: 'USDT', displayName: 'LINK/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
-  { symbol: 'DOTUSDT', baseAsset: 'DOT', quoteAsset: 'USDT', displayName: 'DOT/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
   { symbol: 'LTCUSDT', baseAsset: 'LTC', quoteAsset: 'USDT', displayName: 'LTC/USDT', pricePrecision: 2, quantityPrecision: 3, minNotional: '5' },
   { symbol: 'UNIUSDT', baseAsset: 'UNI', quoteAsset: 'USDT', displayName: 'UNI/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
   { symbol: 'ATOMUSDT', baseAsset: 'ATOM', quoteAsset: 'USDT', displayName: 'ATOM/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
   { symbol: 'NEARUSDT', baseAsset: 'NEAR', quoteAsset: 'USDT', displayName: 'NEAR/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
   { symbol: 'APTUSDT', baseAsset: 'APT', quoteAsset: 'USDT', displayName: 'APT/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
   { symbol: 'ARBUSDT', baseAsset: 'ARB', quoteAsset: 'USDT', displayName: 'ARB/USDT', pricePrecision: 4, quantityPrecision: 1, minNotional: '5' },
-  { symbol: 'OPUSDT', baseAsset: 'OP', quoteAsset: 'USDT', displayName: 'OP/USDT', pricePrecision: 4, quantityPrecision: 1, minNotional: '5' },
   { symbol: 'SUIUSDT', baseAsset: 'SUI', quoteAsset: 'USDT', displayName: 'SUI/USDT', pricePrecision: 4, quantityPrecision: 1, minNotional: '5' },
+  { symbol: 'ENAUSDT', baseAsset: 'ENA', quoteAsset: 'USDT', displayName: 'ENA/USDT', pricePrecision: 4, quantityPrecision: 2, minNotional: '5' },
+  { symbol: 'INJUSDT', baseAsset: 'INJ', quoteAsset: 'USDT', displayName: 'INJ/USDT', pricePrecision: 3, quantityPrecision: 2, minNotional: '5' },
+  { symbol: 'VIRTUALUSDT', baseAsset: 'VIRTUAL', quoteAsset: 'USDT', displayName: 'VIRTUAL/USDT', pricePrecision: 4, quantityPrecision: 1, minNotional: '5' },
+  { symbol: 'ONDOUSDT', baseAsset: 'ONDO', quoteAsset: 'USDT', displayName: 'ONDO/USDT', pricePrecision: 4, quantityPrecision: 1, minNotional: '5' },
+  { symbol: 'ASTERUSDT', baseAsset: 'ASTER', quoteAsset: 'USDT', displayName: 'ASTER/USDT', pricePrecision: 4, quantityPrecision: 2, minNotional: '5' },
+  { symbol: 'PENGUUSDT', baseAsset: 'PENGU', quoteAsset: 'USDT', displayName: 'PENGU/USDT', pricePrecision: 6, quantityPrecision: 0, minNotional: '1' },
+  { symbol: 'SEIUSDT', baseAsset: 'SEI', quoteAsset: 'USDT', displayName: 'SEI/USDT', pricePrecision: 5, quantityPrecision: 1, minNotional: '5' },
+  { symbol: 'AEROUSDT', baseAsset: 'AERO', quoteAsset: 'USDT', displayName: 'AERO/USDT', pricePrecision: 4, quantityPrecision: 1, minNotional: '5' },
 ]
 
 export const DEFAULT_SYMBOL = 'BTCUSDT'
