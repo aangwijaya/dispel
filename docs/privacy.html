@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Dispel privacy policy: a paper-trading demo with no real funds." />
+    <title>Privacy · Dispel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500&display=swap"
+    />
+    <style>
+      :root {
+        --void: #040506;
+        --hair: rgba(255, 255, 255, 0.07);
+        --white: #ffffff;
+        --ash: #9c9c9d;
+        --smoke: #6a6b6c;
+        --coral: #ff6363;
+        --f-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        --f-mono: 'Geist Mono', 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--void);
+        color: var(--ash);
+        font: 14px/1.65 var(--f-ui);
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: var(--ash);
+      }
+      a:hover {
+        color: var(--white);
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 28px 20px 72px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 6px 0 44px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--white);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      .brand svg {
+        width: 16px;
+        height: 16px;
+      }
+      header nav a {
+        color: var(--smoke);
+        font-size: 13px;
+        text-decoration: none;
+        margin-left: 18px;
+      }
+      header nav a:hover {
+        color: var(--white);
+      }
+      .eyebrow {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--smoke);
+      }
+      h1 {
+        margin: 14px 0 0;
+        font-size: clamp(28px, 4.4vw, 40px);
+        font-weight: 400;
+        letter-spacing: 0.2px;
+        line-height: 1.14;
+        color: var(--white);
+      }
+      .lede {
+        margin: 14px 0 0;
+      }
+      h2 {
+        margin: 34px 0 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--white);
+      }
+      p {
+        margin: 10px 0 0;
+      }
+      ul {
+        margin: 10px 0 0;
+        padding-left: 20px;
+      }
+      li {
+        margin: 4px 0;
+      }
+      code {
+        font-family: var(--f-mono);
+        font-size: 12.5px;
+        color: var(--white);
+      }
+      footer {
+        margin-top: 52px;
+        padding-top: 18px;
+        border-top: 1px solid var(--hair);
+        font-size: 12px;
+        color: var(--smoke);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <a class="brand" href="index.html">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M42 17H19V83H48A33 33 0 0 0 75 31.1" fill="none" stroke="#ff6363" stroke-width="14" stroke-linejoin="round" />
+            <rect x="66.5" y="22.6" width="17" height="17" fill="#fff" />
+          </svg>
+          Dispel
+        </a>
+        <nav>
+          <a href="index.html">Download</a>
+          <a href="https://github.com/aangwijaya/dispel">GitHub</a>
+        </nav>
+      </header>
+
+      <span class="eyebrow">Privacy</span>
+      <h1>Dispel stores a paper account, nothing more.</h1>
+      <p class="lede">
+        Dispel is a paper-trading demo. Prices come from public market data and every order is
+        simulated, so there are no real funds, exchange accounts, wallets or keys anywhere in the
+        product.
+      </p>
+
+      <h2>What we store</h2>
+      <ul>
+        <li>Account: your email address. With Google sign-in, also the name and email on that Google account.</li>
+        <li>Paper account: simulated cash, positions, orders and the transaction ledger, stored in Supabase.</li>
+        <li>Session: a refresh token in the app's local storage so you stay signed in on that device.</li>
+        <li>Crypto addresses you type in the transfer form: public strings kept only in your own ledger.</li>
+      </ul>
+
+      <h2>What we never ask for or store</h2>
+      <ul>
+        <li>Real funds, bank details, exchange API keys, wallet private keys or seed phrases.</li>
+        <li>Any signing capability: transfers are simulated paper movements.</li>
+      </ul>
+
+      <h2>Third parties</h2>
+      <ul>
+        <li><b>Supabase</b> — authentication and database hosting for the paper account.</li>
+        <li><b>Google</b> — only if you choose Google sign-in.</li>
+        <li><b>Binance, Gate, Hyperliquid, Coin Metrics, DefiLlama, mempool.space</b> — public, read-only market and on-chain data. No account data is sent to them.</li>
+      </ul>
+
+      <h2>Retention and deletion</h2>
+      <ul>
+        <li>Market reads are public data, not tied to your account, and are kept for 14 days server-side.</li>
+        <li>Your paper account stays until you ask for deletion. Open an issue on GitHub or email the address below and it will be removed.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>
+        Open an issue at
+        <a href="https://github.com/aangwijaya/dispel/issues">github.com/aangwijaya/dispel/issues</a>
+        or email <code>angrha@gmail.com</code>.
+      </p>
+
+      <footer>Last updated 4 October 2026 · Dispel is a practice tool, not investment advice.</footer>
+    </div>
+  </body>
+</html>
