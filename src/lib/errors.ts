@@ -20,6 +20,8 @@ const DB_ERRORS: Array<[string, string]> = [
   ['invalid_price', 'Invalid price.'],
   ['invalid_quantity', 'Invalid quantity.'],
   ['invalid_reference_price', 'Market price unavailable. Try again.'],
+  ['price_unavailable', 'Market price unavailable. Try again.'],
+  ['invalid_request', 'Invalid order request.'],
   ['notional_too_small', 'Order value is too small.'],
   ['invalid_transaction_kind', 'Invalid transaction type.'],
   ['invalid_amount', 'Enter an amount between 1 and 1,000,000 USDT.'],

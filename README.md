@@ -50,6 +50,7 @@ cp .env.example .env          # fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON
 
 supabase link --project-ref <project-ref>
 supabase db push              # applies supabase/migrations
+supabase functions deploy paper-order   # places and fills orders at a server-read price
 
 npm run tauri dev
 ```
@@ -244,8 +245,12 @@ columns via security-definer RPCs (`place_order`, `fill_order`, `cancel_order`,
 directly — RLS blocks it. The frontend only sends exact, validated payloads and uses decimal.js for
 estimates and display.
 
-Paper fills and crypto deposits use the client-observed market price; server-side checks enforce
-ownership, order state, limit-price invariants, address formats and non-negative balances. Crypto
+Order fill prices never come from the client. The app sends placements and limit-fill requests to
+the `paper-order` Edge Function, which verifies the user's JWT, reads the live price from Binance
+itself and calls `place_order` / `fill_order`; those two RPCs are executable by the service role
+only. Crypto deposits still use the client-observed market price as the position's entry price.
+Server-side checks enforce ownership, order state, limit-price invariants, address formats and
+non-negative balances. Crypto
 deposits/withdrawals are simulated only: addresses are public strings validated per network and
 never used for signing. Real on-chain movement and exchange execution are out of scope and would
 require a separate custody/signing service.

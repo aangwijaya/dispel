@@ -120,28 +120,35 @@ export interface PlaceOrderPayload {
   type: OrderType
   price: string | null
   quantity: string
-  referencePrice: string
 }
 
-export async function placeOrder(payload: PlaceOrderPayload): Promise<Order> {
-  const data = await callRpc('place_order', {
-    p_symbol: payload.symbol,
-    p_side: payload.side,
-    p_type: payload.type,
-    p_price: payload.price,
-    p_quantity: payload.quantity,
-    p_reference_price: payload.referencePrice,
+/** Place and fill run in the paper-order edge function, which reads the fill price itself. */
+async function callPaperOrder(body: Record<string, unknown>): Promise<Order> {
+  const { data, error } = await supabase.functions.invoke('paper-order', { body })
+  if (error) {
+    const context: unknown = 'context' in error ? error.context : null
+    const payload: unknown = context instanceof Response ? await context.json().catch(() => null) : null
+    const code = asRecord(payload)?.error
+    throw new Error(friendlyDbError(typeof code === 'string' ? code : error.message))
+  }
+  const order = toOrder(data)
+  if (!order) throw new Error('Unexpected response from the trading engine.')
+  return order
+}
+
+export function placeOrder(payload: PlaceOrderPayload): Promise<Order> {
+  return callPaperOrder({
+    action: 'place',
+    symbol: payload.symbol,
+    side: payload.side,
+    type: payload.type,
+    price: payload.price,
+    quantity: payload.quantity,
   })
-  const order = toOrder(data)
-  if (!order) throw new Error('Unexpected response from the trading engine.')
-  return order
 }
 
-export async function fillOrder(orderId: string, fillPrice: string): Promise<Order> {
-  const data = await callRpc('fill_order', { p_order_id: orderId, p_fill_price: fillPrice })
-  const order = toOrder(data)
-  if (!order) throw new Error('Unexpected response from the trading engine.')
-  return order
+export function fillOrder(orderId: string): Promise<Order> {
+  return callPaperOrder({ action: 'fill', orderId })
 }
 
 export async function cancelOrder(orderId: string): Promise<Order> {
