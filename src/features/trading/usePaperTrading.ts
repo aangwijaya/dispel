@@ -72,7 +72,7 @@ export function usePaperTrading(enabled: boolean): PaperTrading {
       if ((retryAfterRef.current.get(order.id) ?? 0) > now) continue
 
       inFlightRef.current.add(order.id)
-      fillOrder(order.id, ticker.lastPrice)
+      fillOrder(order.id)
         .then(() => refresh())
         .catch(() => {
           retryAfterRef.current.set(order.id, Date.now() + FILL_RETRY_COOLDOWN_MS)
