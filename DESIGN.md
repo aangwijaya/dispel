@@ -639,7 +639,7 @@ Calm, specific, risk-aware. Confident when the evidence is strong, and comfortab
 | Do | Don't |
 |---|---|
 | Wait. Direction is mixed and volatility is elevated. | Market looks scary! Stay safe 🙏 |
-| Worth investigating · 68% odds · high confidence | SOL about to pump 🚀 89% win rate |
+| Worth investigating · 68% odds · clear pattern | SOL about to pump 🚀 89% win rate |
 | Nothing meets the bar in this market. | Nothing to trade — check back later! |
 | Invalid if a 1h candle closes back below the breakout. | Stop loss recommended: 206.50 |
 | No clear read. Too little is happening to lean either way. | JEV is thinking… 🤖 |

@@ -117,6 +117,9 @@ svg.layer { overflow: visible; }
 .s-odds b small { font-size: 13px; color: var(--smoke); }
 .s-odds i { display: block; margin: 7px 0 0 auto; width: 120px; height: 4px; border-radius: 2px; background: var(--badge); position: relative; overflow: hidden; }
 .s-odds i u { position: absolute; left: 0; top: 0; bottom: 0; background: var(--up); border-radius: 2px; }
+/* as in the app: odds 61–68% are only moderately sure, so the bar runs at 60%; the tick marks the 50% coin-flip line */
+.s-odds i u.medium { opacity: .6; }
+.s-odds i::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--mist); opacity: .7; }
 .s-meta { font-family: var(--mono); font-size: 12px; color: var(--smoke); margin-top: 7px; white-space: nowrap; }
 .s-open { flex: none; height: 40px; padding: 0 14px; border-radius: 9px; background: var(--slate); box-shadow: var(--key-soft); color: var(--mist); font-size: 15px; font-weight: 500; display: inline-flex; align-items: center; gap: 10px; }
 .kbd { min-width: 20px; height: 20px; padding: 0 4px; border-radius: 5px; background: var(--badge); box-shadow: var(--key-soft); display: inline-grid; place-items: center; font-family: var(--mono); font-size: 11px; color: var(--ash); box-sizing: border-box; }
@@ -833,9 +836,9 @@ function buildWorld() {
       <div class="panel w-setups" id="setups">
         <div class="p-bg"></div>
         <div class="s-head"><b>Setups</b><span>4</span><p>Worth investigating, not instructions to buy.</p></div>
-        <div class="s-row on" id="rowSol" style="top:66px"><span class="mg">SOL</span><div class="s-name"><b>SOL/USDT</b><em>Bullish</em><p>Pullback is holding above the 208 breakout. Buyers defended it twice in the last hour.</p></div><div class="s-odds"><b>68<small>%</small></b><i><u style="width:68%"></u></i><div class="s-meta">High confidence · Medium risk</div></div><span class="s-open" id="openBtn">Open chart <span class="kbd">↵</span></span></div>
-        <div class="s-row" id="rowLink" style="top:154px"><span class="mg">LNK</span><div class="s-name"><b>LINK/USDT</b><em>Bullish</em><em class="new">new</em><p>Broke out of a 9-day range on twice its usual volume. Already extended from the base.</p></div><div class="s-odds"><b>64<small>%</small></b><i><u style="width:64%"></u></i><div class="s-meta">Medium confidence · High risk</div></div></div>
-        <div class="s-row" id="rowEth" style="top:242px"><span class="mg">ETH</span><div class="s-name"><b>ETH/USDT</b><em>Bullish</em><p>Momentum is turning up after two days of basing just under 4,640.</p></div><div class="s-odds"><b>61<small>%</small></b><i><u style="width:61%"></u></i><div class="s-meta">High confidence · Medium risk</div></div></div>
+        <div class="s-row on" id="rowSol" style="top:66px"><span class="mg">SOL</span><div class="s-name"><b>SOL/USDT</b><em>Bullish</em><p>Pullback is holding above the 208 breakout. Buyers defended it twice in the last hour.</p></div><div class="s-odds"><b>68<small>%</small></b><i><u class="medium" style="width:68%"></u></i><div class="s-meta">Clear pattern · Medium risk</div></div><span class="s-open" id="openBtn">Open chart <span class="kbd">↵</span></span></div>
+        <div class="s-row" id="rowLink" style="top:154px"><span class="mg">LNK</span><div class="s-name"><b>LINK/USDT</b><em>Bullish</em><em class="new">new</em><p>Broke out of a 9-day range on twice its usual volume. Already extended from the base.</p></div><div class="s-odds"><b>64<small>%</small></b><i><u class="medium" style="width:64%"></u></i><div class="s-meta">Fair pattern · High risk</div></div></div>
+        <div class="s-row" id="rowEth" style="top:242px"><span class="mg">ETH</span><div class="s-name"><b>ETH/USDT</b><em>Bullish</em><p>Momentum is turning up after two days of basing just under 4,640.</p></div><div class="s-odds"><b>61<small>%</small></b><i><u class="medium" style="width:61%"></u></i><div class="s-meta">Clear pattern · Medium risk</div></div></div>
       </div>
     </section>
     <section id="trade">
