@@ -4,6 +4,20 @@ All notable changes to Dispel are documented in this file. Keep the newest versi
 The app version lives in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`
 (plus the sign-in top bar in `src/features/auth/LoginForm.tsx`); tag releases as `vX.Y.Z`.
 
+## [0.1.6] — 2026-10-04
+
+### Site
+- The download page plays the 15-second motion reel right above the download buttons, at the
+  column width (`docs/media/dispel-preview.mp4`, a 1080p web encode of
+  `design/motion/dispel-reel.mp4`, ~4 MB, with the end card as its poster). It autoplays muted and
+  loops; **Sound on** restarts it from the top with the score and lets it play once, ending on the
+  end card above the downloads. Pause/Play sits under the video and on the video itself. The frame
+  carries the app's live border, which makes one lap per loop and stops when the video stops. With
+  reduced motion the reel waits on its poster until played.
+- Shorter intro that no longer repeats the reel: "Crypto paper trading" / **Real markets. No real
+  money.** The paragraph under it is gone (the platforms are on the buttons) and "no exchange keys"
+  moved into the Data note.
+
 ## [0.1.5] — 2026-10-04
 
 ### Trade chart
