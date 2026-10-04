@@ -4,6 +4,18 @@ All notable changes to Dispel are documented in this file. Keep the newest versi
 The app version lives in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`
 (plus the sign-in top bar in `src/features/auth/LoginForm.tsx`); tag releases as `vX.Y.Z`.
 
+## [0.1.3] — 2026-10-04
+
+### Paper trading
+- Fill prices are read on the server. Placing an order and filling a limit order now go through the
+  new `paper-order` Edge Function, which checks the user's JWT, fetches the live Binance price
+  itself and calls `place_order` / `fill_order`. Clients can no longer send their own fill or
+  reference price (previously a direct RPC call could fill a limit buy at any price below the
+  limit). No UI change.
+- Migration `20261004000001_server_priced_fills.sql` replaces both RPCs with `p_user_id` variants
+  executable by the service role only; `cancel_order` is unchanged. Deploy the function together
+  with the migration: older app builds can no longer place or fill orders once it is applied.
+
 ## [0.1.2] — 2026-10-04
 
 ### Market read (Jev)

@@ -155,7 +155,6 @@ export function OrderEntry({ market, paper }: OrderEntryProps) {
         type,
         price,
         quantity: quantityResult.value,
-        referencePrice,
       })
       setQuantityInput('')
       setPercent(null)
