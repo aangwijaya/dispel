@@ -1,6 +1,6 @@
 [package]
 name = "dispel"
-version = "0.1.6"
+version = "0.1.7"
 description = "Dispel desktop trading terminal"
 authors = []
 license = ""
@@ -19,3 +19,11 @@ tauri-build = { version = "2.6.3", features = [] }
 tauri = { version = "2.11.3", features = [] }
 tauri-plugin-oauth = "2"
 tauri-plugin-opener = "2"
+
+# Size-first release build (Tauri's recommended settings): ~14 MB -> ~4 MB binary.
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
