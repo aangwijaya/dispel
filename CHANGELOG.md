@@ -4,6 +4,18 @@ All notable changes to Dispel are documented in this file. Keep the newest versi
 The app version lives in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`
 (plus the sign-in top bar in `src/features/auth/LoginForm.tsx`); tag releases as `vX.Y.Z`.
 
+## [0.1.7] — 2026-10-05
+
+### Download size
+- Windows installers drop from ~207 MB to a few MB: `webviewInstallMode` is now
+  `embedBootstrapper` (Microsoft's ~2 MB bootstrapper installs WebView2 only where it is missing)
+  instead of `offlineInstaller`, which carried the full runtime in every `.exe` and `.msi`.
+- Size-first `[profile.release]` in `src-tauri/Cargo.toml` (LTO, one codegen unit, `opt-level = "s"`,
+  strip, `panic = "abort"`): the Linux binary measures 14.0 MB → 4.2 MB (3.7 MB → 1.7 MB
+  compressed). Release builds take longer in CI.
+- Only the Latin, Latin Extended and (Geist Mono) symbols font subsets are bundled
+  (`src/styles/fonts.css`); the Cyrillic, Greek and Vietnamese files are no longer shipped (~110 KB).
+
 ## [0.1.6] — 2026-10-04
 
 ### Site

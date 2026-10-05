@@ -87,15 +87,17 @@ Artifacts:
 
 | File | Use |
 | --- | --- |
-| `src-tauri/target/release/bundle/nsis/Dispel_<version>_x64-setup.exe` | Recommended — per-user install, carries the offline WebView2 installer |
+| `src-tauri/target/release/bundle/nsis/Dispel_<version>_x64-setup.exe` | Recommended — per-user install, installs WebView2 if it is missing |
 | `src-tauri/target/release/bundle/msi/Dispel_<version>_x64_en-US.msi` | MSI alternative |
 | `src-tauri/target/release/dispel.exe` | Portable — runs without installing, needs WebView2 already present |
 
 Give the target PC the `.exe` (or `.msi`). It needs Windows 10/11 x64 and internet at run time
 (Supabase auth/data and Binance prices; Binance falls back to `data-api.binance.vision` /
 `data-stream.binance.vision` when blocked). WebView2 is covered by
-`bundle.windows.webviewInstallMode: offlineInstaller` in `tauri.conf.json`, which adds ~127 MB to the
-installer; switch it to `downloadBootstrapper` for a ~5 MB installer when the target is online.
+`bundle.windows.webviewInstallMode: embedBootstrapper` in `tauri.conf.json`: the installer carries
+Microsoft's ~2 MB bootstrapper, which downloads the runtime only on PCs without it (Windows 11 and
+updated Windows 10 already have it). `offlineInstaller` works without internet but adds ~200 MB to
+every installer, and Dispel needs internet to run anyway.
 Unsigned builds trigger SmartScreen (“Windows protected your PC” → *More info* → *Run anyway*); a
 code-signing certificate via `bundle.windows.signCommand` removes it.
 
